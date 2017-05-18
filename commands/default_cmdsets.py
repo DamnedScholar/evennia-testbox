@@ -15,6 +15,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
+from commands.command import CmdSheet
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -51,6 +52,7 @@ class PlayerCmdSet(default_cmds.PlayerCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
+        self.add(CmdSheet())           # key: sheet
 
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
