@@ -6,7 +6,7 @@ Rooms are simple containers that has no location of their own.
 """
 
 from evennia import DefaultRoom
-
+from sr5.chargen import ChargenRoom
 
 class Room(DefaultRoom):
     """
