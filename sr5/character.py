@@ -35,6 +35,7 @@ class DefaultShadowrunner(DefaultCharacter):
         """
         Called only at initial creation. Set default values to fill out character sheet.
         """
+        self.permissions = ["unapproved"]
         self.db.sheet_locked = "False"
         self.db.approved = "No"
         self.db.fullname = "Empty"

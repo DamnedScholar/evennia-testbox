@@ -73,3 +73,38 @@ IDLE_TIMEOUT = -1
 # log out all active web browsing sessions. Game web client sessions
 # may survive.
 SECRET_KEY = 'Y*K]@~XvL?Q-CPZOHjnx(gFR=!#mJ;8l/W<Uu>9:'
+
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.admin',
+    'django.contrib.admindocs',
+    'django.contrib.flatpages',
+    'django.contrib.sites',
+    'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'django_nyt',
+    'evennia.utils.idmapper',
+    'evennia.server',
+    'evennia.typeclasses',
+    'evennia.players',
+    'evennia.objects',
+    'evennia.comms',
+    'evennia.help',
+    'evennia.scripts',
+    'evennia.web.website',
+    'evennia.web.webclient',
+    'mptt',
+    'sekizai',
+    'sorl.thumbnail',
+    'wiki',
+    'wiki.plugins.attachments',
+    'wiki.plugins.notifications',
+    'wiki.plugins.images',
+    'wiki.plugins.macros')
+
+INSTALLED_APPS += ('web.character',)
+
+TEMPLATE_CONTEXT_PROCESSORS = ['sekizai.context_processors.sekizai',
+                               'django.core.context_processors.debug']
