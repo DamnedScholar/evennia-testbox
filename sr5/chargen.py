@@ -12,7 +12,7 @@ from evennia import DefaultRoom
 from evennia import DefaultScript
 from evennia.utils import evtable
 
-class ChargenScriptParent(DefaultScript):
+class ChargenScript(DefaultScript):
     """
     This script is placed on a character object when it is created. It holds variables relevant to the chargen process that need to be cleaned up after and it inherits the data that is important for the chargen process.
     """
@@ -22,7 +22,7 @@ class ChargenScriptParent(DefaultScript):
                 "c": {"human": 5, "elf": 3, "dwarf": 1, "ork": 0},
                 "d": {"human": 3, "elf": 0},
                 "e": {"human": 1}}
-    attributes = {"a": 24, "b": 20, "c": 16, "d": 14, "e": 12}
+    attr = {"a": 24, "b": 20, "c": 16, "d": 14, "e": 12}
     magic = {
         "a": {"magician": {"magic": 6, "skills": (2, 5), "spells": 10},
               "mystic adept": {"magic": 6, "skills": (2, 5), "spells": 10}},
@@ -55,20 +55,21 @@ class ChargenScriptParent(DefaultScript):
         #self.tier = "experienced"
         #self.priorities = {"a": "", "b": "", "c": "",
         #                      "d": "", "e": ""}
-        pass
-
-class ChargenScript(ChargenScriptParent):
-    """
-    This script is placed on a character object when it is created. It holds variables relevant to the chargen process that need to be cleaned up after and it inherits the data that is important for the chargen process.
-    """
-
-    def at_script_creation(self):
-        #self.tier = "experienced"
-        #self.priorities = {"a": "", "b": "", "c": "",
-        #                      "d": "", "e": ""}
-        self.key = "chargen_%s" % self.obj.name
+        self.key = "chargen"
+        #self.key = "chargen_%s" % self.obj.name
         self.desc = "Handles Character Creation"
         pass
+
+    def at_start(self):
+        self._init_character(self.obj.name)
+
+    def _init_character(self, character):
+        """
+        This initializes the back-reference
+        and chargen cmdset on a character
+        """
+        self.obj.chargen = self.obj.scripts.get("chargen")[0]
+        #character.cmdset.add("sr5.chargen.ChargenCmdSet")
 
 class ChargenRoom(DefaultRoom):
     """
