@@ -17,39 +17,39 @@ class ChargenScriptParent(DefaultScript):
     This script is placed on a character object when it is created. It holds variables relevant to the chargen process that need to be cleaned up after and it inherits the data that is important for the chargen process.
     """
     test = "It works."
-    # metatype = {"a": {"human": 9, "elf": 8, "dwarf": 7, "ork": 7, "troll": 5},
-    #             "b": {"human": 7, "elf": 6, "dwarf": 4, "ork": 4, "troll": 0},
-    #             "c": {"human": 5, "elf": 3, "dwarf": 1, "ork": 0},
-    #             "d": {"human": 3, "elf": 0},
-    #             "e": {"human": 1}}
-    # attributes = {"a": 24, "b": 20, "c": 16, "d": 14, "e": 12}
-    # magic = {
-    #     "a": {"magician": {"magic": 6, "skills": (2, 5), "spells": 10},
-    #           "mystic adept": {"magic": 6, "skills": (2, 5), "spells": 10}},
-    #     "b": {"magician": {"magic": 4, "skills": (2, 4), "spells": 7},
-    #           "mystic adept": {"magic": 4, "skills": (2, 4), "spells": 7},
-    #           "aspected magician": {"magic": 5, "group": (1, 4)},
-    #           "adept": {"magic": 6, "skills": (1, 4)}},
-    #     "c": {"magician": {"magic": 3, "skills": (2, 5), "spells": 5},
-    #           "mystic adept": {"magic": 3, "skills": (2, 5), "spells": 5},
-    #           "aspected magician": {"magic": 3, "group": (1, 2)},
-    #           "adept": {"magic": 4, "skills": (1, 2)}},
-    #     "d": {"aspected magician": {"magic": 3, "group": (1, 2)},
-    #           "adept": {"magic": 4, "skills": (1, 2)}}
-    # }
-    # resonance = {"a": {"resonance": 6, "skills": (2, 5), "forms": 5},
-    #              "b": {"resonance": 4, "skills": (2, 4), "forms": 2},
-    #              "c": {"resonance": 3, "skills": (0, 0), "forms": 1}}
-    # skills = {"a": {"points": 46, "group": 10},
-    #           "b": {"points": 36, "group": 5},
-    #           "c": {"points": 28, "group": 2},
-    #           "d": {"points": 22, "group": 0},
-    #           "e": {"points": 18, "group": 0}}
-    # resources = {"a": {"street": 75000, "experienced": 450000, "prime": 500000},
-    #              "b": {"street": 50000, "experienced": 275000, "prime": 325000},
-    #              "c": {"street": 25000, "experienced": 140000, "prime": 210000},
-    #              "d": {"street": 15000, "experienced": 50000, "prime": 150000},
-    #              "e": {"street": 6000, "experienced": 6000, "prime": 100000}}
+    metatype = {"a": {"human": 9, "elf": 8, "dwarf": 7, "ork": 7, "troll": 5},
+                "b": {"human": 7, "elf": 6, "dwarf": 4, "ork": 4, "troll": 0},
+                "c": {"human": 5, "elf": 3, "dwarf": 1, "ork": 0},
+                "d": {"human": 3, "elf": 0},
+                "e": {"human": 1}}
+    attributes = {"a": 24, "b": 20, "c": 16, "d": 14, "e": 12}
+    magic = {
+        "a": {"magician": {"magic": 6, "skills": (2, 5), "spells": 10},
+              "mystic adept": {"magic": 6, "skills": (2, 5), "spells": 10}},
+        "b": {"magician": {"magic": 4, "skills": (2, 4), "spells": 7},
+              "mystic adept": {"magic": 4, "skills": (2, 4), "spells": 7},
+              "aspected magician": {"magic": 5, "group": (1, 4)},
+              "adept": {"magic": 6, "skills": (1, 4)}},
+        "c": {"magician": {"magic": 3, "skills": (2, 5), "spells": 5},
+              "mystic adept": {"magic": 3, "skills": (2, 5), "spells": 5},
+              "aspected magician": {"magic": 3, "group": (1, 2)},
+              "adept": {"magic": 4, "skills": (1, 2)}},
+        "d": {"aspected magician": {"magic": 3, "group": (1, 2)},
+              "adept": {"magic": 4, "skills": (1, 2)}}
+    }
+    resonance = {"a": {"resonance": 6, "skills": (2, 5), "forms": 5},
+                 "b": {"resonance": 4, "skills": (2, 4), "forms": 2},
+                 "c": {"resonance": 3, "skills": (0, 0), "forms": 1}}
+    skills = {"a": {"points": 46, "group": 10},
+              "b": {"points": 36, "group": 5},
+              "c": {"points": 28, "group": 2},
+              "d": {"points": 22, "group": 0},
+              "e": {"points": 18, "group": 0}}
+    resources = {"a": {"street": 75000, "experienced": 450000, "prime": 500000},
+                 "b": {"street": 50000, "experienced": 275000, "prime": 325000},
+                 "c": {"street": 25000, "experienced": 140000, "prime": 210000},
+                 "d": {"street": 15000, "experienced": 50000, "prime": 150000},
+                 "e": {"street": 6000, "experienced": 6000, "prime": 100000}}
 
     def at_script_creation(self):
         #self.tier = "experienced"
@@ -66,6 +66,8 @@ class ChargenScript(ChargenScriptParent):
         #self.tier = "experienced"
         #self.priorities = {"a": "", "b": "", "c": "",
         #                      "d": "", "e": ""}
+        self.key = "chargen_%s" % self.obj.name
+        self.desc = "Handles Character Creation"
         pass
 
 class ChargenRoom(DefaultRoom):
