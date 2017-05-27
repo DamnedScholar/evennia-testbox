@@ -140,11 +140,7 @@ class CmdSheet(default_cmds.MuxCommand):
                                          border = "header")
                 # TODO: Add active skill groups.
                 active_skills = ""
-                skill_list = target.db.active_skills.items() + target.db.active_skill_groups.items()
-                def getkey(tuple):
-                    return tuple[0]
-
-                skill_list.sort(key=getkey)
+                skill_list = sorted(target.db.active_skills.items() + target.db.active_skill_groups.items())
                 for i in range(0, len(target.db.active_skills)):
                     skill = skill_list[i]
                     skill_string = string.capwords(skill[0])
@@ -158,8 +154,7 @@ class CmdSheet(default_cmds.MuxCommand):
                 skills.add_row("Active", active_skills)
 
                 knowledge_skills = ""
-                skill_list = target.db.knowledge_skills.items()
-                skill_list.sort(key=getkey)
+                skill_list = sorted(target.db.knowledge_skills.items())
 
                 for i in range(0, len(target.db.knowledge_skills)):
                     skill = skill_list[i]
@@ -174,8 +169,7 @@ class CmdSheet(default_cmds.MuxCommand):
                 skills.add_row("Knowledge", knowledge_skills)
 
                 language_skills = ""
-                skill_list = target.db.language_skills.items()
-                skill_list.sort(key=getkey)
+                skill_list = sorted(target.db.language_skills.items())
 
                 for i in range(0, len(target.db.language_skills)):
                     skill = skill_list[i]

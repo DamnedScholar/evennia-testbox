@@ -7,8 +7,10 @@ is setup to be the "default" character type created by the default
 creation commands.
 
 """
-from evennia import DefaultCharacter
+
 import math
+from evennia import DefaultCharacter
+from chargen import ChargenScript
 
 class DefaultShadowrunner(DefaultCharacter):
     """
@@ -36,6 +38,8 @@ class DefaultShadowrunner(DefaultCharacter):
         Called only at initial creation. Set default values to fill out character sheet.
         """
         self.permissions = ["unapproved"]
+        self.scripts.add("ChargenScript")
+        
         self.db.sheet_locked = "False"
         self.db.approved = "No"
         self.db.fullname = "Empty"

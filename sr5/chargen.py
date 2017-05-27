@@ -5,11 +5,68 @@ Rooms are simple containers that has no location of their own.
 
 """
 
-from evennia import DefaultRoom
-from evennia import default_cmds
-from evennia.utils import evtable
 import math
 import string
+from evennia import default_cmds
+from evennia import DefaultRoom
+from evennia import DefaultScript
+from evennia.utils import evtable
+
+class ChargenScriptParent(DefaultScript):
+    """
+    This script is placed on a character object when it is created. It holds variables relevant to the chargen process that need to be cleaned up after and it inherits the data that is important for the chargen process.
+    """
+    test = "It works."
+    # metatype = {"a": {"human": 9, "elf": 8, "dwarf": 7, "ork": 7, "troll": 5},
+    #             "b": {"human": 7, "elf": 6, "dwarf": 4, "ork": 4, "troll": 0},
+    #             "c": {"human": 5, "elf": 3, "dwarf": 1, "ork": 0},
+    #             "d": {"human": 3, "elf": 0},
+    #             "e": {"human": 1}}
+    # attributes = {"a": 24, "b": 20, "c": 16, "d": 14, "e": 12}
+    # magic = {
+    #     "a": {"magician": {"magic": 6, "skills": (2, 5), "spells": 10},
+    #           "mystic adept": {"magic": 6, "skills": (2, 5), "spells": 10}},
+    #     "b": {"magician": {"magic": 4, "skills": (2, 4), "spells": 7},
+    #           "mystic adept": {"magic": 4, "skills": (2, 4), "spells": 7},
+    #           "aspected magician": {"magic": 5, "group": (1, 4)},
+    #           "adept": {"magic": 6, "skills": (1, 4)}},
+    #     "c": {"magician": {"magic": 3, "skills": (2, 5), "spells": 5},
+    #           "mystic adept": {"magic": 3, "skills": (2, 5), "spells": 5},
+    #           "aspected magician": {"magic": 3, "group": (1, 2)},
+    #           "adept": {"magic": 4, "skills": (1, 2)}},
+    #     "d": {"aspected magician": {"magic": 3, "group": (1, 2)},
+    #           "adept": {"magic": 4, "skills": (1, 2)}}
+    # }
+    # resonance = {"a": {"resonance": 6, "skills": (2, 5), "forms": 5},
+    #              "b": {"resonance": 4, "skills": (2, 4), "forms": 2},
+    #              "c": {"resonance": 3, "skills": (0, 0), "forms": 1}}
+    # skills = {"a": {"points": 46, "group": 10},
+    #           "b": {"points": 36, "group": 5},
+    #           "c": {"points": 28, "group": 2},
+    #           "d": {"points": 22, "group": 0},
+    #           "e": {"points": 18, "group": 0}}
+    # resources = {"a": {"street": 75000, "experienced": 450000, "prime": 500000},
+    #              "b": {"street": 50000, "experienced": 275000, "prime": 325000},
+    #              "c": {"street": 25000, "experienced": 140000, "prime": 210000},
+    #              "d": {"street": 15000, "experienced": 50000, "prime": 150000},
+    #              "e": {"street": 6000, "experienced": 6000, "prime": 100000}}
+
+    def at_script_creation(self):
+        #self.tier = "experienced"
+        #self.priorities = {"a": "", "b": "", "c": "",
+        #                      "d": "", "e": ""}
+        pass
+
+class ChargenScript(ChargenScriptParent):
+    """
+    This script is placed on a character object when it is created. It holds variables relevant to the chargen process that need to be cleaned up after and it inherits the data that is important for the chargen process.
+    """
+
+    def at_script_creation(self):
+        #self.tier = "experienced"
+        #self.priorities = {"a": "", "b": "", "c": "",
+        #                      "d": "", "e": ""}
+        pass
 
 class ChargenRoom(DefaultRoom):
     """
@@ -30,7 +87,8 @@ class ChargenRoom(DefaultRoom):
     # 8. Background?
     # 9. Leftover Karma and contacts.
 
-    room_types = ["priority", "metatype", "attributes", "mag_res", "qualities", "skills", "money", "background", "karma"]
+    # When in a chargen room, the here.cg_step attribute will be checked and the desc will change based on that. When the +chargen command is invoked, this list will serve as the list of viable arguments. I'm still not quite sure where to put this.
+    cg_steps = ["priority", "vitals", "metatype", "attributes", "magic", "resonance", "qualities", "skills", "money", "background", "karma"]
 
     def return_appearance(self, looker):
         """
@@ -42,13 +100,14 @@ class ChargenRoom(DefaultRoom):
 
 class CmdPriorities(default_cmds.MuxCommand):
     """
-    Sets your priorities in chargen. You must set each of priorities A through E to one of 'Metatype', 'Attributes', 'Magic/Resonance', 'Skills', and 'Resources'. The command will autocomplete, and both "Magic" and "Resonance" are valid names for the third column.
+    Sets your priorities in chargen. You must set each of priorities A through E to one of 'Metatype', 'Attributes', 'Magic', 'Resonance', 'Skills', and 'Resources'. The command will autocomplete, and both "Magic" and "Resonance" are valid names for the third column.
 
     Usage:
         priority a = metatype
         priority b = mag
-        priority b = reson
-        priority e = resources
+        priority b reson
+        priority e resources
+        priority a = unset
     """
 
     key = "priority"
@@ -58,3 +117,4 @@ class CmdPriorities(default_cmds.MuxCommand):
     def func(self):
         "Active function."
         caller = self.caller
+        #cgscript = caller.scripts
