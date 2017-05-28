@@ -11,6 +11,7 @@ creation commands.
 import math
 from evennia import DefaultCharacter
 from chargen import ChargenScript
+from sr5.data.skills import Skills
 
 class DefaultShadowrunner(DefaultCharacter):
     """
@@ -39,7 +40,7 @@ class DefaultShadowrunner(DefaultCharacter):
         """
         self.permissions = ["unapproved"]
         self.scripts.add("ChargenScript")
-        
+
         self.db.sheet_locked = "False"
         self.db.approved = "No"
         self.db.fullname = "Empty"

@@ -72,9 +72,12 @@ def main():
     skills_data = open("../data/skills.py", "w+")
 
     skills_data.write('class Skills():\n'\
-                      '"""\n'\
-                      'This class has been automatically generated based on a Google sheet.\n'\
-                      '"""\n')
+                      '\t"""\n'\
+                      '\tThis class has been automatically generated based on a Google sheet.\n'\
+                      '\t"""\n')
+    groups = {}
+    categories = {}
+    attr = {}
 
     if not values:
         print('No data found.')
@@ -86,6 +89,23 @@ def main():
                 '\t%s = {\n\t\t"attribute": "%s", "default": "%s",\n\t\t"group": "%s", "category": "%s",\n\t\t"description": "%s",\n\t\t"specs": "%s",\n\t\t"source": "%s"\n\t}\n'
                 % (row[0].lower(), row[1].lower(), row[2].lower(), row[3].lower(), row[4].lower(), row[5], row[6], row[7])
             )
+
+            # Populate groups dict.
+            if row[3].lower() != "none":
+                groups.setdefault(row[3].lower(), [])
+                groups[row[3].lower()] += [row[0].lower()]
+            # Populate categories dict.
+            if row[4].lower() != "none":
+                categories.setdefault(row[4].lower(), [])
+                categories[row[4].lower()] += [row[0].lower()]
+            # Populate attributes dict.
+            if row[1].lower() != "none":
+                attr.setdefault(row[1].lower(), [])
+                attr[row[1].lower()] += [row[0].lower()]
+
+    skills_data.write('\n\tgroups = ' + str(groups) + '\n')
+    skills_data.write('\n\tcategories = ' + str(categories) + '\n')
+    skills_data.write('\n\tattr = ' + str(attr) + '\n')
 
 
 if __name__ == '__main__':

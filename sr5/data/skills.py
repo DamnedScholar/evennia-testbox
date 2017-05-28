@@ -1,7 +1,7 @@
 class Skills():
-"""
-This class has been automatically generated based on a Google sheet.
-"""
+	"""
+	This class has been automatically generated based on a Google sheet.
+	"""
 	archery = {
 		"attribute": "agility", "default": "yes",
 		"group": "none", "category": "combat",
@@ -16,3 +16,9 @@ This class has been automatically generated based on a Google sheet.
 		"specs": "Assault Rifles, Cyber-Implant, Machine Pistols, Submachine Guns",
 		"source": "SR p. 130"
 	}
+
+	groups = {u'firearms': [u'automatics']}
+
+	categories = {u'combat': [u'archery', u'automatics']}
+
+	attr = {u'agility': [u'archery', u'automatics']}
