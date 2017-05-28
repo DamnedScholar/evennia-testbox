@@ -4,14 +4,7 @@ from django.http import Http404
 from django.shortcuts import render
 from django.conf import settings
 
-from django.template.defaulttags import register
-@register.filter
-# def get_item(dictionary, key):
-#     return dictionary.get(key)
-def lookup(dict, index):
-    if index in dict:
-        return dict[index]
-    return ''
+
 
 from evennia.utils.search import object_search
 from evennia.utils.utils import inherits_from

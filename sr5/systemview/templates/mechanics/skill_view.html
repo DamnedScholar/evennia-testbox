@@ -1,17 +1,44 @@
 {# https://docs.djangoproject.com/en/1.11/ref/templates/language/ #}
 {% extends "base.html" %}
+{% load lookup %}
 {% block content %}
 
     <h1>Skill List</h1>
 
-    {% for skill in skill_list %}
+    {% for skill,data in skill_list.items %}
       <h2>{{ skill|title }}</h2>
-      <p>{{ skill.description }}</p>
+      <table style="width: 350px">
+      <tr>
+        <th>Attribute:</th>
+        <td>{{ data.attribute|title }}</td>
+        <th>Default:</th>
+        <td>{{ data.default|title }}</td>
+      </tr>
+      <tr>
+        <th>Group:</th>
+        <td>{{ data.group|title }}</td>
+        <th>Category:</th>
+        <td>{{ data.category|title }}</td>
+      </tr>
+      <tr>
+        <th valign="top">Description:</th>
+        <td colspan="3">{{ data.description }}</td>
+      </tr>
+      <tr>
+        <th valign="top">Specializations:</th>
+        <td colspan="3">{{ data.specs }}</td>
+      </tr>
+      <tr>
+        <th valign="top">Source:</th>
+        <td colspan="3">{{ data.source }}</td>
+      </tr>
+      </table>
     {% empty %}
       <p>We're missing some skills.</p>
     {% endfor %}
 
     <h3>Raw</h3>
     <p>{{ skill_list }}</p>
+    <p>{{ skill_list.archery.description }}</p>
 
 {% endblock %}
