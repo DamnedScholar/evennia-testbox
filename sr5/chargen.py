@@ -52,11 +52,10 @@ class ChargenScript(DefaultScript):
                  "e": {"street": 6000, "experienced": 6000, "prime": 100000}}
 
     def at_script_creation(self):
-        #self.tier = "experienced"
-        #self.priorities = {"a": "", "b": "", "c": "",
-        #                      "d": "", "e": ""}
+        self.tier = "experienced"
+        self.priorities = {"a": "", "b": "", "c": "",
+                           "d": "", "e": ""}
         self.key = "chargen"
-        #self.key = "chargen_%s" % self.obj.name
         self.desc = "Handles Character Creation"
         pass
 
