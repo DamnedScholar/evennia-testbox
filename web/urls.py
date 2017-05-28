@@ -17,6 +17,8 @@ from django_nyt.urls import get_pattern as get_nyt_pattern
 custom_patterns = [
     url(r'^character/', include('web.character.urls',
                                 namespace='character', app_name='character')),
+    url(r'^system/', include('sr5.systemview.urls',
+                             namespace='character', app_name='system')),
     url(r'^notifications/', get_nyt_pattern()),
     url(r'^wiki/', get_wiki_pattern()),
 ]

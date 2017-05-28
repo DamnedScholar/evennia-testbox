@@ -52,9 +52,7 @@ def get_credentials():
 def main():
     """Shows basic usage of the Sheets API.
 
-    Creates a Sheets API service object and prints the names and majors of
-    students in a sample spreadsheet:
-    https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+    https://developers.google.com/sheets/api/quickstart/python
     """
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
@@ -69,6 +67,7 @@ def main():
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     values = result.get('values', [])
 
+    # Skills
     skills_data = open("../data/skills.py", "w+")
 
     skills_data.write('class Skills():\n'\
@@ -79,14 +78,15 @@ def main():
     categories = {}
     attr = {}
 
+    skills_data.write('\tskill_list = {\n')
     if not values:
-        print('No data found.')
+        print('Skills: No data found.')
     else:
-        print('Doing it!')
+        print('Skills: Doing it!')
         for row in values:
             # Print columns A and E, which correspond to indices 0 and 4.
             skills_data.write(
-                '\t%s = {\n\t\t"attribute": "%s", "default": "%s",\n\t\t"group": "%s", "category": "%s",\n\t\t"description": "%s",\n\t\t"specs": "%s",\n\t\t"source": "%s"\n\t}\n'
+                '\t\t"%s": {\n\t\t\t"attribute": "%s", "default": "%s",\n\t\t\t"group": "%s", "category": "%s",\n\t\t\t"description": "%s",\n\t\t\t"specs": "%s",\n\t\t\t"source": "%s"\n\t\t},\n'
                 % (row[0].lower(), row[1].lower(), row[2].lower(), row[3].lower(), row[4].lower(), row[5], row[6], row[7])
             )
 
@@ -102,10 +102,12 @@ def main():
             if row[1].lower() != "none":
                 attr.setdefault(row[1].lower(), [])
                 attr[row[1].lower()] += [row[0].lower()]
+    skills_data.write('}')
 
-    skills_data.write('\n\tgroups = ' + str(groups) + '\n')
-    skills_data.write('\n\tcategories = ' + str(categories) + '\n')
-    skills_data.write('\n\tattr = ' + str(attr) + '\n')
+    skills_data.write('\n')
+    skills_data.write('\tgroups = ' + str(groups) + '\n')
+    skills_data.write('\tcategories = ' + str(categories) + '\n')
+    skills_data.write('\tattr = ' + str(attr) + '\n')
 
 
 if __name__ == '__main__':

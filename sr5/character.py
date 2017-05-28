@@ -41,8 +41,7 @@ class DefaultShadowrunner(DefaultCharacter):
         self.permissions = ["unapproved"]
         self.scripts.add("ChargenScript")
 
-        self.db.sheet_locked = "False"
-        self.db.approved = "No"
+        self.db.approved = False
         self.db.fullname = "Empty"
         self.db.birthdate = "1/1/1970"
         self.db.metatype = "Human"

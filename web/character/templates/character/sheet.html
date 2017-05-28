@@ -1,3 +1,4 @@
+{# https://docs.djangoproject.com/en/1.11/ref/templates/language/ #}
 {% extends "base.html" %}
 {% block content %}
 
@@ -16,15 +17,15 @@
       <tbody>
         <tr>
           <td>Body</td>
-          <td>{{ character.db.attributes["body"] }}</td>
+          <td>{{ character.db.attributes.body }}</td>
         </tr>
         <tr>
           <td>Reaction</td>
-          <td>{{ character.db.attributes["reaction"] }}</td>
+          <td>{{ character.db.attributes.reaction }}</td>
         </tr>
         <tr>
           <td>Essence</td>
-          <td>{{ character.db.attributes["essence"] }}</td>
+          <td>{{ character.db.attributes.essence }}</td>
         </tr>
       </tbody>
     </table>
@@ -38,7 +39,7 @@
       {% endfor %}
     </ul>
 
-    {% if character.db.approved is not "No" %}
+    {% if character.db.approved %}
       <p class="success">This character has been approved!</p>
     {% else %}
       <p class="warning">This character has not yet been approved!</p>

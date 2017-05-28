@@ -104,7 +104,11 @@ INSTALLED_APPS = (
     'wiki.plugins.images',
     'wiki.plugins.macros')
 
-INSTALLED_APPS += ('web.character',)
+INSTALLED_APPS += ('web.character',
+                   'sr5.systemview')
+
+# Probably need to remove this.
+DEBUG = True
 
 TEMPLATE_CONTEXT_PROCESSORS = ['sekizai.context_processors.sekizai',
                                'django.core.context_processors.debug']

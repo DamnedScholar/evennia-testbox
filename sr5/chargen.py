@@ -17,7 +17,7 @@ class ChargenScript(DefaultScript):
     """
     This script is placed on a character object when it is created. It holds variables relevant to the chargen process that need to be cleaned up after and it inherits the data that is important for the chargen process.
     """
-    data_skills = Skills
+    data_skills = Skills.skill_list
     metatype = {"a": {"human": 9, "elf": 8, "dwarf": 7, "ork": 7, "troll": 5},
                 "b": {"human": 7, "elf": 6, "dwarf": 4, "ork": 4, "troll": 0},
                 "c": {"human": 5, "elf": 3, "dwarf": 1, "ork": 0},

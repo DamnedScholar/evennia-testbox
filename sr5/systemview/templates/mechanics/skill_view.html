@@ -1,0 +1,17 @@
+{# https://docs.djangoproject.com/en/1.11/ref/templates/language/ #}
+{% extends "base.html" %}
+{% block content %}
+
+    <h1>Skill List</h1>
+
+    {% for skill in skill_list %}
+      <h2>{{ skill|title }}</h2>
+      <p>{{ skill.description }}</p>
+    {% empty %}
+      <p>We're missing some skills.</p>
+    {% endfor %}
+
+    <h3>Raw</h3>
+    <p>{{ skill_list }}</p>
+
+{% endblock %}
