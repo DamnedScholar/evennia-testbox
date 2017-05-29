@@ -81,6 +81,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.flatpages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
     'evennia.utils.idmapper',
     'evennia.server',
@@ -93,8 +94,7 @@ INSTALLED_APPS = (
     'evennia.web.website',
     'evennia.web.webclient')
 
-# INSTALLED_APPS += ('django.contrib.sites',
-#                    'django.contrib.humanize',
+# INSTALLED_APPS += ('django.contrib.humanize',
 #                    'django_nyt',
 #                    'mptt',
 #                    'sekizai',
