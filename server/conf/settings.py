@@ -74,36 +74,16 @@ IDLE_TIMEOUT = -1
 # may survive.
 SECRET_KEY = 'Y*K]@~XvL?Q-CPZOHjnx(gFR=!#mJ;8l/W<Uu>9:'
 
-INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.admin',
-    'django.contrib.admindocs',
-    'django.contrib.flatpages',
-    'django.contrib.sites',
-    'django.contrib.staticfiles',
-    'evennia.utils.idmapper',
-    'evennia.server',
-    'evennia.typeclasses',
-    'evennia.players',
-    'evennia.objects',
-    'evennia.comms',
-    'evennia.help',
-    'evennia.scripts',
-    'evennia.web.website',
-    'evennia.web.webclient')
-
-# INSTALLED_APPS += ('django.contrib.humanize',
-#                    'django_nyt',
-#                    'mptt',
-#                    'sekizai',
-#                    'sorl.thumbnail',
-#                    'wiki',
-#                    'wiki.plugins.attachments',
-#                    'wiki.plugins.notifications',
-#                    'wiki.plugins.images',
-#                    'wiki.plugins.macros')
+INSTALLED_APPS += ('django.contrib.humanize',
+                   'django_nyt',
+                   'mptt',
+                   'sekizai',
+                   'sorl.thumbnail',
+                   'wiki',
+                   'wiki.plugins.attachments',
+                   'wiki.plugins.notifications',
+                   'wiki.plugins.images',
+                   'wiki.plugins.macros')
 
 INSTALLED_APPS += ('web.character',
                    'sr5.systemview')
