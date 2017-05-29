@@ -39,7 +39,7 @@ class DefaultShadowrunner(DefaultCharacter):
         Called only at initial creation. Set default values to fill out character sheet.
         """
         self.permissions = ["unapproved"]
-        self.scripts.add("ChargenScript")
+        self.scripts.add("sr5.chargen.ChargenScript")
 
         self.db.approved = False
         self.db.fullname = "Empty"
