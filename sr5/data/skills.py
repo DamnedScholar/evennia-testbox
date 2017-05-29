@@ -2,7 +2,7 @@ class Skills():
 	"""
 	This class has been automatically generated based on a Google sheet.
 	"""
-	skill_list = {
+	active = {
 		"archery": {
 			"attribute": "agility", "default": "yes",
 			"group": "none", "category": "combat",
@@ -17,7 +17,7 @@ class Skills():
 			"specs": "Assault Rifles, Cyber-Implant, Machine Pistols, Submachine Guns",
 			"source": "SR p. 130"
 		},
-}
+	}
 	groups = {u'firearms': [u'automatics']}
 	categories = {u'combat': [u'archery', u'automatics']}
 	attr = {u'agility': [u'archery', u'automatics']}

@@ -78,7 +78,7 @@ def main():
     categories = {}
     attr = {}
 
-    skills_data.write('\tlist = {\n')
+    skills_data.write('\tactive = {\n')
     if not values:
         print('Skills: No data found.')
     else:

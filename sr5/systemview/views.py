@@ -9,9 +9,4 @@ from evennia.utils.utils import inherits_from
 from sr5.data.skills import Skills
 
 def skill_view(request):
-    skill_list = Skills.list
-
-    # skill_view_obj = open("mechanics/skill_view.html", "r")
-    # skill_view_code = skill_view_obj.read()
-
-    return render(request, 'mechanics/skill_view.html', {'skill_list': Skills.list, 'skill_categories': Skills.categories, 'skill_groups': Skills.groups, 'skill_attr': Skills.attr})
+    return render(request, 'mechanics/skill_view.html', {'skill_list': Skills.active, 'skill_categories': Skills.categories, 'skill_groups': Skills.groups, 'skill_attr': Skills.attr})
