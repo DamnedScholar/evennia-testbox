@@ -84,7 +84,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'django_nyt',
     'evennia.utils.idmapper',
     'evennia.server',
     'evennia.typeclasses',
@@ -97,12 +96,14 @@ INSTALLED_APPS = (
     'evennia.web.webclient',
     'mptt',
     'sekizai',
-    'sorl.thumbnail',
-    'wiki',
-    'wiki.plugins.attachments',
-    'wiki.plugins.notifications',
-    'wiki.plugins.images',
-    'wiki.plugins.macros')
+    'sorl.thumbnail')
+
+# INSTALLED_APPS += ('django.nyt',
+#                    'wiki',
+#                    'wiki.plugins.attachments',
+#                    'wiki.plugins.notifications',
+#                    'wiki.plugins.images',
+#                    'wiki.plugins.macros')
 
 INSTALLED_APPS += ('web.character',
                    'sr5.systemview')
