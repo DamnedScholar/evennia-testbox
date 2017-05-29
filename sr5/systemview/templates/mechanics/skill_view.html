@@ -1,8 +1,8 @@
 {# https://docs.djangoproject.com/en/1.11/ref/templates/language/ #}
 {% extends "base.html" %}
-{% load lookup %}
 {% block content %}
 
+  <div style="width:50%;display:inline-block">
     <h1>Skill List</h1>
 
     {% for skill,data in skill_list.items %}
@@ -37,8 +37,56 @@
       <p>We're missing some skills.</p>
     {% endfor %}
 
-    <h3>Raw</h3>
-    <p>{{ skill_list }}</p>
-    <p>{{ skill_list.archery.description }}</p>
+  </div>
+
+  <div style="width:50%;display:inline-block">
+    <ul style="width:30%;display:inline-block">
+      <li><h3>Skill Categories</h3></li>
+      {% for category,skills in skill_categories.items %}
+      <li>
+        <b>{{ category|title }}</b>
+        <ul>
+          {% for skill in skills %}
+            <li>{{ skill|title }}</li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% empty %}
+        <li>No content.</li>
+      {% endfor %}
+    </ul>
+
+    <ul style="width:30%;display:inline-block">
+      <li><h3>Skill Groups</h3></li>
+      {% for group,skills in skill_groups.items %}
+      <li>
+        <b>{{ group|title }}</b>
+        <ul>
+          {% for skill in skills %}
+            <li>{{ skill|title }}</li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% empty %}
+        <li>No content.</li>
+      {% endfor %}
+    </ul>
+
+    <ul style="width:30%;display:inline-block">
+      <li><h3>Skill Attributes</h3></li>
+      {% for attr,skills in skill_attr.items %}
+      <li>
+        <b>{{ attr|title }}</b>
+        <ul>
+          {% for skill in skills %}
+            <li>{{ skill|title }}</li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% empty %}
+        <li>No content.</li>
+      {% endfor %}
+    </ul>
+  </div>
 
 {% endblock %}

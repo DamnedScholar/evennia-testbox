@@ -78,7 +78,7 @@ def main():
     categories = {}
     attr = {}
 
-    skills_data.write('\tskill_list = {\n')
+    skills_data.write('\tlist = {\n')
     if not values:
         print('Skills: No data found.')
     else:
@@ -102,7 +102,7 @@ def main():
             if row[1].lower() != "none":
                 attr.setdefault(row[1].lower(), [])
                 attr[row[1].lower()] += [row[0].lower()]
-    skills_data.write('}')
+    skills_data.write('\t}')
 
     skills_data.write('\n')
     skills_data.write('\tgroups = ' + str(groups) + '\n')

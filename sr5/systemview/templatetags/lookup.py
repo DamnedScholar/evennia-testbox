@@ -6,3 +6,5 @@ def lookup(dict, index1, index2):
     if index in dict:
         return dict[index][index]
     return ''
+
+# Use this to learn how to write custom filters.
