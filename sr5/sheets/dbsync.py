@@ -49,6 +49,13 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
+def fill_defaults(result, length):
+    for i in range(0, length):
+        if i + 1 > len(result):
+            result += [""]
+
+    return result
+
 def main():
     """Shows basic usage of the Sheets API.
 
@@ -78,13 +85,15 @@ def main():
     categories = {}
     attr = {}
 
+
+
     skills_data.write('\tactive = {\n')
     if not values:
         print('Skills: No data found.')
     else:
         print('Skills: Doing it!')
         for row in values:
-            # Print columns A and E, which correspond to indices 0 and 4.
+            row = fill_defaults(row, 8)
             skills_data.write(
                 '\t\t"%s": {\n\t\t\t"attribute": "%s", "default": "%s",\n\t\t\t"group": "%s", "category": "%s",\n\t\t\t"description": "%s",\n\t\t\t"specs": "%s",\n\t\t\t"source": "%s"\n\t\t},\n'
                 % (row[0].lower(), row[1].lower(), row[2].lower(), row[3].lower(), row[4].lower(), row[5], row[6], row[7])

@@ -17,7 +17,14 @@ class Skills():
 			"specs": "Assault Rifles, Cyber-Implant, Machine Pistols, Submachine Guns",
 			"source": "SR p. 130"
 		},
+		"blades": {
+			"attribute": "", "default": "yes",
+			"group": "close combat", "category": "combat",
+			"description": "",
+			"specs": "",
+			"source": ""
+		},
 	}
-	groups = {u'firearms': [u'automatics']}
-	categories = {u'combat': [u'archery', u'automatics']}
-	attr = {u'agility': [u'archery', u'automatics']}
+	groups = {u'close combat': [u'blades'], u'firearms': [u'automatics']}
+	categories = {u'combat': [u'archery', u'automatics', u'blades']}
+	attr = {u'': [u'blades'], u'agility': [u'archery', u'automatics']}
