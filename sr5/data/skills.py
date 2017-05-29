@@ -27,4 +27,4 @@ class Skills():
 	}
 	groups = {u'close combat': [u'blades'], u'firearms': [u'automatics']}
 	categories = {u'combat': [u'archery', u'automatics', u'blades']}
-	attr = {u'': [u'blades'], u'agility': [u'archery', u'automatics']}
+	attr = {u'agility': [u'archery', u'automatics']}

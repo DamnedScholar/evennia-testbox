@@ -100,15 +100,15 @@ def main():
             )
 
             # Populate groups dict.
-            if row[3].lower() != "none":
+            if row[3] and row[3].lower() != "none":
                 groups.setdefault(row[3].lower(), [])
                 groups[row[3].lower()] += [row[0].lower()]
             # Populate categories dict.
-            if row[4].lower() != "none":
+            if row[4] and row[4].lower() != "none":
                 categories.setdefault(row[4].lower(), [])
                 categories[row[4].lower()] += [row[0].lower()]
             # Populate attributes dict.
-            if row[1].lower() != "none":
+            if row[1] and row[1].lower() != "none":
                 attr.setdefault(row[1].lower(), [])
                 attr[row[1].lower()] += [row[0].lower()]
     skills_data.write('\t}')
