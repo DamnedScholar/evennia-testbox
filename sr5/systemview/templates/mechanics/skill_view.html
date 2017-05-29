@@ -1,8 +1,8 @@
 {# https://docs.djangoproject.com/en/1.11/ref/templates/language/ #}
 {% extends "base.html" %}
 {% block content %}
-
-  <div style="width:50%;display:inline-block">
+<section style="width:100%">
+  <div style="width:45%">
     <h1>Skill List</h1>
 
     {% for skill,data in skill_list.items %}
@@ -39,7 +39,7 @@
 
   </div>
 
-  <div style="width:50%;display:inline-block">
+  <div style="width:45%">
     <ul style="width:30%;display:inline-block">
       <li><h3>Skill Categories</h3></li>
       {% for category,skills in skill_categories.items %}
@@ -88,5 +88,5 @@
       {% endfor %}
     </ul>
   </div>
-
+</section>
 {% endblock %}
