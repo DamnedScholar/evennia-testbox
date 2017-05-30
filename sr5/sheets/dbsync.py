@@ -67,37 +67,27 @@ def main():
                     'version=v4')
     service = discovery.build('sheets', 'v4', http=http,
                               discoveryServiceUrl=discoveryUrl)
-
     spreadsheetId = '1IgOcna1hLMRZwl0Zy6lC_XArWmQIMEvZNDmbOwGBaw4'
-    rangeName = 'Skills!A2:Z'
-    result = service.spreadsheets().values().get(
-        spreadsheetId=spreadsheetId, range=rangeName).execute()
-    values = result.get('values', [])
 
     # Skills
-    skills_data = open("../data/skills.py", "w+")
-
-    skills_data.write('class Skills():\n'\
-                      '\t"""\n'\
-                      '\tThis class has been automatically generated based on a Google sheet.\n'\
-                      '\t"""\n')
     groups = {}
     categories = {}
     attr = {}
 
+    # Get active skills.
+    rangeName = 'Skills!A2:H'
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=rangeName).execute()
+    values = result.get('values', [])
+    active = ""
 
-
-    skills_data.write('\tactive = {\n')
     if not values:
-        print('Skills: No data found.')
+        print('Active Skills: No data found.')
     else:
-        print('Skills: Doing it!')
+        print('Active Skills: Doing it!')
         for row in values:
             row = fill_defaults(row, 8)
-            skills_data.write(
-                '\t\t"%s": {\n\t\t\t"attribute": "%s", "default": "%s",\n\t\t\t"group": "%s", "category": "%s",\n\t\t\t"description": "%s",\n\t\t\t"specs": "%s",\n\t\t\t"source": "%s"\n\t\t},\n'
-                % (row[0].lower(), row[1].lower(), row[2].lower(), row[3].lower(), row[4].lower(), row[5], row[6], row[7])
-            )
+            active += '\t\t"%s": {\n\t\t\t"attribute": "%s", "default": "%s",\n\t\t\t"group": "%s", "category": "%s",\n\t\t\t"description": "%s",\n\t\t\t"specs": "%s",\n\t\t\t"source": "%s"\n\t\t},\n' % (row[0].lower(), row[1].lower(), row[2].lower(), row[3].lower(), row[4].lower(), row[5], row[6], row[7])
 
             # Populate groups dict.
             if row[3] and row[3].lower() != "none":
@@ -111,13 +101,46 @@ def main():
             if row[1] and row[1].lower() != "none":
                 attr.setdefault(row[1].lower(), [])
                 attr[row[1].lower()] += [row[0].lower()]
+
+    # Get knowledge and language skills.
+    rangeName = 'Skills!J2:O'
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=rangeName).execute()
+    values = result.get('values', [])
+    knowledge = ""
+
+    if not values:
+        print('Knowledge/Language Skills: No data found.')
+    else:
+        print('Knowledge/Language Skills: Doing it!')
+        for row in values:
+            row = fill_defaults(row, 8)
+            knowledge += '\t\t"%s": {\n\t\t\t"attribute": "%s", "default": "%s",\n\t\t\t"description": "%s",\n\t\t\t"specs": "%s",\n\t\t\t"source": "%s"\n\t\t},\n' % (row[0].lower(), row[1].lower(), row[2].lower(), row[3], row[4], row[5])
+
+            # Populate attributes dict.
+            if row[1] and row[1].lower() != "none":
+                attr.setdefault(row[1].lower(), [])
+                attr[row[1].lower()] += [row[0].lower()]
+
+    # Generate the storage document.
+    skills_data = open("../data/skills.py", "w+")
+
+    skills_data.write('class Skills():\n'\
+                      '\t"""\n'\
+                      '\tThis class has been automatically generated based on a Google sheet.\n'\
+                      '\t"""\n')
+
+    skills_data.write('\tactive = {\n')
+    skills_data.write(active)
+    skills_data.write('\t}\n\n')
+    skills_data.write('\tknowledge = {\n')
+    skills_data.write(knowledge)
     skills_data.write('\t}')
 
     skills_data.write('\n')
     skills_data.write('\tgroups = ' + str(groups) + '\n')
     skills_data.write('\tcategories = ' + str(categories) + '\n')
     skills_data.write('\tattr = ' + str(attr) + '\n')
-
 
 if __name__ == '__main__':
     main()
