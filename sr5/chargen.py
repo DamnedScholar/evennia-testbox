@@ -30,13 +30,18 @@ class ChargenScript(DefaultScript):
         "b": {"magician": {"magic": 4, "skills": (2, 4), "spells": 7},
               "mystic adept": {"magic": 4, "skills": (2, 4), "spells": 7},
               "aspected magician": {"magic": 5, "group": (1, 4)},
+              "apprentice": {"magic": 5, "group": (1, 4)},
               "adept": {"magic": 6, "skills": (1, 4)}},
         "c": {"magician": {"magic": 3, "skills": (2, 5), "spells": 5},
               "mystic adept": {"magic": 3, "skills": (2, 5), "spells": 5},
               "aspected magician": {"magic": 3, "group": (1, 2)},
-              "adept": {"magic": 4, "skills": (1, 2)}},
+              "apprentice": {"magic": 3, "group": (1, 2)},
+              "adept": {"magic": 4, "skills": (1, 2)},
+              "enchanter": {"magic": 5, "group": (1, 4)}},
+              "explorer": {"magic": 5, "skills": (2, 6)},
         "d": {"aspected magician": {"magic": 3, "group": (1, 2)},
-              "adept": {"magic": 4, "skills": (1, 2)}}
+              "adept": {"magic": 4, "skills": (1, 2)},
+              "aware": {"magic": 3, "skills": (1, 4)}}
     }
     resonance = {"a": {"resonance": 6, "skills": (2, 5), "forms": 5},
                  "b": {"resonance": 4, "skills": (2, 4), "forms": 2},
