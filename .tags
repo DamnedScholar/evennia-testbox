@@ -1,0 +1,31 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ChargenRoom	D:\github\evennia\testbox\sr5\chargen.py	/^class ChargenRoom(DefaultRoom):$/;"	class
+ChargenScript	D:\github\evennia\testbox\sr5\chargen.py	/^class ChargenScript(DefaultScript):$/;"	class
+CmdPriorities	D:\github\evennia\testbox\sr5\chargen.py	/^class CmdPriorities(default_cmds.MuxCommand):$/;"	class
+DefaultRoom	D:\github\evennia\testbox\sr5\chargen.py	/^from evennia import DefaultRoom$/;"	namespace
+DefaultScript	D:\github\evennia\testbox\sr5\chargen.py	/^from evennia import DefaultScript$/;"	namespace
+Skills	D:\github\evennia\testbox\sr5\chargen.py	/^from sr5.data.skills import Skills$/;"	namespace
+at_script_creation	D:\github\evennia\testbox\sr5\chargen.py	/^    def at_script_creation(self):$/;"	member	class:ChargenScript
+at_start	D:\github\evennia\testbox\sr5\chargen.py	/^    def at_start(self):$/;"	member	class:ChargenScript
+attr	D:\github\evennia\testbox\sr5\chargen.py	/^    attr = {"a": 24, "b": 20, "c": 16, "d": 14, "e": 12}$/;"	variable	class:ChargenScript
+cg_steps	D:\github\evennia\testbox\sr5\chargen.py	/^    cg_steps = ["priority", "vitals", "metatype", "attributes", "magic",$/;"	variable	class:ChargenScript
+data_skills	D:\github\evennia\testbox\sr5\chargen.py	/^    data_skills = Skills$/;"	variable	class:ChargenScript
+default_cmds	D:\github\evennia\testbox\sr5\chargen.py	/^from evennia import default_cmds$/;"	namespace
+evtable	D:\github\evennia\testbox\sr5\chargen.py	/^from evennia.utils import evtable$/;"	namespace
+func	D:\github\evennia\testbox\sr5\chargen.py	/^    def func(self):$/;"	member	class:CmdPriorities
+help_category	D:\github\evennia\testbox\sr5\chargen.py	/^    help_category = "Chargen"$/;"	variable	class:CmdPriorities
+key	D:\github\evennia\testbox\sr5\chargen.py	/^    key = "priority"$/;"	variable	class:CmdPriorities
+lock	D:\github\evennia\testbox\sr5\chargen.py	/^    lock = "cmd:perm(unapproved)"$/;"	variable	class:CmdPriorities
+magic	D:\github\evennia\testbox\sr5\chargen.py	/^    magic = {$/;"	variable	class:ChargenScript
+math	D:\github\evennia\testbox\sr5\chargen.py	/^import math$/;"	namespace
+metatype	D:\github\evennia\testbox\sr5\chargen.py	/^    metatype = {"a": {"human": 9, "elf": 8, "dwarf": 7, "ork": 7, "troll": 5},$/;"	variable	class:ChargenScript
+resonance	D:\github\evennia\testbox\sr5\chargen.py	/^    resonance = {"a": {"resonance": 6, "skills": (2, 5), "forms": 5},$/;"	variable	class:ChargenScript
+resources	D:\github\evennia\testbox\sr5\chargen.py	/^    resources = {"a": {"street": 75000, "experienced": 450000, "prime": 500000},$/;"	variable	class:ChargenScript
+return_appearance	D:\github\evennia\testbox\sr5\chargen.py	/^    def return_appearance(self, looker):$/;"	member	class:ChargenRoom
+skills	D:\github\evennia\testbox\sr5\chargen.py	/^    skills = {"a": {"points": 46, "group": 10},$/;"	variable	class:ChargenScript
+string	D:\github\evennia\testbox\sr5\chargen.py	/^import string$/;"	namespace
