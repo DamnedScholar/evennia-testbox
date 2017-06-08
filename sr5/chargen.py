@@ -64,12 +64,29 @@ class ChargenScript(DefaultScript):
                  "e": {"street": 6000, "experienced": 6000, "prime": 100000}}
 
     def at_script_creation(self):
-        self.db.tier = "experienced"
-        self.db.priorities = {"a": "", "b": "", "c": "",
-                           "d": "", "e": ""}
+        # Evennia stuff
         self.key = "chargen"
         self.desc = "Handles Character Creation"
-        pass
+
+    def reset_all(self):
+        "Resets chargen."
+        # Preliminary chargen stuff
+        self.db.tier = "experienced"
+        self.db.priorities = {"a": "", "b": "", "c": "",
+                              "d": "", "e": ""}
+
+
+    def reset_all(self):
+        "Resets chargen."
+        # Metatype
+        self.db.metatype, self.db.metakarma = "", 0
+        self.db.specattr = {"edge": 1, "magic": 0, "resonance": 0}
+
+        # Attributes
+        self.db.attr = {'body': 0, 'agility': 0, 'reaction': 0, 'strength': 0,
+        'willpower': 0, 'logic': 0, 'intuition': 0, 'charisma': 0}
+        self.db.metaattr = {'body': 1, 'agility': 1, 'reaction': 1, 'strength': 1,
+        'willpower': 1, 'logic': 1, 'intuition': 1, 'charisma': 1}
 
     def at_start(self):
         """
