@@ -1,7 +1,7 @@
 """
 Room
 
-Rooms are simple containers that has no location of their own.
+Rooms are simple containers that have no location of their own.
 
 """
 
@@ -68,6 +68,8 @@ class ChargenScript(DefaultScript):
         self.key = "chargen"
         self.desc = "Handles Character Creation"
 
+        self.reset_all()
+
     def reset_all(self):
         "Resets chargen."
         # Preliminary chargen stuff
@@ -75,18 +77,55 @@ class ChargenScript(DefaultScript):
         self.db.priorities = {"a": "", "b": "", "c": "",
                               "d": "", "e": ""}
 
-
-    def reset_all(self):
-        "Resets chargen."
-        # Metatype
+        self.reset_metatype()
+        self.reset_attr()
+        self.reset_magres()
+        self.reset_skills()
+        self.reset_resources()
+        self.reset_qualities()
+        self.reset_vitals()
+        self.reset_background()
+    def reset_metatype(self):
+        "Resets metatype and related stats."
         self.db.metatype, self.db.metakarma = "", 0
-        self.db.specattr = {"edge": 1, "magic": 0, "resonance": 0}
-
-        # Attributes
+        self.db.spec_attr = {'edge': 0, 'magic': 0, 'resonance': 0}
+        self.db.meta_attr = {'body': (1, 6), 'agility': (1, 6),
+                             'reaction': (1, 6), 'strength': (1, 6),
+                             'willpower': (1, 6), 'logic': (1, 6),
+                             'intuition': (1, 6), 'charisma': (1, 6),
+                             'edge': (1, 6),
+                             'magic': (0, 6), 'resonance': (0, 6)}
+    def reset_attr(self):
+        "Resets normal attributes."
         self.db.attr = {'body': 0, 'agility': 0, 'reaction': 0, 'strength': 0,
-        'willpower': 0, 'logic': 0, 'intuition': 0, 'charisma': 0}
-        self.db.metaattr = {'body': 1, 'agility': 1, 'reaction': 1, 'strength': 1,
-        'willpower': 1, 'logic': 1, 'intuition': 1, 'charisma': 1}
+                        'willpower': 0, 'logic': 0, 'intuition': 0,
+                        'charisma': 0}
+    def reset_magres(self):
+        "Resets magic type, tradition, freebie skills, spells, powers, and complex forms."
+        self.db.magic_type, self.db.tradition = "", ""
+        self.db.magic_skills = {}
+        self.db.spells, self.db.powers, self.db.forms = [], {}, []
+        # TODO: Reset specifically qualities, skills, and gear that rely on this category, and inform the player about that fact.
+    def reset_skills(self):
+        "Resets skills and specializations."
+        self.db.skills = {}
+        self.db.skill_groups = {}
+        self.db.specs = {}
+    def reset_resources(self):
+        "Resets lifestyle and purchases."
+        self.db.lifestyle = ""self.db.gear
+        self.db.nuyen = -1
+        self.db.augments, self.db.gear = {}, {}
+    def reset_qualities(self):
+        "Resets qualities."
+        self.db.qualities = {}
+    def reset_vitals(self):
+        "Resets name, birthdate, etc."
+        self.db.fullname, self.db.birthdate = "", ""
+        self.db.ethnicity, self.db.height, self.db.weight = "", "", ""
+    def reset_background(self):
+        "Resets background."
+        self.db.background = {}
 
     def at_start(self):
         """
@@ -105,19 +144,39 @@ class ChargenScript(DefaultScript):
                             e=self.db.priorities["e"].title()
                         )
 
-        # def getkey(item):
-        #     return item[0]
-        # options = sorted(self.metatypes[priority], key=getkey)
-        options = self.metatypes[priority]
-        self.metatype = "At priority {0}, you have the following choices:\n\n".format(priority.title())
-        self.metatype += "\t|h{left:<20}{right:>30}|n\n".format(left="Command to Set", right="Metatype (Attributes, Karma)")
-        for i in range(0, len(options)):
-            option = options[i]
-            left = "\t> meta {command}".format(command=option[0])
-            right = "{name} ({sa} SA, {karma} Karma)\n".format(name=option[0].title(), sa=option[1], karma=option[2])
-            self.metatype += "{left:<20}{right:>30}".format(left=left, right=right)
+        # TODO: Clean up this nomenclature so that it's clearer to third parties which variables refer to the stats store, which ones refer to choices the player has made, and which ones are views.
 
-        self.metatype += "\nYou can look at a metatype's stats with \"stat <metatype>\"."
+        # Metatype View
+        options = self.metatypes[priority]
+        # If no valid metatype is set, give options to set it.
+        if self.db.metatype not in options:
+            self.metatype = "At priority {0}, you have the following" \
+                            "choices:\n\n".format(priority.title())
+            self.metatype += "\t|h{left:<20}{right:>30}|n" \
+                             "\n".format(left="Command to Set",
+                             right="Metatype (Attributes, Karma)")
+            for i in range(0, len(options)):
+                option = options[i]
+                left = "\t> meta {command}".format(command=option[0])
+                right = "{name} ({sa} SA, {karma} Karma)" \
+                        "\n".format(name=option[0].title(),
+                        sa=option[1], karma=option[2])
+                self.metatype += "{left:<20}{right:>30}".format(left=left,
+                                 right=right)
+
+            self.metatype += "\nYou can look at a metatype's stats" \
+                             "with \"stat <metatype>\"."
+        # If there's a valid metatype, give options to set special attributes.
+        else:
+            self.metatype = "As a {mt}, you have {sa} points for" \
+                            "special attributes and will be charged" \
+                            "{ka} karma.".format(mt=self.db.metatype,
+                            sa=self.options[self.db.metatype][1],
+                            ka=self.options[self.db.metatype][2])
+            self.metatype += "\n\n"
+            self.metatype += "\tEdge: {cur}/{max}\n".format(
+                             cur=self.db.meta_attr["edge"][0] + self.db.spec_attr["edge"],
+                             max=self.db.meta_attr["edge"][1])
 
         return getattr(self, step, "We're not finding that step.")
 
