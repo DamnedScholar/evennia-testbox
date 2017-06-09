@@ -177,6 +177,12 @@ class ChargenScript(DefaultScript):
             self.metatype += "\tEdge: {cur}/{max}\n".format(
                              cur=self.db.meta_attr["edge"][0] + self.db.spec_attr["edge"],
                              max=self.db.meta_attr["edge"][1])
+            self.metatype += "\tMagic: {cur}/{max}\n".format(
+                             cur=self.db.meta_attr["magic"][0] + self.db.spec_attr["magic"],
+                             max=self.db.meta_attr["magic"][1])
+            self.metatype += "\tResonance: {cur}/{max}\n".format(
+                             cur=self.db.meta_attr["resonance"][0] + self.db.spec_attr["resonance"],
+                             max=self.db.meta_attr["resonance"][1])
 
         return getattr(self, step, "We're not finding that step.")
 
