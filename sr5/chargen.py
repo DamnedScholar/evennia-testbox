@@ -273,8 +273,11 @@ class CmdSetPriority(default_cmds.MuxCommand):
         # Take a command with two arguments and optional spaces and equals signs and render it down into two arguments.
         self.args = self.args.strip()
         self.args = self.args.replace('=', ' ')
-        self.args = self.args.split(' ')
-        self.args[1] = self.args[len(self.args) - 1]
+        self.args_dump = self.args.split(' ')
+        self.args = [self.dump[0], self.dump[len(self.dump) - 1]]
+
+        # TODO: `pri` errors because there's no self.args[1] to assign.
+        # TODO: `pri=` returns "Priority  unset."
 
     def func(self):
         "Active function."
@@ -291,7 +294,7 @@ class CmdSetPriority(default_cmds.MuxCommand):
             caller.msg(tag + "Please enter 'a', 'b', 'c', 'd', or 'e'.")
             return False
 
-        if self.category in "unset":
+        if self.category and self.category in "unset":
             caller.msg(tag + "Priority {} unset.".format(self.priority.title()))
             cg.db.priorities[self.priority] = ""
             return False
