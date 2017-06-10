@@ -373,6 +373,56 @@ class CmdCGRoom(default_cmds.MuxCommand):
             return False
 
         caller.msg(cg.cgview(step, priority))
+class CmdCGReset(default_cmds.MuxCommand):
+    """
+    Resets character creation.
+
+    Usage:
+    > reset
+    > reset metatype
+    """
+
+    key = "reset"
+    lock = "cmd:perm(unapproved) and attr(cg.db.metatype)"
+    help_category = "Chargen"
+
+    def func(self):
+        "Active function."
+        caller = self.caller
+        cg = caller.cg
+
+        tag = "|Rsr5 > |n"
+
+        if self.args and self.args in "metatype":
+            cg.reset_metatype()
+            caller.msg(tag + "Metatype and special attributes are reset.")
+        elif self.args and self.args in "attributes":
+            cg.reset_attr()
+            caller.msg(tag + "Attributes are reset.")
+        elif self.args and self.args in "magic" or self.args and self.args in "resonance":
+            cg.reset_magres()
+            caller.msg(tag + "Magic and Resonance choices are reset.")
+        elif self.args and self.args in "skills":
+            cg.reset_attr()
+            caller.msg(tag + "Skills are reset.")
+        elif self.args and self.args in "resources":
+            cg.reset_attr()
+            caller.msg(tag + "Resources, gear, and lifestyle choices are reset.")
+        elif self.args and self.args in "qualities":
+            cg.reset_attr()
+            caller.msg(tag + "Qualities are reset.")
+        elif self.args and self.args in "background":
+            cg.reset_attr()
+            caller.msg(tag + "Background cleared.")
+        elif self.args and self.args in "vitals":
+            cg.reset_attr()
+            caller.msg(tag + "Vitals cleared.")
+        elif self.args and self.args:
+            caller.msg(tag + 'Please input a stage of chargen. Valid choices are "Metatype", "Attributes", "Magic", "Resonance", "Skills", "Resources", "Qualities", "Background", and "Vitals". If you want to restart chargen, type "reset" by itself.')
+        else:
+            # TODO: Ask for confirmation? Can I use EvMenu for a one-off prompt?
+            cg.reset_all()
+            caller.msg(tag + "The chargen process has been reset.")
 
 class CmdSetMetatype(default_cmds.MuxCommand):
     """
@@ -673,9 +723,10 @@ class ChargenCmdSet(CmdSet):
         #
         self.add(CmdSetPriority())           # key: priority, pri
         self.add(CmdCGRoom())                # key: chargen, cg
+        self.add(CmdCGReset())               # key: chargen, cg
         # Metatype Room
         self.add(CmdSetMetatype())           # key: metatype, meta
-        self.add(CmdSetSpecAttr())        # key: specattr, sa
+        self.add(CmdSetSpecAttr())           # key: specattr, sa
         # Attribute Room
         self.add(CmdSetAttr())               # key: attribute, attr
         # Magic/Resonance Room

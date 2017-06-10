@@ -48,6 +48,8 @@ class CmdSheet(default_cmds.MuxCommand):
         sheet/show <target>
     """
 
+    # TODO: Make the sheet silently ask the chargen script for information instead of the player object if the player is unapproved.
+
     key = "sheet"
     help_category = "Shadowrun 5e"
 
