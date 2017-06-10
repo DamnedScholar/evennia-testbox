@@ -18,6 +18,7 @@ class ChargenScript(DefaultScript):
     """
     This script is placed on a character object when it is created. It holds variables relevant to the chargen process that need to be cleaned up after and it inherits the data that is important for the chargen process.
     """
+    # TODO: These variables are here for testing purposes and should be broken out into a separate module for storage once the chargen is completed.
     cg_steps = ["priority", "vitals", "metatype", "attributes", "magic",
                 "resonance", "qualities", "skills", "resources", "background",
                 "karma"]
@@ -29,6 +30,28 @@ class ChargenScript(DefaultScript):
                  "c": [("human", 5, 0), ("elf", 3, 0), ("dwarf", 1, 0), ("ork", 0, 0)],
                  "d": [("human", 3, 0), ("elf", 0, 0)],
                  "e": [("human", 1, 0)]}
+    meta_attr = {
+        "human": {"body": (1, 6), "agility": (1, 6), "reaction": (1, 6),
+                  "strength": (1, 6), "willpower": (1, 6), "logic": (1, 6),
+                  "intuition": (1, 6), "charisma": (1, 6),
+                  "edge": (2, 7), "magic": (0, 6), "resonance": (0, 6)},
+        "elf": {"body": (1, 6), "agility": (2, 7), "reaction": (1, 6),
+                  "strength": (1, 6), "willpower": (1, 6), "logic": (1, 6),
+                  "intuition": (1, 6), "charisma": (3, 8),
+                  "edge": (1, 6), "magic": (0, 6), "resonance": (0, 6)},
+        "dwarf": {"body": (3, 8), "agility": (1, 6), "reaction": (1, 5),
+                  "strength": (3, 8), "willpower": (2, 7), "logic": (1, 6),
+                  "intuition": (1, 6), "charisma": (1, 6),
+                  "edge": (1, 6), "magic": (0, 6), "resonance": (0, 6)},
+        "ork": {"body": (4, 9), "agility": (1, 6), "reaction": (1, 6),
+                  "strength": (3, 8), "willpower": (1, 6), "logic": (1, 5),
+                  "intuition": (1, 6), "charisma": (1, 5),
+                  "edge": (1, 6), "magic": (0, 6), "resonance": (0, 6)},
+        "troll": {"body": (5, 10), "agility": (1, 5), "reaction": (1, 6),
+                  "strength": (5, 10), "willpower": (1, 6), "logic": (1, 5),
+                  "intuition": (1, 5), "charisma": (1, 4),
+                  "edge": (1, 6), "magic": (0, 6), "resonance": (0, 6)},
+        }
     attr = {"a": 24, "b": 20, "c": 16, "d": 14, "e": 12}
     magic = {
         "a": {"magician": {"magic": 6, "skills": (2, 5), "spells": 10},
@@ -76,6 +99,7 @@ class ChargenScript(DefaultScript):
         self.db.tier = "experienced"
         self.db.priorities = {"a": "", "b": "", "c": "",
                               "d": "", "e": ""}
+        self.db.karma = 25
 
         self.reset_metatype()
         self.reset_attr()
@@ -113,12 +137,13 @@ class ChargenScript(DefaultScript):
         self.db.specs = {}
     def reset_resources(self):
         "Resets lifestyle and purchases."
-        self.db.lifestyle = ""self.db.gear
+        self.db.lifestyle = ""
         self.db.nuyen = -1
         self.db.augments, self.db.gear = {}, {}
     def reset_qualities(self):
         "Resets qualities."
-        self.db.qualities = {}
+        self.db.qualities_positive = {}
+        self.db.qualities_negative = {}
     def reset_vitals(self):
         "Resets name, birthdate, etc."
         self.db.fullname, self.db.birthdate = "", ""
@@ -147,10 +172,12 @@ class ChargenScript(DefaultScript):
         # TODO: Clean up this nomenclature so that it's clearer to third parties which variables refer to the stats store, which ones refer to choices the player has made, and which ones are views.
 
         # Metatype View
-        options = self.metatypes[priority]
+        options, names = self.metatypes[priority], []
+        for option in options:
+            names += [option[0]]
         # If no valid metatype is set, give options to set it.
-        if self.db.metatype not in options:
-            self.metatype = "At priority {0}, you have the following" \
+        if self.db.metatype not in names:
+            self.metatype = "At priority {0}, you have the following " \
                             "choices:\n\n".format(priority.title())
             self.metatype += "\t|h{left:<20}{right:>30}|n" \
                              "\n".format(left="Command to Set",
@@ -164,25 +191,36 @@ class ChargenScript(DefaultScript):
                 self.metatype += "{left:<20}{right:>30}".format(left=left,
                                  right=right)
 
-            self.metatype += "\nYou can look at a metatype's stats" \
+            self.metatype += "\nYou can look at a metatype's stats " \
                              "with \"stat <metatype>\"."
         # If there's a valid metatype, give options to set special attributes.
         else:
-            self.metatype = "As a {mt}, you have {sa} points for" \
-                            "special attributes and will be charged" \
+            i = names.index(self.db.metatype)
+
+            self.metatype = "As a {mt}, you have {sa} points for " \
+                            "special attributes and will be charged " \
                             "{ka} karma.".format(mt=self.db.metatype,
-                            sa=self.options[self.db.metatype][1],
-                            ka=self.options[self.db.metatype][2])
+                            sa=options[i][1],
+                            ka=options[i][2])
             self.metatype += "\n\n"
+            # The maximum Edge rating is one higher if the character possesses the Lucky quality.
             self.metatype += "\tEdge: {cur}/{max}\n".format(
                              cur=self.db.meta_attr["edge"][0] + self.db.spec_attr["edge"],
-                             max=self.db.meta_attr["edge"][1])
-            self.metatype += "\tMagic: {cur}/{max}\n".format(
-                             cur=self.db.meta_attr["magic"][0] + self.db.spec_attr["magic"],
-                             max=self.db.meta_attr["magic"][1])
-            self.metatype += "\tResonance: {cur}/{max}\n".format(
-                             cur=self.db.meta_attr["resonance"][0] + self.db.spec_attr["resonance"],
-                             max=self.db.meta_attr["resonance"][1])
+                             max=self.db.meta_attr["edge"][1] + self.db.qualities_positive.get("lucky", 0))
+            # No character can have both Magic and Resonance. If a character has an innate Magic rating, such as the metasapients, they cannot possess Resonance.
+            if self.db.meta_attr["magic"][0] or self.db.spec_attr["magic"]:
+                # The maximum Magic rating is one higher if the character possesses the Exceptional Attribute (Magic) quality.
+                self.metatype += "\tMagic: {cur}/{max}\n".format(
+                                 cur=self.db.spec_attr["magic"],
+                                 max=self.db.meta_attr["magic"][1] + self.db.qualities_positive.get("exceptional attribute (magic)", 0))
+            elif self.db.meta_attr["resonance"][0] or self.db.spec_attr["resonance"]:
+                # The maximum Resonance rating is one higher if the character possesses the Exceptional Attribute (Resonance) quality.
+                self.metatype += "\tResonance: {cur}/{max}\n".format(
+                                 cur=self.db.spec_attr["resonance"],
+                                 max=self.db.meta_attr["resonance"][1] + self.db.qualities_positive.get("exceptional attribute (resonance)", 0))
+            else:
+                self.metatype += "\tMagic: 0/6\n" \
+                                 "\tResonance: 0/6\n"
 
         return getattr(self, step, "We're not finding that step.")
 
@@ -220,7 +258,7 @@ class CmdSetPriority(default_cmds.MuxCommand):
 
     Usage:
         priority a = metatype
-        priority b = mag
+        priority b=mag
         priority b reson
         pri e resources
         pri a = unset
@@ -232,9 +270,11 @@ class CmdSetPriority(default_cmds.MuxCommand):
     help_category = "Chargen"
 
     def parse(self):
+        # Take a command with two arguments and optional spaces and equals signs and render it down into two arguments.
         self.args = self.args.strip()
         self.args = self.args.replace('=', ' ')
-        self.input = self.args.split(' ')
+        self.args = self.args.split(' ')
+        self.args[1] = self.args[len(self.args) - 1]
 
     def func(self):
         "Active function."
@@ -243,12 +283,17 @@ class CmdSetPriority(default_cmds.MuxCommand):
 
         tag = "|Rsr5 > |n"
 
-        # Break apart self.input and return errors if things aren't what they're supposed to be.
-        self.priority = self.input[0].lower()
-        self.category = self.input[len(self.input) - 1].lower()
+        # Break apart self.args and return errors if things aren't what they're supposed to be.
+        self.priority = self.args[0].lower()
+        self.category = self.args[1].lower()
         match, occupied, success = '', '', False
         if self.priority not in "abcde":
             caller.msg(tag + "Please enter 'a', 'b', 'c', 'd', or 'e'.")
+            return False
+
+        if self.category in "unset":
+            caller.msg(tag + "Priority {} unset.".format(self.priority.title()))
+            cg.db.priorities[self.priority] = ""
             return False
 
         for i in range(0,len(cg.categories)):
@@ -256,16 +301,19 @@ class CmdSetPriority(default_cmds.MuxCommand):
             match = True
             self.category = cg.categories[i]
         if not match:
-            caller.msg(tag + 'Please enter a valid category. Valid choices are "Metatype", "Attributes", "Magic", "Resonance", "Skills", and "Resources".')
+            caller.msg(tag + 'Please enter a valid category. Valid choices ' \
+                       'are "Metatype", "Attributes", "Magic", "Resonance", ' \
+                       '"Skills", and "Resources".')
             return False
         # Check to see if something's already in that priority slot.
-        if cg.db.priorities[self.priority] and cg.db.priorities[self.priority] is not self.category:
-            occupied = ' and category "' + cg.db.priorities[self.priority].title() + '" removed'
+        former = cg.db.priorities[self.priority]
+        if former and former is not self.category:
+            occupied = ' and category "' + former.title() + '" removed'
 
         # Check to see if the category's on the list. "Magic" and "Resonance" are synonymous for this step, so they remove each other.
         self.existing = cg.db.priorities.items()
         for i in range(0,len(self.existing)):
-            if self.category in self.existing[i][1] or self.category in "magic" and self.existing[i][1] in "resonance" or self.category in "resonance" and self.existing[i][1] in "magic":
+            if self.category in self.existing[i][1] or self.category in "magic" and "resonance" in self.existing[i][1] or self.category in "resonance" and "magic" in self.existing[i][1]:
                 self.operation = "replace"
                 cg.db.priorities[self.existing[i][0]] = ''
                 cg.db.priorities[self.priority] = self.category
@@ -347,7 +395,18 @@ class CmdSetMetatype(default_cmds.MuxCommand):
 
         tag = "|Rsr5 > |n"
 
-        caller.msg("This command isn't in place yet.")
+        # Find out which priority this category is.
+        priority = cg.db.priorities.keys()[cg.db.priorities.values().index("metatype")]
+
+        for metatype in cg.metatypes[priority]:
+            if self.args in metatype[0]:
+                cg.db.metatype = metatype[0]
+                cg.db.meta_attr = cg.meta_attr[metatype[0]]
+
+                caller.msg(tag + "Your metatype has been set to {mt}, at " \
+                           "a cost of {ka} karma. You now have {sa} points " \
+                           "to distribute among special attributes.".format(
+                           mt=metatype[0], sa=metatype[1], ka=metatype[2]))
 class CmdSetSpecAttr(default_cmds.MuxCommand):
     """
     Sets your special attributes. The attribute field will match partials.
@@ -359,7 +418,7 @@ class CmdSetSpecAttr(default_cmds.MuxCommand):
 
     key = "specattr"
     aliases = ["sa"]
-    lock = "cmd:perm(unapproved)"
+    lock = "cmd:perm(unapproved) and attr(cg.db.metatype)"
     help_category = "Chargen"
 
     def func(self):
@@ -616,7 +675,7 @@ class ChargenCmdSet(CmdSet):
         self.add(CmdCGRoom())                # key: chargen, cg
         # Metatype Room
         self.add(CmdSetMetatype())           # key: metatype, meta
-        self.add(CmdSetSpecialAttr())        # key: specattr, sa
+        self.add(CmdSetSpecAttr())        # key: specattr, sa
         # Attribute Room
         self.add(CmdSetAttr())               # key: attribute, attr
         # Magic/Resonance Room
