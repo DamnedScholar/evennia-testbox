@@ -273,7 +273,7 @@ class CmdSetPriority(default_cmds.MuxCommand):
         # Take a command with two arguments and optional spaces and equals signs and render it down into two arguments.
         self.args = self.args.strip()
         self.args = self.args.replace('=', ' ')
-        self.args_dump = self.args.split(' ')
+        self.dump = self.args.split(' ')
         self.args = [self.dump[0], self.dump[len(self.dump) - 1]]
 
         # TODO: `pri` errors because there's no self.args[1] to assign.
