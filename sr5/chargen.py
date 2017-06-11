@@ -276,8 +276,6 @@ class CmdSetPriority(default_cmds.MuxCommand):
         self.dump = self.args.split(' ')
         self.args = [self.dump[0], self.dump[len(self.dump) - 1]]
 
-        # TODO: `pri` returns "Category "Metatype" changed to priority ." because it doesn't get caught.
-
     def func(self):
         "Active function."
         caller = self.caller
@@ -288,18 +286,20 @@ class CmdSetPriority(default_cmds.MuxCommand):
         # Break apart self.args and return errors if things aren't what they're supposed to be.
         self.priority = self.args[0].lower()
         self.category = self.args[1].lower()
+        if self.priority == self.category:
+            self.category = ""
         match, occupied, success = '', '', False
-        if self.priority not in "abcde":
+        if self.priority not in "abcde" or not self.priority:
             caller.msg(tag + "Please enter 'a', 'b', 'c', 'd', or 'e'.")
             return False
 
-        if self.category in "unset":
+        if self.category and self.category in "unset":
             caller.msg(tag + "Priority {} unset.".format(self.priority.title()))
             cg.db.priorities[self.priority] = ""
             return False
 
         for i in range(0,len(cg.categories)):
-          if self.category in cg.categories[i]:
+          if self.category not in "" and self.category in cg.categories[i]:
             match = True
             self.category = cg.categories[i]
         if not match:

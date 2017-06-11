@@ -1,0 +1,3 @@
+[submodule "paxboards"]
+	path = paxboards
+	url = https://github.com/DamnedScholar/paxboards.git
