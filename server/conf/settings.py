@@ -79,14 +79,19 @@ INSTALLED_APPS += ('django.contrib.humanize',
                    'mptt',
                    'sekizai',
                    'sorl.thumbnail',
-                   'wiki',
-                   'wiki.plugins.attachments',
-                   'wiki.plugins.notifications',
-                   'wiki.plugins.images',
-                   'wiki.plugins.macros')
+                #    'wiki',
+                #    'wiki.plugins.attachments',
+                #    'wiki.plugins.notifications',
+                #    'wiki.plugins.images',
+                #    'wiki.plugins.macros'
+                   )
 
 INSTALLED_APPS += ('web.character',
                    'sr5.systemview')
+
+# Paxboards
+INSTALLED_APPS += ('paxboards',)
+TYPECLASS_PATHS += ['paxboards']
 
 # Probably need to remove this.
 DEBUG = True

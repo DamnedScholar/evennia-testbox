@@ -1,3 +1,6 @@
 [submodule "paxboards"]
 	path = paxboards
 	url = https://github.com/DamnedScholar/paxboards.git
+[submodule "sr5/shadowrun-wiki-reader"]
+	path = sr5/shadowrun-wiki-reader
+	url = https://github.com/busbyra/shadowrun-wiki-reader
