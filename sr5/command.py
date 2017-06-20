@@ -225,3 +225,103 @@ class CmdSheet(default_cmds.MuxCommand):
             caller.msg("Prove command coming soon.")
         else:
             caller.msg("I don't know what switch that is.")
+
+class CmdBody(default_cmds.MuxCommand):
+    """
+    Shows any cyberware or metagenic traits in your anatomy.
+
+    Usage:
+    > body
+    """
+
+    key = "body"
+    aliases = ["anatomy"]
+    help_category = "Shadowrun 5e"
+
+    cyberware = {"left":
+                        {"hand": "",
+                         "arm":
+                            {"upper": "Armor 1, Agility 3, Strength 3",
+                             "lower": ""},
+                         "foot": "",
+                         "leg":
+                            {"upper": "",
+                            "lower": ""}
+                        },
+                 "right":
+                        {"hand": "",
+                         "arm":
+                            {"upper": "",
+                             "lower": ""},
+                         "foot": "",
+                         "leg":
+                            {"upper": "",
+                             "lower": ""}
+                        },
+                 "head": "",
+                 "torso": "",
+                 "abdomen": ""
+                }
+    cyber_list = []
+
+    # TODO: Rewrite the following code so that it works for things other than cyberware.
+
+    def func(self):
+        "Active function."
+        caller = self.caller
+
+        tag = "|Rsr5 > |n"
+
+        output = ""
+
+        # TODO: Strip excessive spaces and borders and turn this into an EvTable with the text information displayed to the right of the figure.
+
+        output += ".---------------.\n"
+        output += "|      " + self.cyber("/~~~\\", "head") + "    |\n"
+        output += "|    " + self.cyber("W", "right", "hand") + self.cyber("( o o )", "head") + "   |\n"
+        output += "|     " + self.cyber("\\", "right", "arm", "lower") + self.cyber("\\---/", "head") + "    |\n"
+        output += "|      " + self.cyber("\\", "right", "arm", "upper") + self.cyber("I I", "head") + "     |\n"
+        output += "|       " + self.cyber("< >", "torso") + self.cyber("\\", "left", "arm", "upper") + "    |\n"
+        output += "|       " + self.cyber("< >", "torso") + self.cyber(" \\", "left", "arm", "lower") + "   |\n"
+        output += "|       " + self.cyber("/^\\", "abdomen") + self.cyber("  M", "left", "hand") + "  |\n"
+        output += "|      " + self.cyber("/", "right", "leg", "upper") + self.cyber("   \\", "left", "leg", "upper") + "    |\n"
+        output += "|     " + self.cyber("/", "right", "leg", "lower") + self.cyber("     \\", "left", "leg", "lower") + "   |\n"
+        output += "|    " + self.cyber("~ ", "right", "foot") + self.cyber("      ~", "left", "foot") + "  |\n"
+        output += "`---------------'\n"
+
+        for item in self.cyber_list:
+            output += "|b" + item.title() + "|n\n"
+
+        caller.msg(output)
+
+    def cyber(self, text, *args):
+        where_name = ""
+        if len(args) >= 1:
+            augment = self.cyberware[args[0]]
+            where_name += args[0] + " "
+        if len(args) >= 2:
+            augment = self.cyberware[args[0]][args[1]]
+            where_name += args[1]
+
+            # Hands and feet are included by their respective limbs.
+            if not augment and args[1] in ["hand", "foot"]:
+                if args[1] in "hand":
+                    limb = "arm"
+                else:
+                    limb = "leg"
+                if self.cyberware[args[0]][limb]["upper"] or self.cyberware[args[0]][limb]["lower"]:
+                    return "|b" + text + "|n"
+        if len(args) >= 3:
+            augment = self.cyberware[args[0]][args[1]][args[2]]
+            where_name.replace(" ", " " + args[2] + " ")
+
+            # Lower arms and legs are included by upper arms and legs.
+            if not augment and args[2] in "lower":
+                if self.cyberware[args[0]][args[1]]["upper"]:
+                    return "|b" + text + "|n"
+
+        if augment:
+            self.cyber_list.append(where_name.title() + ": " + augment)
+            return "|b" + text + "|n"
+        else:
+            return text

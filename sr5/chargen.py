@@ -152,6 +152,13 @@ class ChargenScript(DefaultScript):
         "Resets background."
         self.db.background = {}
 
+    def set_metatype(self, metatype):
+        self.db.metatype = metatype
+        self.db.spec_attr = {'edge': 0, 'magic': 0, 'resonance': 0}
+        self.db.meta_attr = cg.meta_attr[metatype]
+    def set_attr(self, attr):
+        pass
+
     def at_start(self):
         """
         This initializes the back-reference and chargen cmdset on a character
@@ -452,8 +459,7 @@ class CmdSetMetatype(default_cmds.MuxCommand):
 
         for metatype in cg.metatypes[priority]:
             if self.args in metatype[0]:
-                cg.db.metatype = metatype[0]
-                cg.db.meta_attr = cg.meta_attr[metatype[0]]
+                cg.set_metatype(metatype[0])
 
                 caller.msg(tag + "Your metatype has been set to {mt}, at " \
                            "a cost of {ka} karma. You now have {sa} points " \
