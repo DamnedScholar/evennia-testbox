@@ -98,3 +98,5 @@ DEBUG = True
 
 TEMPLATE_CONTEXT_PROCESSORS = ['sekizai.context_processors.sekizai',
                                'django.core.context_processors.debug']
+
+PROTOTYPE_MODULES += ['sr5.data.ware']

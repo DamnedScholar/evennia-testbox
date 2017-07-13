@@ -1,12 +1,14 @@
 """
 Object
 
-These objects are used by the system package. This file should be used mostly for prototypes and parents.
+These objects are used by the system package. This file should be used mostly
+for prototypes and parents.
 
 """
 from evennia import DefaultObject
 
-# TODO: Remove the Object class. I'm just keeping it around for reference as I figure out what Accessory needs.
+# TODO: Remove the Object class. I'm just keeping it around for reference
+# as I figure out what Extra needs.
 class Object(DefaultObject):
     """
     * Base properties defined/available on all Objects
@@ -141,48 +143,180 @@ class Object(DefaultObject):
      """
     pass
 
-class Accessory(DefaultObject):
+
+class Extra(DefaultObject):
     """
-    This is a prototype for objects to represent things in the game system that are too complex and individual to just be listed on a sheet. They will have their own stats and information about what the mechanic represents and how the user interacts with it.
+    This is a prototype for objects to represent things in the game system that
+    are too complex and individual to just be listed on a sheet. They will have
+    their own stats and information about what the mechanic represents and how
+    the user interacts with it.
     """
 
-    # TODO: Define flags.
+    # TODO: Make sure to use tags when defining children of this class.
+    # https://github.com/evennia/evennia/wiki/Tags
+    # Tehom thinks that I should make a typeclass for every little variation.
+    # I feel like that would be less intuitive for everybody. This should be
+    # friendly for novice developers. You can also have multiple tags for a
+    # particular item.
+
+    # NOTE: The easiest way to define item-specific attributes:
+    # https://github.com/evennia/evennia/wiki/Spawner
 
     # TODO: Define default stats.
 
     def at_object_creation(self):
-        self.db.gold = 50
-        self.db.cost = {"gold": 50}
+        # Default flags. These will frequently be overridden.
+        self.db.visible = False
+        self.db.inherent = False
+        self.db.permanent = True
+        self.db.slot = (False)
+        self.db.slot_list = []
+        # self.db.slot = (True, ["right_upper_arm", "right_lower_arm", "right_hand"])
 
-    # TODO: Define methods used to get and set stats. It doesn't have to be complicated, but it should be easy to at least make sure that only integers and floats are accepted when a numerical value is assigned to the default.
+    # TODO: Define methods used to get and set stats. It doesn't have to be
+    # complicated, but it should be easy to at least make sure that only
+    # integers and floats are accepted when a numerical value is assigned to
+    # the default.
 
     def set_stat(self, stat, *args, **kwargs):
-        # lookup = "db." + stat
-        if len(stat.split('.')) == 2:
-            dict_key = stat.split('.')[1]
-        cur = getattr(self.db, stat, 0)
+        """
+        stat - A period-delimited list of attr name and keys.
+        args - User input.
+        kwargs - Switches if necessary.
+        """
+        lookup = stat.split('.')                # A list of attr name and keys.
+        depth = len(lookup) and and             # How deep we should look.
+        entry = getattr(self.db, lookup[0], 0)  # The attr itself.
+
+        # TODO: Make this create a list if there are multiple args, or a
+        # number, bool, or string if there's only one.
+        if len(args) > 1:
+            return "The command only accepts a single input argument at the "\
+                "moment. This restriction will be removed once we're sure "\
+                "that everything else works."
+        arg = args[0]
+
+        # TODO: Remove these. They're only for testing.
+        self.location.msg("lookup: " + str(lookup))
+        self.location.msg("entry: " + str(entry))
+
+        # Store the current value.
+        err_no_nest = "You seem to be trying to add a nested value to"\
+            "something that already exists and is a flat value. In order to"\
+            "restructure the data, please set it by hand (if you can't, you"\
+            "shouldn't)."
+        if depth == 1:
+            cur = entry
+        elif depth == 2:
+            try:
+                # Attempt to follow the dict path entered.
+                cur = entry.get(lookup[1], 0)
+            except AttributeError:
+                # Error sensibly if something above isn't a dict.
+                return err_no_nest
+        elif depth == 3:
+            try:    # Attempt to follow the dict path entered.
+                cur = entry.get(lookup[1], 0)
+                cur = cur.get(lookup[2], 0)
+            except AttributeError:
+                # Error sensibly if something above isn't a dict.
+                return err_no_nest
+        elif depth == 4:
+            try:    # Attempt to follow the dict path entered.
+                cur = entry.get(lookup[1], 0)
+                cur = cur.get(lookup[2], 0)
+                cur = cur.get(lookup[3], 0)
+            except AttributeError:
+                # Error sensibly if something above isn't a dict.
+                return err_no_nest
+        else:
+            # You shouldn't need to store things this deep. If you have more
+            # than four levels, your schema for storing information needs work.
+            # Evennia has categories and stuff. Also, this is an arbitrary
+            # limit I'm setting because I can't think of a programmatic way to
+            # do the above.
+            return "You shouldn't nest information that deeply. Consider"\
+                "reoganizing your data to make use of attribute categories."
 
         if not cur:
-            return "There is no attribute by that name."
-            # return False
+            if depth == 1:
+                self.attributes.add(lookup[0], arg)
+            elif depth == 2:
+                entry.setdefault(lookup[1], arg)
+            elif depth == 3:
+                dig = entry.get(lookup[1])
+                dig.setdefault(lookup[2], arg)
+            elif depth == 4:
+                dig = entry.get(lookup[1])
+                dig = entry.get(lookup[2])
+                dig.setdefault(lookup[3], arg)
 
+            return "Attribute " + lookup[0] + " added with value "\
+                + str(arg) + "."
+
+        # If there is a current value, check to see what type it is.
+        # Then check to see what type the input argument is.
         if isinstance(cur, (int, long)):
-            if isinstance(args[0], (int, long)):
+            if isinstance(arg, (int, long)):
                 # Set the stat, probably with self.set().
-                result = args[0]
+                result = arg
+            else:
+                return "The input should match the current value, which is a"\
+                    "whole number."
         elif isinstance(cur, (float)):
-            if isinstance(args[0], (int, long, float)):
-                # Set the stat and add 0.0 to it to make sure there's a decimal.
-                result = args[0] + 0.0
+            if isinstance(arg, (int, long, float)):
+                # Set the stat and add 0.0 to it to make sure there's a decimal
+                result = arg + 0.0
+            else:
+                return "The input should match the current value, which is a"\
+                    "number."
         elif isinstance(cur, str):
-            result = str(args[0])
+            result = str(arg)
+        elif isinstance(cur, list):
+            result = arg
         else:
             return "The attribute is not a valid type."
             # return False
 
-        if not dict_key:
-            setattr(self.db, stat, result)
+        self.location.msg("result: " + str(result))
+        cur = result
 
-        # XXX: It is frustrating and infuriating that I can't use setattr() to set things inside dicts. There has to be a way that I'm missing.
+        if depth == 1:
+            entry = result
+        elif depth == 2:
+            entry[lookup[1]] = result
+        elif depth == 3:
+            entry[lookup[1]][lookup[2]] = result
+        elif depth == 4:
+            entry[lookup[1]][lookup[2]][lookup[3]] = result
 
-    pass
+        return "Attribute " + stat + " set to " + str(result) + "."
+
+        # XXX: It is frustrating and infuriating that I can't use setattr()
+        # to set things inside dicts. There has to be a way that I'm missing.
+
+
+class Augment(Extra):
+    """
+    This is a class for defining the default values and implementing any unique
+    functions for cyberware and bioware.
+    """
+
+    def at_object_creation(self):
+        self.db.grade = "standard"
+        self.db.essence = 1.0
+        # self.db.cost = {"nuyen": {"base": 100, "multiplier": 1.0}}
+
+        # Override default flags where necessary.
+        self.db.visible = True
+        self.db.inherent = False
+        self.db.permanent = True
+        self.db.slot = (True)
+        self.db.slot_list = []
+
+        # Perform initial setup.
+        self.apply_grade(self.db.grade)
+
+    def apply_grade(grade):
+        # TODO: Grab grade modifiers from data.ware.Grades and apply them.
+        pass
