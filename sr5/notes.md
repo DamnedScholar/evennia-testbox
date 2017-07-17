@@ -35,6 +35,7 @@ TODO: Learn about model fields.
 
 * https://docs.djangoproject.com/en/1.11/topics/db/models/#fields
 
+----
 TODO: Set up tag system for gear and whatever else.
 * https://github.com/evennia/evennia/wiki/Tags
 
@@ -43,3 +44,15 @@ IDEA: Cyberlimb augmentations can be stored as items inside individual cyberlimb
 XXX: Modifiers can be aggregated by scanning objects in the character's inventory, as well as any attribute tagged as a modifier. Modifiers without a condition can be applied automatically, and modifiers with a condition can be made available to be tagged and quickly added to a roll. Still need to figure out how to prioritize overlapping ones.
 
 Cyberlimbs will contain their Strength, Agility, Armor, and Physical Condition stats and the modifier list will reference them. A given modifier can reference an attribute on its own object or another object with `path.to.object:attribute`, such as `this:strength` to refer to its own strength or `this.obj:attributes.strength` to refer to the owner's strength. I can do dumb things with eval() if I need to in order to shoe-horn these strings into useful object paths.
+
+http://effbot.org/zone/librarybook-core-eval.htm
+
+----
+I have a general gut-check question for anyone with an opinion. I'm making a notation scheme for a field where you have finite options versus an open-ended field. This is mostly intended for communicating to readers which is which, but it's aimed at people working on the back end and most users won't ever see it. For the finite options, I'll have [option 1; option 2; option 3]. For the open-ended options, do you think that [?field] or [*field] makes more intuitive sense?
+
+Maybe I should use `Improved Ability ([*Skill, Non-Combat]) 1` instead of `Improved Ability [*Skill, Non-Combat] 1`.
+
+----
+https://docs.python.org/2/library/functions.html#dir
+
+http://developer.contractbasis.com/devDeepShadows/

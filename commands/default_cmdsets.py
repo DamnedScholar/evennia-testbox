@@ -15,7 +15,8 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
-from sr5.command import CmdSheet, CmdBody
+from sr5.command import CmdSheet, CmdBody, CmdShowMe
+from sr5.chargen import CmdCGStart
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -33,6 +34,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
+        self.add(CmdSheet())           # key: sheet
+        self.add(CmdBody())            # key: body, anatomy
+        self.add(CmdCGStart())         # key: chargen, cg
+        self.add(CmdShowMe())          # key: showme
 
 
 class PlayerCmdSet(default_cmds.PlayerCmdSet):
@@ -52,8 +57,6 @@ class PlayerCmdSet(default_cmds.PlayerCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
-        self.add(CmdSheet())           # key: sheet
-        self.add(CmdBody())            # key: body, anatomy
 
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):

@@ -327,3 +327,17 @@ class CmdBody(default_cmds.MuxCommand):
             return "|b" + text + "|n"
         else:
             return text
+
+
+# TODO: Delete this.
+class CmdShowMe(default_cmds.MuxCommand):
+    """
+    Shows command parsing
+    """
+
+    key = "showme"
+    help_category = "Shadowrun 5e"
+
+    def func(self):
+        self.caller.msg("Switches: " + str(self.switches))
+        self.caller.msg("Args: " + str(self.args))

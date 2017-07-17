@@ -11,8 +11,10 @@ from evennia import CmdSet
 from evennia import default_cmds
 from evennia import DefaultRoom
 from evennia import DefaultScript
-from evennia.utils import evtable
+from evennia.utils import evtable, spawner
 from sr5.data.skills import Skills
+from sr5.data.ware import BUYABLE, Grades, Obvious, Synthetic
+from sr5.objects import Augment, Aug_Methods
 
 class ChargenScript(DefaultScript):
     """
@@ -259,6 +261,29 @@ class ChargenRoom(DefaultRoom):
 
     pass
 
+class CmdCGStart(default_cmds.MuxCommand):
+    """
+    Displays a page with data relevant to a particular stage of character creation. This is identical to standing in the respective chargen room and using "look". The stage will match partials. "Magic" and "Resonance" are synonymous here. The options you are shown for either of these will be based on which one is in your priorities list.
+
+    Usage:
+        chargen metatype
+        chargen ski
+        cg attributes
+        cg mag
+    """
+
+    key = "cgstart"
+    aliases = ["cg"]
+    lock = "cmd:perm(unapproved)"
+    help_category = "Chargen"
+
+    def func(self):
+        tag = "|Rsr5 > |n"
+
+        self.caller.msg(tag + "You have entered character creation.")
+        self.caller.scripts.delete(key="chargen")
+        self.caller.scripts.add("sr5.chargen.ChargenScript")
+
 class CmdSetPriority(default_cmds.MuxCommand):
     """
     Sets your priorities in chargen. You must set each of priorities A through E to one of 'Metatype', 'Attributes', 'Magic', 'Resonance', 'Skills', and 'Resources'. The command will match partials, and both "Magic" and "Resonance" are valid names for the third column.
@@ -348,8 +373,9 @@ class CmdCGRoom(default_cmds.MuxCommand):
         cg mag
     """
 
-    key = "chargen"
-    aliases = ["cg"]
+    # TODO: Reconsider whether the space after the command is valuable.
+    key = "chargen "
+    aliases = ["cg "]
     lock = "cmd:perm(unapproved)"
     help_category = "Chargen"
 
@@ -667,19 +693,31 @@ class CmdSetLifestyle(default_cmds.MuxCommand):
         tag = "|Rsr5 > |n"
 
         caller.msg("This command isn't in place yet.")
+
+
 class CmdBuyAugment(default_cmds.MuxCommand):
     """
     Buy augments in character creation. This system needs to be figured out.
 
     Usage:
-    > augment dermal plating
-    > aug dermal plating
+    > augment cyberlimb=left foot/synthetic/strength 2
+    > aug cyberlimb=skull
     """
 
     key = "augment"
     aliases = ["aug"]
     lock = "cmd:perm(unapproved)"
     help_category = "Chargen"
+
+    def parse(self):
+        # Take a command with two arguments and optional spaces and equals
+        # signs and render it down into two arguments.
+        self.args = self.args.strip()
+        self.args = self.args.split('=', 1)
+        for i in range(0, len(self.args)):
+            self.args[i] = self.args[i].strip()
+
+        # TODO: Figure out a unified parse().
 
     def func(self):
         "Active function."
@@ -688,11 +726,81 @@ class CmdBuyAugment(default_cmds.MuxCommand):
 
         tag = "|Rsr5 > |n"
 
-        caller.msg("This command isn't in place yet.")
+        # Make human- and code-readable versions of `target`
+        target = [self.args[0].lower().replace('_', ' '),
+                  self.args[0].upper().replace(' ', '_')]
+
+        # Break up the second argument into keywords.
+        if len(self.args) == 2:
+            options = self.args[1].split('/')
+        else:
+            options = ["show"]
+
+        # Define options.
+        strength = 0
+        agility = 0
+        synthetic = False
+
+        for i in range(0, len(options)):
+            if options[i] == "show" and target[1] not in BUYABLE:
+                # This is useful to remember:
+                # caller.msg("List of grades: " + str(Grades.__dict__))
+                caller.msg("List of grades: " + str(Grades.options))
+                caller.msg("List of available 'ware': " + str(BUYABLE))
+
+                return True
+            if options[i] == "synthetic":
+                synthetic = True
+            elif options[i] == "obvious":
+                synthetic = False
+            else:
+                if "strength" in options[i]:
+                    strength = int(float(options[i].split(' ')[1]))
+                if "agility" in options[i]:
+                    agility = int(float(options[i].split(' ')[1]))
+
+        s = cg.db.qualities_positive.get("exceptional attribute (strength)", 0)
+        if strength + 3 > cg.db.meta_attr["strength"][1] + s:
+            caller.msg("You can't have a cyberlimb built with higher strength"
+                       " than your natural maximum.")
+            return False
+        a = cg.db.qualities_positive.get("exceptional attribute (agility)", 0)
+        if agility + 3 > cg.db.meta_attr["agility"][1] + a:
+            caller.msg("You can't have a cyberlimb built with higher agility"
+                       " than your natural maximum.")
+            return False
+
+        # Calculate costs.
+        cost = Aug_Methods.apply_costs_and_capacity(
+            Aug_Methods(), [target[1].lower()], synthetic
+        )[0]
+        cost = cost + (strength + agility) * 5000
+
+        if cost > cg.db.nuyen:
+            result = "You cannot afford that."
+        else:
+            result = "Enjoy your shiny new " + target[0] + "."
+            cyberlimb = spawner.spawn({
+                "prototype": target[1],
+                "location": caller,
+                "custom_str": strength,
+                "custom_agi": agility,
+                "synthetic": synthetic
+            })
+
+        # Format and print the results.
+        if synthetic:
+            target[0] = "synthetic " + target[0]
+
+        caller.msg("You have placed an order for a {} with strength +{} and agility +{} at a cost of {} nuyen. {}".format(target[0], strength, agility, cost, result))
+
 
 class CmdSetQualities(default_cmds.MuxCommand):
     """
-    Sets your qualities. The quality field will match partials. If you enter a number above the maximum level for the quality, the highest level of the quality will be entered. Qualities with multiple forms are most likely split into individual entries, so make sure to check them first.
+    Sets your qualities. The quality field will match partials. If you enter
+    a number above the maximum level for the quality, the highest level of the
+    quality will be entered. Qualities with multiple forms are most likely
+    split into individual entries, so make sure to check them first.
 
     Usage:
     > quality addiction (common) 4
@@ -713,6 +821,7 @@ class CmdSetQualities(default_cmds.MuxCommand):
 
         caller.msg("This command isn't in place yet.")
 
+
 class ChargenCmdSet(CmdSet):
     """
     This is the cmdset available to the Player at all times. It is
@@ -721,6 +830,7 @@ class ChargenCmdSet(CmdSet):
     commands, etc.
     """
     key = "Chargen"
+    priority = 10
 
     def at_cmdset_creation(self):
         """

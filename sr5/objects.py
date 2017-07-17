@@ -6,6 +6,7 @@ for prototypes and parents.
 
 """
 from evennia import DefaultObject
+from sr5.data.ware import Grades, Obvious, Synthetic
 
 # TODO: Remove the Object class. I'm just keeping it around for reference
 # as I figure out what Extra needs.
@@ -185,7 +186,7 @@ class Extra(DefaultObject):
         kwargs - Switches if necessary.
         """
         lookup = stat.split('.')                # A list of attr name and keys.
-        depth = len(lookup) and and             # How deep we should look.
+        depth = len(lookup)                     # How deep we should look.
         entry = getattr(self.db, lookup[0], 0)  # The attr itself.
 
         # TODO: Make this create a list if there are multiple args, or a
@@ -304,8 +305,10 @@ class Augment(Extra):
 
     def at_object_creation(self):
         self.db.grade = "standard"
-        self.db.essence = 1.0
-        # self.db.cost = {"nuyen": {"base": 100, "multiplier": 1.0}}
+        self.db.custom_str = 0
+        self.db.custom_agi = 0
+        self.db.synthetic = False
+        self.db.cost = 0
 
         # Override default flags where necessary.
         self.db.visible = True
@@ -314,9 +317,85 @@ class Augment(Extra):
         self.db.slot = (True)
         self.db.slot_list = []
 
-        # Perform initial setup.
-        self.apply_grade(self.db.grade)
+    # Initial setup functions called by the prototype.
+    def apply_costs_and_capacity(self, slot_list, synthetic):
+        results = Aug_Methods.apply_costs_and_capacity(
+            Aug_Methods(), slot_list, synthetic
+        )
 
-    def apply_grade(grade):
-        # TODO: Grab grade modifiers from data.ware.Grades and apply them.
-        pass
+        self.db.cost = results[0]
+        self.db.capacity = results[1]
+
+    def apply_customizations(self):
+        self.db.strength += self.db.custom_str
+        self.db.agility += self.db.custom_agi
+
+        customizations = self.db.custom_agi + self.db.custom_str
+        self.db.cost += customizations * 5000
+
+    def apply_grade(self):
+        grade = getattr(Grades, self.db.grade)
+
+        self.db.cost = self.db.cost * grade["cost"]
+        self.db.essence = self.db.essence * grade["essence"]
+
+class Aug_Methods():
+    def apply_costs_and_capacity(self, slot_list, synthetic):
+        # HACK: This is a kludge so that I can use this function from the buy
+        # command. It should be made more sensible and efficient at some point.
+        if "right_arm" in slot_list or "left_arm" in slot_list:
+            slot_list += ["right_upper_arm"]
+        elif "right_leg" in slot_list or "left_leg" in slot_list:
+            slot_list += "right_upper_leg"
+
+        if "right_upper_arm" in slot_list or "left_upper_arm" in slot_list:
+            if synthetic:
+                cost = Synthetic.full_arm["cost"]
+                capacity = Synthetic.full_arm["capacity"]
+            else:
+                cost = Obvious.full_arm["cost"]
+                capacity = Obvious.full_arm["capacity"]
+        elif "right_lower_arm" in slot_list or "left_lower_arm" in slot_list:
+            if synthetic:
+                cost = Synthetic.lower_arm["cost"]
+                capacity = Synthetic.lower_arm["capacity"]
+            else:
+                cost = Obvious.lower_arm["cost"]
+                capacity = Obvious.lower_arm["capacity"]
+        elif "right_hand" in slot_list or "left_hand" in slot_list or "right_foot" in slot_list or "left_foot" in slot_list:
+            if synthetic:
+                cost = Synthetic.hand_foot["cost"]
+                capacity = Synthetic.hand_foot["capacity"]
+            else:
+                cost = Obvious.hand_foot["cost"]
+                capacity = Obvious.hand_foot["capacity"]
+        elif "right_upper_leg" in slot_list or "left_upper_leg" in slot_list:
+            if synthetic:
+                cost = Synthetic.full_leg["cost"]
+                capacity = Synthetic.full_leg["capacity"]
+            else:
+                cost = Obvious.full_leg["cost"]
+                capacity = Obvious.full_leg["capacity"]
+        elif "right_lower_leg" in slot_list or "left_lower_leg" in slot_list:
+            if synthetic:
+                cost = Synthetic.lower_leg["cost"]
+                capacity = Synthetic.lower_leg["capacity"]
+            else:
+                cost = Obvious.lower_leg["cost"]
+                capacity = Obvious.lower_leg["capacity"]
+        elif "torso" in slot_list:
+            if synthetic:
+                cost = Synthetic.torso["cost"]
+                capacity = Synthetic.torso["capacity"]
+            else:
+                cost = Obvious.torso["cost"]
+                capacity = Obvious.torso["capacity"]
+        elif "skull" in slot_list:
+            if synthetic:
+                cost = Synthetic.skull["cost"]
+                capacity = Synthetic.skull["capacity"]
+            else:
+                cost = Obvious.skull["cost"]
+                capacity = Obvious.skull["capacity"]
+
+        return [cost, capacity]
