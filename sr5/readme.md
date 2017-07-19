@@ -23,7 +23,7 @@ There are three major reasons why I believe every Evennia package should be buil
 
 Some people prefer the experience of going into a dedicated chargen room and walking through the process. It's very tangible that way, if a little slower. Some people prefer entering all the chargen commands from anywhere (this is especially relevant for plot-runners who want to create statted NPCs); I make characters by writing every single command into a text file and pasting them into the MUSH all at once. In the immediate future (should be right now, but we as a community have been slacking), people will demand fully web-accessible interfaces with mobile-first design.
 
-To meet the needs of all three of these groups, chargen *cannot* be a series of commands attached to rooms. It has to be a command set with logic functions positioned in such a way that Django has access to them. The best solution I've found is to place a persistent [Script](https://github.com/evennia/evennia/wiki/Scripts) on the user. This has several objectives:
+To meet the needs of all three of these groups, chargen *cannot* be a series of commands attached to rooms. It has to be a command set with logic functions positioned in such a way that Django has access to them. The best solution I've found is to place a persistent [Script](https://github.com/DamnedScholar/evennia-testbox/blob/master/sr5/chargen.py#L19) on the user. This has several objectives:
 
 * The Script holds the logic for chargen functions, so chargen commands can always access it via `self.caller.cg`.
 * The Script can easily give the user access to the `ChargenCmdSet` and revoke access when it is ended.
