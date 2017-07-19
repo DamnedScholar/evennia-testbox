@@ -13,7 +13,7 @@ from evennia import DefaultRoom
 from evennia import DefaultScript
 from evennia.utils import evtable, spawner
 from sr5.data.skills import Skills
-from sr5.data.ware import BUYABLE, Grades, Obvious, Synthetic
+from sr5.data.ware import BuyableWare, Grades, Obvious, Synthetic
 from sr5.objects import Augment, Aug_Methods
 
 class ChargenScript(DefaultScript):
@@ -97,12 +97,14 @@ class ChargenScript(DefaultScript):
 
     def reset_all(self):
         "Resets chargen."
-        # Preliminary chargen stuff
+        # Preliminary chargen stuff. Does this need to be here?
         self.db.tier = "experienced"
         self.db.priorities = {"a": "", "b": "", "c": "",
                               "d": "", "e": ""}
         self.db.karma = 25
 
+        # TODO: Can't I automate this by polling __dict__ for functions that
+        # start with `reset_`?
         self.reset_metatype()
         self.reset_attr()
         self.reset_magres()
@@ -111,6 +113,7 @@ class ChargenScript(DefaultScript):
         self.reset_qualities()
         self.reset_vitals()
         self.reset_background()
+    # TODO: Is it intuitive to have defaults labeled as `reset_`?
     def reset_metatype(self):
         "Resets metatype and related stats."
         self.db.metatype, self.db.metakarma = "", 0
@@ -154,11 +157,32 @@ class ChargenScript(DefaultScript):
         "Resets background."
         self.db.background = {}
 
+    def set_vital(self, field, value):
+        pass
     def set_metatype(self, metatype):
         self.db.metatype = metatype
         self.db.spec_attr = {'edge': 0, 'magic': 0, 'resonance': 0}
         self.db.meta_attr = cg.meta_attr[metatype]
-    def set_attr(self, attr):
+    def set_attr(self, attr, rating):
+        pass
+    def set_skill(self, skill, category, rating):
+        # TODO: Double check whether `category` is needed.
+        pass
+    def set_quality(self, quality, rating):
+        pass
+    def set_magic_type(self, type):
+        pass
+    def set_tradition(self, tradition):
+        pass
+    def set_magic_skill(self, skill, rating):
+        # TODO: Work it like normal skills.
+        pass
+    def set_lifestyle(self, lifestyle):
+        # TODO: This will always affect nuyen.
+        pass
+    def set_resources(self, resources):
+        # TODO: Check to see if the new resources level makes previous
+        # purchases unaffordable.
         pass
 
     def at_start(self):
@@ -232,6 +256,20 @@ class ChargenScript(DefaultScript):
                                  "\tResonance: 0/6\n"
 
         return getattr(self, step, "We're not finding that step.")
+    
+    def cg_complete(self):
+        # TODO: This function will run the validation, run the write function,
+        # and then destroy this script if everything executes successfully.
+        valid = cg_validate()
+        success = write_stats()
+        
+    def cg_validate(self):
+        # TODO: This function will check to make sure that everything on the
+        # character sheet 
+    
+    def write_stats(self):
+        # TODO: This function will administer the process of writing data on the chargen script onto the character.
+        pass
 
 class ChargenRoom(DefaultRoom):
     """
@@ -713,6 +751,8 @@ class CmdBuyAugment(default_cmds.MuxCommand):
         # Take a command with two arguments and optional spaces and equals
         # signs and render it down into two arguments.
         self.args = self.args.strip()
+        if self.args.find('=') == -1:
+            self.args = 'blank =' + self.args
         self.args = self.args.split('=', 1)
         for i in range(0, len(self.args)):
             self.args[i] = self.args[i].strip()
@@ -726,73 +766,111 @@ class CmdBuyAugment(default_cmds.MuxCommand):
 
         tag = "|Rsr5 > |n"
 
-        # Make human- and code-readable versions of `target`
-        target = [self.args[0].lower().replace('_', ' '),
-                  self.args[0].upper().replace(' ', '_')]
-
         # Break up the second argument into keywords.
         if len(self.args) == 2:
             options = self.args[1].split('/')
         else:
             options = ["show"]
 
-        # Define options.
-        strength = 0
-        agility = 0
-        synthetic = False
+        # Make human- and code-readable versions of `target`
+        target = [options[0].lower().replace('_', ' '),
+                  options[0].upper().replace(' ', '_')]
 
-        for i in range(0, len(options)):
-            if options[i] == "show" and target[1] not in BUYABLE:
-                # This is useful to remember:
-                # caller.msg("List of grades: " + str(Grades.__dict__))
-                caller.msg("List of grades: " + str(Grades.options))
-                caller.msg("List of available 'ware': " + str(BUYABLE))
+        # Grab the list of available things to be purchased.
+        buyable = BuyableWare.__dict__
 
-                return True
-            if options[i] == "synthetic":
-                synthetic = True
-            elif options[i] == "obvious":
-                synthetic = False
+        # Here we determine which category of things the target is in, if the
+        # category hasn't been provided.
+        umbrella = self.args[0]
+        if umbrella == "blank":
+            # Search through the buyable lists until `target` matches
+            # something, then set `umbrella` accordingly.
+            for category in buyable:
+                if target[1] in buyable[category]:
+                    umbrella = category
+                    break
+            if umbrella == "blank":
+                # TODO: Present a list of valid categories and items in them.
+                caller.msg("You have to choose a valid category or an item that exists in one of the valid categories. List to come soon.")
+
+                return False
+
+        grades = Grades.__dict__.keys()
+        if options[1] == "show" and target[1] not in buyable:
+            caller.msg("List of grades: " + str(grades))
+            caller.msg("List of available 'ware': " + str(buyable[umbrella]))
+
+            return True
+
+        # Special category-based rules. For items that don't have special
+        # properties, refer to the `else` at the end of this chain.
+        # TODO: All of this could be moved to the Aug_Methods() class.
+        if umbrella == "cyberlimbs":
+            # Define options.
+            strength = 0
+            agility = 0
+            synthetic = False
+            grade = "standard"
+
+            for i in range(0, len(options)):
+                if options[i] == "synthetic":
+                    synthetic = True
+                elif options[i] == "obvious":
+                    synthetic = False
+                elif options[i] in grades:
+                    grade = options[i]
+                else:
+                    if "strength" in options[i]:
+                        strength = int(float(options[i].split(' ')[1]))
+                    if "agility" in options[i]:
+                        agility = int(float(options[i].split(' ')[1]))
+
+            s = cg.db.qualities_positive.get("exceptional attribute (strength)", 0)
+            if strength + 3 > cg.db.meta_attr["strength"][1] + s:
+                caller.msg(tag + "You can't have a cyberlimb built with higher"
+                           " strength than your natural maximum.")
+                return False
+            a = cg.db.qualities_positive.get("exceptional attribute (agility)", 0)
+            if agility + 3 > cg.db.meta_attr["agility"][1] + a:
+                caller.msg(tag + "You can't have a cyberlimb built with higher"
+                           " agility than your natural maximum.")
+                return False
+
+            # TODO: Check to see if the cyberlimb being purchased takes up a slot
+            # already occupied. If the slot is occupied by another cyberlimb,
+            # replace it with this one.
+
+            # Calculate costs.
+            cost = Aug_Methods.apply_costs_and_capacity(
+                Aug_Methods(), [target[1].lower()], synthetic
+            )[0]
+            cost = cost + (strength + agility) * 5000
+
+            if cost > cg.db.nuyen:
+                result = "You cannot afford that."
             else:
-                if "strength" in options[i]:
-                    strength = int(float(options[i].split(' ')[1]))
-                if "agility" in options[i]:
-                    agility = int(float(options[i].split(' ')[1]))
+                result = "Enjoy your shiny new " + target[0] + "."
+                purchased = spawner.spawn({
+                    "prototype": target[1],
+                    "location": caller,
+                    "custom_str": strength,
+                    "custom_agi": agility,
+                    "synthetic": synthetic,
+                    "grade": grade
+                })
 
-        s = cg.db.qualities_positive.get("exceptional attribute (strength)", 0)
-        if strength + 3 > cg.db.meta_attr["strength"][1] + s:
-            caller.msg("You can't have a cyberlimb built with higher strength"
-                       " than your natural maximum.")
-            return False
-        a = cg.db.qualities_positive.get("exceptional attribute (agility)", 0)
-        if agility + 3 > cg.db.meta_attr["agility"][1] + a:
-            caller.msg("You can't have a cyberlimb built with higher agility"
-                       " than your natural maximum.")
-            return False
+            # Format and print the results.
+            if synthetic:
+                target[0] = "synthetic " + target[0]
 
-        # Calculate costs.
-        cost = Aug_Methods.apply_costs_and_capacity(
-            Aug_Methods(), [target[1].lower()], synthetic
-        )[0]
-        cost = cost + (strength + agility) * 5000
-
-        if cost > cg.db.nuyen:
-            result = "You cannot afford that."
+            caller.msg(tag + "You have placed an order for a {} with strength "
+                       "+{} and agility +{} at a cost of {} nuyen. "
+                       "{}".format(target[0], strength, agility, cost, result))
+        elif umbrella == "headware":
+            pass
         else:
-            result = "Enjoy your shiny new " + target[0] + "."
-            cyberlimb = spawner.spawn({
-                "prototype": target[1],
-                "location": caller,
-                "custom_str": strength,
-                "custom_agi": agility,
-                "synthetic": synthetic
-            })
-
-        # Format and print the results.
-        if synthetic:
-            target[0] = "synthetic " + target[0]
-
-        caller.msg("You have placed an order for a {} with strength +{} and agility +{} at a cost of {} nuyen. {}".format(target[0], strength, agility, cost, result))
+            # This is for items that don't have special creation rules.
+            pass
 
 
 class CmdSetQualities(default_cmds.MuxCommand):

@@ -63,7 +63,12 @@ class CmdSheet(default_cmds.MuxCommand):
         else:
             target = caller
 
-        # TODO: If target = caller at this point, and the caller is in chargen, pull stats from the chargen script instead of the character.
+        # If the target is in chargen, look at the chargen script for data instead of the character object.
+        if target.cg:
+            target = target.cg
+            mode = "chargen"
+        else:
+            mode = "normal"
 
         if not self.switches:
             # Display the character sheet. If the object doesn't have a character sheet, display an error message.

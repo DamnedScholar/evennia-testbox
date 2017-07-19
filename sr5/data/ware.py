@@ -4,6 +4,7 @@ Cyberware and bioware prototype dictionary and rules reference.
 
 
 class Grades():
+    # TODO: Remove this if Grades.__dict__.keys() does the same thing.
     options = ["standard", "alphaware", "betaware", "deltaware", "used"]
 
     standard = {"essence": 1.0, "availability": 0, "cost": 1.0}
@@ -33,11 +34,14 @@ class Synthetic():
     skull = {"capacity": 2, "cost": 15000}
 
 
-BUYABLE = ["LEFT_ARM", "LEFT_FOOT", "LEFT_HAND", "LEFT_LEG", "LEFT_LOWER_ARM",
-           "LEFT_LOWER_LEG", "RIGHT_ARM", "RIGHT_FOOT", "RIGHT_HAND",
-           "RIGHT_LEG", "RIGHT_LOWER_ARM", "RIGHT_LOWER_LEG", "SKULL", "TORSO"]
+class BuyableWare():
+    cyberlimbs = ["LEFT_ARM", "LEFT_FOOT", "LEFT_HAND", "LEFT_LEG",
+        "LEFT_LOWER_ARM", "LEFT_LOWER_LEG", "RIGHT_ARM", "RIGHT_FOOT",
+        "RIGHT_HAND", "RIGHT_LEG", "RIGHT_LOWER_ARM", "RIGHT_LOWER_LEG",
+        "SKULL", "TORSO"]
 
 
+# Cyberlimbs
 CYBERLIMB = {"key": "Cyberlimb Prototype",
              "typeclass": "sr5.objects.Augment",
              "strength": 3,
