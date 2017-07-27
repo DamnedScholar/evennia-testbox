@@ -75,36 +75,36 @@ class CmdSheet(default_cmds.MuxCommand):
             if not self.args:
                 # Display the caller's sheet.
                 vitals = evtable.EvTable(width=120, align="l")
-                vitals.add_row("Full Name:",target.db.fullname,
-                               "Birthdate:",target.db.birthdate)
-                vitals.add_row("Metatype:",target.db.metatype,
-                               "Ethnicity:",target.db.ethnicity)
-                vitals.add_row("Height:",target.db.height,
-                               "Weight:",target.db.weight)
+                vitals.add_row("Full Name:", target.db.fullname,
+                               "Birthdate:", target.db.birthdate)
+                vitals.add_row("Metatype:", target.db.metatype,
+                               "Ethnicity:", target.db.ethnicity)
+                vitals.add_row("Height:", target.db.height,
+                               "Weight:", target.db.weight)
                 rep = evtable.EvTable(width=120, align="l")
-                rep.add_row("Street Cred:",target.db.street_cred,
-                            "Notoriety:",target.db.notoriety,
-                            "Public Awareness:",target.db.public_awareness)
+                rep.add_row("Street Cred:", target.db.street_cred,
+                            "Notoriety:", target.db.notoriety,
+                            "Public Awareness:", target.db.public_awareness)
                 karma = evtable.EvTable(width=120, align="l")
-                karma.add_row("Karma:",target.db.karma["current"],
-                               "Total:",target.db.karma["total"])
+                karma.add_row("Karma:", target.db.karma["current"],
+                               "Total:", target.db.karma["total"])
                 caller.msg(vitals)
                 caller.msg(rep)
                 caller.msg(karma)
 
                 attributes = evtable.EvTable(width=120, align="l")
-                attributes.add_row("BOD:",target.get_bod(),
-                                   "AGI:",target.get_agi(),
-                                   "REA:",target.get_rea(),
-                                   "STR:",target.get_str())
-                attributes.add_row("WIL:",target.get_bod(),
-                                   "LOG:",target.get_agi(),
-                                   "INT:",target.get_rea(),
-                                   "CHA:",target.get_str())
-                attributes.add_row("Essence:",target.get_ess(),
-                                   "Edge:",target.get_edg(),
-                                   "Magic:",target.get_mag(),
-                                   "Resonance:",target.get_res())
+                attributes.add_row("BOD:", target.get_bod(),
+                                   "AGI:", target.get_agi(),
+                                   "REA:", target.get_rea(),
+                                   "STR:", target.get_str())
+                attributes.add_row("WIL:", target.get_bod(),
+                                   "LOG:", target.get_agi(),
+                                   "INT:", target.get_rea(),
+                                   "CHA:", target.get_str())
+                attributes.add_row("Essence:", target.get_ess(),
+                                   "Edge:", target.get_edg(),
+                                   "Magic:", target.get_mag(),
+                                   "Resonance:", target.get_res())
                 caller.msg(attributes)
 
                 def cond_count(i, t):
@@ -122,31 +122,31 @@ class CmdSheet(default_cmds.MuxCommand):
 
                 phys_mod = target.get_phys_mod()
                 stun_mod = target.get_stun_mod()
-                derived = evtable.EvTable(width=120, align="l", border = "none")
-                derived.add_row("Initiative:",target.get_init(),
+                derived = evtable.EvTable(width=120, align="l", border="none")
+                derived.add_row("Initiative:", target.get_init(),
                                 "Physical Mod:",
                                 "Stun Mod:")
-                derived.add_row("Astral Initiative:",target.get_astral_init(),
+                derived.add_row("Astral Initiative:", target.get_astral_init(),
                                 cond_count(0, phys_mod),
                                 cond_count(0, stun_mod))
-                derived.add_row("Matrix Initiative:",target.get_matrix_init(),
+                derived.add_row("Matrix Initiative:", target.get_matrix_init(),
                                 cond_count(3, phys_mod),
                                 cond_count(3, stun_mod))
-                derived.add_row("Composure:",target.get_composure(),
+                derived.add_row("Composure:", target.get_composure(),
                                 cond_count(6, phys_mod),
                                 cond_count(6, stun_mod))
-                derived.add_row("Judge Intentions:",target.get_judge(),
+                derived.add_row("Judge Intentions:", target.get_judge(),
                                 cond_count(9, phys_mod),
                                 cond_count(9, stun_mod))
-                derived.add_row("Memory:",target.get_memory(),
+                derived.add_row("Memory:", target.get_memory(),
                                 cond_count(12, phys_mod))
-                derived.add_row("Lift/Carry:",target.get_lift_carry(),
+                derived.add_row("Lift/Carry:", target.get_lift_carry(),
                                 cond_count(15, phys_mod))
-                derived.add_row("Movement:",target.get_movement())
+                derived.add_row("Movement:", target.get_movement())
                 caller.msg(derived)
 
                 skills = evtable.EvTable("Skills", width=120, align="l",
-                                         border = "header")
+                                         border="header")
                 # TODO: Add active skill groups.
                 active_skills = ""
                 skill_list = sorted(target.db.active_skills.items() + target.db.active_skill_groups.items())
@@ -232,6 +232,7 @@ class CmdSheet(default_cmds.MuxCommand):
             caller.msg("Prove command coming soon.")
         else:
             caller.msg("I don't know what switch that is.")
+
 
 class CmdBody(default_cmds.MuxCommand):
     """
