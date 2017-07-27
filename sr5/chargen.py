@@ -92,6 +92,8 @@ class ChargenScript(DefaultScript):
                  "d": {"street": 15000, "experienced": 50000, "prime": 150000},
                  "e": {"street": 6000, "experienced": 6000, "prime": 100000}}
 
+    persistent = True
+
     def at_script_creation(self):
         # Evennia stuff
         self.key = "chargen"
@@ -323,8 +325,9 @@ class ChargenScript(DefaultScript):
         max: Flat number or attribute reference.
         min: Flat number or attribute reference.
         equals: Flat number or attribute reference.
-        in: Take a list and check if a member of the stat is in the list.
+        in: Take a list and check if all member of the stat are in the list.
         not in: Take a list and check if no members are in the list.
+        contains: Take a list and check that all members are in the stat.
         """
         # TODO: This function will check to make sure that everything on the
         # character sheet is valid.
@@ -393,6 +396,7 @@ class ChargenScript(DefaultScript):
                 "equals": check.get("equals", None),
                 "in": check.get("in", None),
                 "not in": check.get("not in", None),
+                "contains": check.get("contains", None),
                 "tip": check.get("tip", ""),
                 "cat": check.get("cat", "other")
             }
@@ -563,8 +567,6 @@ class ChargenScript(DefaultScript):
 
                     continue
 
-                self.obj.msg("to_check: {}".format(to_check))
-
                 # Some comparisons we want to perform require a number. Others
                 # will act on a list of items.
                 if isinstance(to_check, (int, float)):
@@ -672,7 +674,7 @@ class ChargenScript(DefaultScript):
                         "tip": "\"In\" values should be a list."
                     }]
 
-                # Check whether the stat is in the list provided.
+                # Check that the stat is not in the list provided.
                 if isinstance(s['not in'], (list)):
                     if set(list_check).intersection(s['not in']):
                         results_list += [{
@@ -689,6 +691,25 @@ class ChargenScript(DefaultScript):
                         "key": instance + " (" + str(list_check) + ")",
                         "what": "has nothing that it can be compared to",
                         "tip": "\"Not in\" values should be a list."
+                    }]
+
+                # Check that the stat contains a member of the list.
+                if isinstance(s['contains'], (list)):
+                    if not set(s['not in']).intersection(list_check):
+                        results_list += [{
+                            "stat": stat[0],
+                            "cat": s["cat"],
+                            "key": instance + " (" + str(list_check) + ")",
+                            "what": "isn't a valid option",
+                            "tip": "" + s['tip']
+                        }]
+                elif s['not in']:
+                    results_list += [{
+                        "stat": stat[0],
+                        "cat": s["cat"],
+                        "key": instance + " (" + str(list_check) + ")",
+                        "what": "has nothing that it can be compared to",
+                        "tip": "\"Contains\" values should be a list."
                     }]
 
         result_categories = self.result_categories
