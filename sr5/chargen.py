@@ -9,15 +9,20 @@ import math
 import string
 import re
 import pyparsing
+import dateutil
+from pint import UnitRegistry
 from evennia import CmdSet
 from evennia import default_cmds
 from evennia import DefaultRoom
 from evennia import DefaultScript
 from evennia.utils import evtable, spawner
 from evennia.utils.dbserialize import _SaverDict, _SaverList, _SaverSet
+from sr5.data.metatypes import Metatypes
 from sr5.data.skills import Skills
 from sr5.data.ware import BuyableWare, Grades, Obvious, Synthetic
 from sr5.objects import Augment, Aug_Methods
+
+ureg = UnitRegistry
 
 
 class ChargenScript(DefaultScript):
@@ -31,33 +36,6 @@ class ChargenScript(DefaultScript):
     data_skills = Skills
     categories = ["metatype", "attributes", "magic", "resonance", "skills",
                   "resources"]
-    metatypes = {"a": [("human", 9, 0), ("elf", 8, 0), ("dwarf", 7, 0), ("ork", 7, 0), ("troll", 5, 0)],
-                 "b": [("human", 7, 0), ("elf", 6, 0), ("dwarf", 4, 0), ("ork", 4, 0), ("troll", 0, 0)],
-                 "c": [("human", 5, 0), ("elf", 3, 0), ("dwarf", 1, 0), ("ork", 0, 0)],
-                 "d": [("human", 3, 0), ("elf", 0, 0)],
-                 "e": [("human", 1, 0)]}
-    meta_attr = {
-        "human": {"body": (1, 6), "agility": (1, 6), "reaction": (1, 6),
-                  "strength": (1, 6), "willpower": (1, 6), "logic": (1, 6),
-                  "intuition": (1, 6), "charisma": (1, 6),
-                  "edge": (2, 7), "magic": (0, 6), "resonance": (0, 6)},
-        "elf": {"body": (1, 6), "agility": (2, 7), "reaction": (1, 6),
-                  "strength": (1, 6), "willpower": (1, 6), "logic": (1, 6),
-                  "intuition": (1, 6), "charisma": (3, 8),
-                  "edge": (1, 6), "magic": (0, 6), "resonance": (0, 6)},
-        "dwarf": {"body": (3, 8), "agility": (1, 6), "reaction": (1, 5),
-                  "strength": (3, 8), "willpower": (2, 7), "logic": (1, 6),
-                  "intuition": (1, 6), "charisma": (1, 6),
-                  "edge": (1, 6), "magic": (0, 6), "resonance": (0, 6)},
-        "ork": {"body": (4, 9), "agility": (1, 6), "reaction": (1, 6),
-                  "strength": (3, 8), "willpower": (1, 6), "logic": (1, 5),
-                  "intuition": (1, 6), "charisma": (1, 5),
-                  "edge": (1, 6), "magic": (0, 6), "resonance": (0, 6)},
-        "troll": {"body": (5, 10), "agility": (1, 5), "reaction": (1, 6),
-                  "strength": (5, 10), "willpower": (1, 6), "logic": (1, 5),
-                  "intuition": (1, 5), "charisma": (1, 4),
-                  "edge": (1, 6), "magic": (0, 6), "resonance": (0, 6)},
-        }
     attr = {"a": 24, "b": 20, "c": 16, "d": 14, "e": 12}
     magic = {
         "a": {"magician": {"magic": 6, "skills": (2, 5), "spells": 10},
@@ -92,12 +70,11 @@ class ChargenScript(DefaultScript):
                  "d": {"street": 15000, "experienced": 50000, "prime": 150000},
                  "e": {"street": 6000, "experienced": 6000, "prime": 100000}}
 
-    persistent = True
-
     def at_script_creation(self):
         # Evennia stuff
         self.key = "chargen"
         self.desc = "Handles Character Creation"
+        self.persistent = True
 
         self.reset_all()
 
@@ -173,38 +150,210 @@ class ChargenScript(DefaultScript):
         self.db.background = {}
 
     def set_vital(self, field, value):
-        pass
+        "Attempt to set a vitals field, then return `(bool, string)`."
+        field = field.lower()
+        if field in ["fullname", "ethnicity"]:
+            pass
+        elif field in ["birthdate"]:
+            try:
+                self.db.birthdate = dateutil.parser.parse(field).date
+            except:
+                return (False, "That date isn't recognized.")
+        elif field in ["height"]:
+            pass
+        elif field in ["weight"]:
+            units = ["kg", "g", "lb", "lbs", "st", "stone", "#", "oz"]
+            measure = pyparsing.Word(pyparsing.nums + ".") + pyparsing.ZeroOrMore(pyparsing.Suppress(" ")) + pyparsing.Word(pyparsing.alphas)
+
+            weight = measure.parsestring(field)
+
+            if weight[1] in units:
+                self.db.weight = weight
 
     def set_metatype(self, metatype):
+        "Attempt to set a metatype, then return `(bool, string)`."
+        metatype = metatype.lower()
+        if metatype not in Metatypes.available:
+            return (False, "Metatype {} is not available at this time".format(
+                    metatype.title()))
+
         self.db.metatype = metatype
-        self.db.spec_attr = {'edge': 0, 'magic': 0, 'resonance': 0}
-        self.db.meta_attr = cg.meta_attr[metatype]
+        self.db.spec_attr = {'edge': 1, 'magic': 0, 'resonance': 0}
+        self.db.meta_attr = Metatypes.meta_attr[metatype]
+
+        return (True, "Metatype {} set.".format(metatype.title()))
 
     def set_attr(self, attr, rating):
-        pass
+        "Attempt to set an attribute, then return `(bool, string)`."
+        if not isinstance(attr, str):
+            return (False, "The attribute must be a string.")
+        if not isinstance(rating, int):
+            return (False, "Attribute ratings must be whole numbers.")
+        attr = attr.lower()
+        attrs = self.db.attr
 
-    def set_skill(self, skill, category, rating):
-        # TODO: Double check whether `category` is needed.
-        pass
+        if attr in attrs.keys():
+            bounds = list(self.db.met_attr[attr])
+            boost = ""
+            # Check for Aptitude
+            if self.get_quality("exceptional attribute ({})".format(attr)):
+                bounds[1] += 1
+                boost = " (plus Exceptional Attribute)"
+            elif self.get_quality("Lucky") and attr == "edge":
+                bounds[1] += 1
+                boost = " (plus Lucky)"
+            if rating < bounds[0]:
+                return (False, "You can't set this attribute below your "
+                        "metatype{} minimum of {}".format(boost, bounds[0]))
+            elif rating > bounds[1]:
+                return (False, "You can't set this attribute above your "
+                        "metatype{} maximum of {}".format(boost, bounds[1]))
+            else:
+                attrs.update({attr: rating})
+
+    def set_skill(self, skill, rating):
+        "Attempt to set a skill or group, then return `(bool, string)`."
+        if not isinstance(skill, str):
+            return (False, "The skill must be a string.")
+        if not isinstance(rating, int):
+            return (False, "Skill ratings must be whole numbers.")
+        skill = skill.lower()
+        lists = {"active": Skills.active.keys(),
+                 "groups": Skills.groups.keys(),
+                 "knowledge": Skills.knowledge.keys()}
+
+        # The max for each skill is 6 in chargen or 12 otherwise.
+        if self == "chargen":
+            skill_cap = 6
+            cap_msg = "The maximum rating for skills is 6 in character" \
+                "creation, or 7 if you have Aptitude ({}).".format(
+                    skill.title()
+                )
+        else:
+            skill_cap = 12
+            cap_msg = "The maximum rating for skills is 12," \
+                "or 13 if you have Aptitude ({}).".format(skill.title())
+
+        if skill in lists["groups"]:
+            # Check if the skill group is valid (the ratings are the same and
+            # no skill in the group has a specialization).
+            # Aptitude isn't relevant here.
+            if rating > skill_cap:
+                return (False, cap_msg)
+
+            group = Skills.groups[skill]
+            nums = []
+            for s in range(0, len(group)):
+                nums[s] = self.get_skill(group[s])
+                spec = self.get_specialization(group[s])
+            if spec:
+                return (False, "You can't use a skill group if one of them"
+                        " has a specialization.")
+            elif len(set(nums)) > 1:
+                return (False, "You can't use a skill group if they aren't all"
+                        " at the same rating.")
+            else:
+                for s in range(0, len(group)):
+                    new = {group[s]: rating}
+                    skills = self.attributes.get("active_skills")
+
+                    skills.update(new)
+
+                return (True, "Skill group {} set at {}".format(skill, rating))
+        elif skill in lists["active"]:
+            # Check for Aptitude
+            if self.get_quality("aptitude ({})".format(skill)):
+                skill_cap += 1
+            if rating > skill_cap:
+                return (False, cap_msg)
+
+            skills = self.attributes.get("active_skills")
+
+            skills.update({skill: rating})
+        elif skill in lists["knowledge"]:
+            # Check for Aptitude
+            if self.get_quality("aptitude ({})".format(skill)):
+                skill_cap += 1
+            if rating > skill_cap:
+                return (False, cap_msg)
+
+            skills = self.attributes.get("active_skills")
+
+            skills.update({skill: rating})
+        else:
+            return (False, "Skill {} not found.".format(skill.title()))
+
+    def set_specialization(self, skill, spec):
+        "Attempt to set a specialization, then return `(bool, string)`."
+        skill, spec = skill.lower(), spec.lower()
+        lists = {"active": Skills.active.keys(),
+                 "knowledge": Skills.knowledge.keys()}
+
+        if skill in lists["active"]:
+            specs = self.db.active_specializations
+        elif skill in lists["knowledge"]:
+            specs = self.db.knowledge_specializations
+        else:
+            return (False, "{} doesn't seem to be a valid skill.".format(
+                    skill.title()))
+
+        if skill in specs.keys():
+            return (False, "You can only have one specialization per skill. "
+                    "If you want to change your specialization, you have to "
+                    "remove the old one first.")
+        else:
+            specs.update({skill: spec})
+
+            return (True, "Specialization {} ({}) set.".format(
+                    skill.title(), spec.title()))
+
+    def unset_specialization(self, skill, spec):
+        "Attempt to unset a specialization, then return `(bool, string)`."
+        skill, spec = skill.lower(), spec.lower()
+        lists = {"active": Skills.active.keys(),
+                 "knowledge": Skills.knowledge.keys()}
+
+        if skill in lists["active"]:
+            specs = self.db.active_specializations
+        elif skill in lists["knowledge"]:
+            specs = self.db.knowledge_specializations
+        else:
+            return (False, "{} doesn't seem to be a valid skill.".format(
+                    skill.title()))
+
+        if skill in specs.keys():
+            specs.pop(skill)
+
+            return (True, "Specialization {} ({}) removed.".format(
+                    skill.title(), spec.title()))
+        else:
+            return (False, "That skill doesn't appear to have a"
+                    "specialization.")
 
     def set_quality(self, quality, rating):
+        "Attempt to set a quality, then return `(bool, string)`."
         pass
 
     def set_magic_type(self, type):
+        "Attempt to set a magic type, then return `(bool, string)`."
         pass
 
     def set_tradition(self, tradition):
+        "Attempt to set a tradition, then return `(bool, string)`."
         pass
 
     def set_magic_skill(self, skill, rating):
+        "Attempt to set a skill or group, then return `(bool, string)`."
         # TODO: Work it like normal skills.
         pass
 
     def set_lifestyle(self, lifestyle):
+        "Attempt to set a lifestyle, then return `(bool, string)`."
         # TODO: This will always affect nuyen.
         pass
 
     def set_resources(self, resources):
+        "Attempt to set a resources level, then return `(bool, string)`."
         # TODO: Check to see if the new resources level makes previous
         # purchases unaffordable.
         pass
@@ -1178,6 +1327,8 @@ class CmdSetSkill(default_cmds.MuxCommand):
         tag = "|Rsr5 > |n"
 
         caller.msg("This command isn't in place yet.")
+        # TODO: For knowledge skills, it shouldn't matter if the player types
+        # "Gangs (Street)" or "Street (Gangs)"
 
 
 class CmdSetSpecialization(default_cmds.MuxCommand):

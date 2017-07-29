@@ -56,3 +56,16 @@ Maybe I should use `Improved Ability ([*Skill, Non-Combat]) 1` instead of `Impro
 https://docs.python.org/2/library/functions.html#dir
 
 http://developer.contractbasis.com/devDeepShadows/
+
+# Roller
+```
+[Public] Sammi: Do knowledge or language skills have any special interaction with specializations? Aside from
+the N (native) rating, is there anything that sets language skills apart from knowledge skills as a whole?
+[Public] D-bone: yes
+[Public] D-bone: knowledge skills have a special rule which I hate- your language pool is the maximium rating
+you can use social dice for
+[Public] D-bone: so if you have japanese 3- your pool for negotation isn't charisma + negotation which might
+be 12, its 3
+[Public] D-bone: and becuase language skills can only go up to 9-12ish its kinda bullshit actually
+[Public] D-bone: beyond that there are some special rules related to languages
+```
