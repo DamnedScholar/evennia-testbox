@@ -9,11 +9,19 @@ creation commands.
 """
 
 import math
+import string
+import re
+import pyparsing
+from dateutil import parser
+from pint import UnitRegistry
 from evennia import DefaultCharacter
-from chargen import ChargenScript
+from sr5.chargen import ChargenScript
+from sr5.system import Stats
+from sr5.utils import ureg
 from sr5.data.skills import Skills
 
-class DefaultShadowrunner(DefaultCharacter):
+
+class DefaultShadowrunner(DefaultCharacter, Stats):
     """
     The Character defaults to reimplementing some of base Object's hook methods with the
     following functionality:
@@ -38,7 +46,7 @@ class DefaultShadowrunner(DefaultCharacter):
         """
         Called only at initial creation. Set default values to fill out character sheet.
         """
-        # self.permissions = ["unapproved"]
+        self.permissions = ["unapproved"]
         self.scripts.add("sr5.chargen.ChargenScript")
 
         self.db.approved = False
@@ -72,203 +80,6 @@ class DefaultShadowrunner(DefaultCharacter):
         self.db.language_specializations = {}
         # Don't store the Karma value of qualities. Store the level and calculate the Karma points based on the lookup table.
         self.db.qualities_positive = {}
-        self.db.qualities_negative={}
-
-    def get_bod(self):
-        """
-        Return the character's Body.
-        """
-        return self.db.attributes["body"]
-    def set_bod(self, new):
-        """
-        Set the character's Body.
-        """
-        if isinstance( new, ( int, long ) ):
-            self.db.attributes['body'] = new
-
-            return True
-        else:
-            return False
-    def get_agi(self):
-        """
-        Return the character's Agility.
-        """
-        return self.db.attributes['agility']
-    def set_agi(self, new):
-        """
-        Set the character's Agility.
-        """
-        if isinstance( new, ( int, long ) ):
-            self.db.attributes['agility'] = new
-
-            return True
-        else:
-            return False
-    def get_rea(self):
-        """
-        Return the character's Reaction.
-        """
-        return self.db.attributes['reaction']
-    def set_rea(self, new):
-        """
-        Set the character's Reaction.
-        """
-        if isinstance( new, ( int, long ) ):
-            self.db.attributes['reaction'] = new
-
-            return True
-        else:
-            return False
-    def get_str(self):
-        """
-        Return the character's Strength.
-        """
-        return self.db.attributes['strength']
-    def set_str(self, new):
-        """
-        Set the character's Strength.
-        """
-        if isinstance( new, ( int, long ) ):
-            self.db.attributes['strength'] = new
-
-            return True
-        else:
-            return False
-    def get_wil(self):
-        """
-        Return the character's Willpower.
-        """
-        return self.db.attributes['willpower']
-    def set_wil(self, new):
-        """
-        Set the character's Willpower.
-        """
-        if isinstance( new, ( int, long ) ):
-            self.db.attributes['willpower'] = new
-
-            return True
-        else:
-            return False
-    def get_log(self):
-        """
-        Return the character's Logic.
-        """
-        return self.db.attributes['logic']
-    def set_log(self, new):
-        """
-        Set the character's Logic.
-        """
-        if isinstance( new, ( int, long ) ):
-            self.db.attributes['logic'] = new
-
-            return True
-        else:
-            return False
-    def get_int(self):
-        """
-        Return the character's Intuition.
-        """
-        return self.db.attributes['intuition']
-    def set_int(self, new):
-        """
-        Set the character's Intuition.
-        """
-        if isinstance( new, ( int, long ) ):
-            self.db.attributes['intuition'] = new
-
-            return True
-        else:
-            return False
-    def get_cha(self):
-        """
-        Return the character's Charisma.
-        """
-        return self.db.attributes['charisma']
-    def set_cha(self, new):
-        """
-        Set the character's Charisma.
-        """
-        if isinstance( new, ( int, long ) ):
-            self.db.attributes['charisma'] = new
-
-            return True
-        else:
-            return False
-
-    def get_ess(self):
-        """
-        Return the character's Essence.
-        """
-        return self.db.attributes['essence']
-    def get_edg(self):
-        """
-        Return the character's Edge.
-        """
-        return self.db.attributes['edge']
-    def get_mag(self):
-        """
-        Return the character's Magic.
-        """
-        return self.db.attributes['magic']
-    def get_res(self):
-        """
-        Return the character's Resonance.
-        """
-        return self.db.attributes['resonance']
-
-    def get_init(self):
-        """
-        Calculate the character's initiative (REA + INT).
-        """
-        return self.get_rea() + self.get_int()
-    def get_astral_init(self):
-        """
-        Calculate the character's Astral initiative.
-        """
-        return self.get_int() * 2
-    def get_matrix_init(self):
-        """
-        Calculate the character's Matrix initiative.
-        """
-        return -1
-    def get_phys_mod(self):
-        """
-        Calculate the character's physical modifier (half BOD, rounded up, plus 8).
-        """
-        # Need to be able to iterate over the character's augmentations and magical effects to check for bonuses.
-        # The denominator has to have a decimal in order to force a float assignment.
-        return math.ceil(self.get_bod() / 2.0)+8
-    def get_stun_mod(self):
-        """
-        Calculate the character's stun modifier (half WIL, rounded up, plus 8).
-        """
-        # Need to be able to iterate over the character's augmentations and magical effects to check for bonuses.
-        # The denominator has to have a decimal in order to force a float assignment.
-        return math.ceil(self.get_wil() / 2.0) + 8
-    def get_composure(self):
-        """
-        Calculate the character's Matrix initiative.
-        """
-        return -1
-    def get_judge(self):
-        """
-        Calculate the character's Matrix initiative.
-        """
-        return -1
-    def get_memory(self):
-        """
-        Calculate the character's Matrix initiative.
-        """
-        return -1
-    def get_lift_carry(self):
-        """
-        Calculate the character's Matrix initiative.
-        """
-        return -1
-    def get_movement(self):
-        """
-        Calculate the character's Matrix initiative.
-        """
-        return -1
+        self.db.qualities_negative = {}
 
     pass

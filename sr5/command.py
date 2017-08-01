@@ -103,8 +103,7 @@ class CmdSheet(default_cmds.MuxCommand):
                                    "CHA:", target.get_str())
                 attributes.add_row("Essence:", target.get_ess(),
                                    "Edge:", target.get_edg(),
-                                   "Magic:", target.get_mag(),
-                                   "Resonance:", target.get_res())
+                                   target.get_magres()[0], target.get_magres()[1])
                 caller.msg(attributes)
 
                 def cond_count(i, t):
