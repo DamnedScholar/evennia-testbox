@@ -87,6 +87,7 @@ INSTALLED_APPS += ('django.contrib.humanize',
                    )
 
 INSTALLED_APPS += ('web.character',
+                   'sr5',
                    'sr5.systemview')
 
 # Paxboards

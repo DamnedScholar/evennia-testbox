@@ -1,5 +1,5 @@
 """
-System
+Utils
 
 This file contains system-agnostic utility functions.
 
@@ -12,6 +12,7 @@ import pyparsing
 from dateutil import parser
 from pint import UnitRegistry
 from evennia.utils.dbserialize import _SaverDict, _SaverList, _SaverSet
+from sr5.models import AccountingLog, AccountingIcetray, AccountingJournal
 
 
 ureg = UnitRegistry()
@@ -435,5 +436,32 @@ def validate(target, validate, result_categories):
     return (ok, to_display)
 
 
-class Account:
-    # Universal account system that involves logging
+class Ledger(AccountingJournal):
+    """
+    The user-facing part of the accounting system, which contains methods to
+    update the account and run the long-term storage.
+    """
+
+    def __init__(owner, currencyName, initialValue=0):
+        self.db_owner = owner
+        self.db_currency = currencyName
+        self.db_initial = initialValue
+        self.db_value = initialValue
+        self.db_accrued = initialValue
+
+    def record(value, reason):
+        entry = AccountingLog(db_owner=self.db_owner,
+                              db_currency=self.db_currency,
+                              db_value=value,
+                              db_reason=reason)
+
+        entry = AccountingIcetray(db_owner=self.db_owner,
+                                  db_currency=self.db_currency,
+                                  db_value=value,
+                                  db_reason=reason)
+        entry.save()
+
+        quick_log = AccountingLog.objects.filter(
+            db_owner__exact=self.db_owner,
+            db_currency__exact=self.db_currency
+        )
