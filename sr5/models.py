@@ -5,14 +5,7 @@ This file contains custom database models.
 
 """
 
-import math
-import string
-import re
-import pyparsing
-from dateutil import parser
-from pint import UnitRegistry
 from django.db import models
-from evennia.utils.dbserialize import _SaverDict, _SaverList, _SaverSet
 from evennia.utils.idmapper.models import SharedMemoryModel
 
 
