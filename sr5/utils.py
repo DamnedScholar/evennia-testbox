@@ -11,6 +11,7 @@ import re
 import pyparsing
 from dateutil import parser
 from pint import UnitRegistry
+import evennia
 from evennia.utils.dbserialize import _SaverDict, _SaverList, _SaverSet
 from sr5.models import AccountingLog, AccountingIcetray, AccountingJournal
 
@@ -442,14 +443,22 @@ class Ledger(AccountingJournal):
     update the account and run the long-term storage.
     """
 
-    def __init__(owner, currencyName, initialValue=0):
-        self.db_owner = owner
+    def __init__(self, owner, currencyName, initialValue=0):
+        self.db_owner = owner.dbref
         self.db_currency = currencyName
         self.db_initial = initialValue
         self.db_value = initialValue
         self.db_accrued = initialValue
 
-    def record(value, reason):
+    def record(self, value, reason):
+        owner = evennia.search_object(searchdata=self.db_owner)[0]
+
+        # Update the current value, and if the transaction is positive add to
+        # the running total.
+        self.db_value += value
+        if value > 0:
+            self.db_accrued += value
+
         entry = AccountingLog(db_owner=self.db_owner,
                               db_currency=self.db_currency,
                               db_value=value,
@@ -465,3 +474,8 @@ class Ledger(AccountingJournal):
             db_owner__exact=self.db_owner,
             db_currency__exact=self.db_currency
         )
+
+        for log in quick_log:
+            owner.msg("{}: {} {} {}".format(log.db_owner, log.db_currency, log.db_value, log.db_reason))
+
+        # owner.msg(quick_log)
