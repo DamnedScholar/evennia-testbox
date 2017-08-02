@@ -15,8 +15,6 @@ from django.db import models
 from evennia.utils.dbserialize import _SaverDict, _SaverList, _SaverSet
 from evennia.utils.idmapper.models import SharedMemoryModel
 
-# TODO: Migrations need to happen before any of this can be tested.
-
 
 class AccountingIcetray(models.Model):
     """
