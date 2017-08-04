@@ -25,7 +25,7 @@ class AccountingIcetray(models.Model):
                                            auto_now_add=True, db_index=True)
 
     class Meta:
-        ordering = ('db_date_created')
+        ordering = ('db_date_created',)
 
 
 class AccountingLog(SharedMemoryModel):
@@ -43,7 +43,7 @@ class AccountingLog(SharedMemoryModel):
                                            auto_now_add=True, db_index=True)
 
     class Meta:
-        ordering = ('db_date_created')
+        ordering = ('db_date_created',)
 
 
 class AccountingJournal(SharedMemoryModel):

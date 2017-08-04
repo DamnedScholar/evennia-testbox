@@ -1,0 +1,252 @@
+Help on Ledger in module sr5.utils object:
+class Ledger(sr5.models.AccountingJournal)
+|  The user-facing part of the accounting system, which contains methods to
+|  update the account and run the long-term storage.
+|
+|  Method resolution order:
+|  Ledger
+|  sr5.models.AccountingJournal
+|  evennia.utils.idmapper.models.SharedMemoryModel
+|  django.db.models.base.Model
+|  __builtin__.object
+|
+|  Methods defined here:
+|
+|  __init__(self, owner, currencyName, initialValue=0)
+|
+|  ice(self)
+|
+|  log(self)
+|
+|  objects = <evennia.utils.idmapper.manager.SharedMemoryManager object>
+|  record(self, val, reason)
+|
+|  ----------------------------------------------------------------------
+|  Data descriptors defined here:
+|
+|  accountingjournal_ptr
+|  Accessor to the related object on the forward side of a many-to-one or
+|  one-to-one relation.
+|
+|  In the example::
+|
+|  class Child(Model):
+|  parent = ForeignKey(Parent, related_name='children')
+|
+|  ``child.parent`` is a ``ForwardManyToOneDescriptor`` instance.
+|  ----------------------------------------------------------------------
+|  Data and other attributes defined here:
+|
+|  DoesNotExist = <class 'sr5.utils.DoesNotExist'>
+|
+|
+|  MultipleObjectsReturned = <class 'sr5.utils.MultipleObjectsReturned'>
+|
+|
+|  __dbclass__ = <class 'sr5.utils.Ledger'>
+|  The user-facing part of the accounting system, which contains methods to
+|  update the account and run the long-term storage.
+|
+|  log_max = 5
+|
+|  path = 'sr5.utils.Ledger'
+|
+|  typename = 'SharedMemoryModelBase'
+|
+|  ----------------------------------------------------------------------
+|  Methods inherited from sr5.models.AccountingJournal:
+|
+|  get_next_by_db_date_created = _curried(*moreargs, **morekwargs)
+|
+|  get_previous_by_db_date_created = _curried(*moreargs, **morekwargs)
+|
+|  ----------------------------------------------------------------------
+|  Data descriptors inherited from sr5.models.AccountingJournal:
+|
+|  accrued
+|  A wrapper for getting database field `db_accrued`.
+|
+|  currency
+|  A wrapper for getting database field `db_currency`.
+|
+|  date_created
+|  A wrapper for getting database field `db_date_created`.
+|
+|  initial
+|  A wrapper for getting database field `db_initial`.
+|
+|  ledger
+|  Accessor to the related object on the reverse side of a one-to-one
+|  relation.
+|
+|  In the example::
+|
+|  class Restaurant(Model):
+|  place = OneToOneField(Place, related_name='restaurant')
+|
+|  ``place.restaurant`` is a ``ReverseOneToOneDescriptor`` instance.
+|
+|  owner
+|  A wrapper for getting database field `db_owner`.
+|
+|  value
+|  A wrapper for getting database field `db_value`.
+|
+|  ----------------------------------------------------------------------
+|  Data and other attributes inherited from sr5.models.AccountingJournal:
+|
+|  __instance_cache__ = {}
+|
+|  ----------------------------------------------------------------------
+|  Methods inherited from evennia.utils.idmapper.models.SharedMemoryModel:
+|
+|  at_idmapper_flush(self)
+|  This is called when the idmapper cache is flushed and
+|  allows customized actions when this happens.
+|
+|  Returns:
+|  do_flush (bool): If True, flush this object as normal. If False, don't flush and expect this object to handle
+|  the flushing on its own.
+|
+|  delete(self, *args, **kwargs)
+|  Delete the object, clearing cache.
+|
+|  flush_from_cache(self, force=False)
+|  Flush this instance from the instance cache. Use
+|  `force` to override the result of at_idmapper_flush() for the object.
+|
+|  save(self, *args, **kwargs)
+|  Central database save operation.
+|
+|  Notes:
+|  Arguments as per Django documentation.
+|  Calls `self.at_<fieldname>_postsave(new)`
+|  (this is a wrapper set by oobhandler:
+|  self._oob_at_<fieldname>_postsave())
+|
+|  ----------------------------------------------------------------------
+|  Class methods inherited from evennia.utils.idmapper.models.SharedMemoryModel:
+|
+|  cache_instance(cls, instance, new=False) from evennia.utils.idmapper.models.SharedMemoryModelBase
+|  Method to store an instance in the cache.
+|
+|  Args:
+|  instance (Class instance): the instance to cache.
+|  new (bool, optional): this is the first time this instance is
+|  cached (i.e. this is not an update operation like after a
+|  db save).
+|
+|  flush_cached_instance(cls, instance, force=True) from evennia.utils.idmapper.models.SharedMemoryModelBase
+|  Method to flush an instance from the cache. The instance will always be flushed from the cache, since this is most likely
+|  called from delete(), and we want to make sure we don't cache dead objects.
+|
+|  flush_instance_cache(cls, force=False) from evennia.utils.idmapper.models.SharedMemoryModelBase
+|  This will clean safe objects from the cache. Use `force`
+|  keyword to remove all objects, safe or not.
+|
+|  get_all_cached_instances(cls) from evennia.utils.idmapper.models.SharedMemoryModelBase
+|  Return the objects so far cached by idmapper for this class.
+|
+|  get_cached_instance(cls, id) from evennia.utils.idmapper.models.SharedMemoryModelBase
+|  Method to retrieve a cached instance by pk value. Returns Nonewhen not found (which will always be the case when caching is disabled for this class). Please note that the lookup will be done even when instance caching is disabled.
+|
+|  ----------------------------------------------------------------------
+|  Data and other attributes inherited from evennia.utils.idmapper.models.SharedMemoryModel:
+|
+|  Meta = <class 'evennia.utils.idmapper.models.Meta'>
+|
+|
+|  ----------------------------------------------------------------------
+|  Methods inherited from django.db.models.base.Model:
+|
+|  __eq__(self, other)
+|
+|  __hash__(self)
+|
+|  __ne__(self, other)
+|
+|  __reduce__(self)
+|  Provides pickling support. Normally, this just dispatches to Python's
+|  standard handling. However, for models with deferred field loading, we
+|  need to do things manually, as they're dynamically created classes and
+|  only module-level classes can be pickled by the default path.
+|  __repr__(self)
+|
+|  __setstate__(self, state)
+|
+|  __str__(self)
+|
+|  clean(self)
+|  Hook for doing any extra model-wide validation after clean() has been
+|  called on every field by self.clean_fields. Any ValidationError raised
+|  by this method will not be associated with a particular field; it will
+|  have a special-case association with the field defined by NON_FIELD_ERRORS.
+|
+|  clean_fields(self, exclude=None)
+|  Cleans all fields and raises a ValidationError containing a dict
+|  of all validation errors if any occur.
+|
+|  date_error_message(self, lookup_type, field_name, unique_for)
+|
+|  full_clean(self, exclude=None, validate_unique=True)
+|  Calls clean_fields, clean, and validate_unique, on the model, and raises a ``ValidationError`` for any errors that occurred.
+|  get_deferred_fields(self)
+|  Returns a set containing names of deferred fields for this instance.
+|
+|  prepare_database_save(self, field)
+|
+|  refresh_from_db(self, using=None, fields=None, **kwargs)
+|  Reloads field values from the database.
+|
+|  By default, the reloading happens from the database this instance was
+|  loaded from, or by the read router if this instance wasn't loaded from
+|  any database. The using parameter will override the default.
+|
+|  Fields can be used to specify which fields to reload. The fields
+|  should be an iterable of field attnames. If fields is None, then
+|  all non-deferred fields are reloaded.
+|
+|  When accessing deferred fields of an instance, the deferred loading
+|  of the field will call this method.
+|
+|  save_base(self, raw=False, force_insert=False, force_update=False, using=None, update_fields=None)
+|  Handles the parts of saving which should be done only once per save,
+|  yet need to be done in raw saves, too. This includes some sanity
+|  checks and signal sending.
+|
+|  The 'raw' argument is telling save_base not to save any parentmodels and not to do any changes to the values before save. This
+|  is used by fixture loading.
+|
+|  serializable_value(self, field_name)
+|  Returns the value of the field name for this instance. If the field is
+|  a foreign key, returns the id value, instead of the object. If there's
+|  no Field object with this name on the model, the model attribute's
+|  value is returned directly.
+|
+|  Used to serialize a field's value (in the serializer, or form output,
+|  for example). Normally, you would just access the attribute directly
+|  and not use this method.
+|
+|  unique_error_message(self, model_class, unique_check)
+|
+|  validate_unique(self, exclude=None)
+|  Checks unique constraints on the model and raises ``ValidationError``
+|  if any failed.
+|
+|  ----------------------------------------------------------------------
+|  Class methods inherited from django.db.models.base.Model:
+|
+|  check(cls, **kwargs) from evennia.utils.idmapper.models.SharedMemoryModelBase
+|
+|  from_db(cls, db, field_names, values) from evennia.utils.idmapper.models.SharedMemoryModelBase
+|
+|  ----------------------------------------------------------------------
+|  Data descriptors inherited from django.db.models.base.Model:
+|
+|  __dict__
+|  dictionary for instance variables (if defined)
+|
+|  __weakref__
+|  list of weak references to the object (if defined)
+|
+|  pk
