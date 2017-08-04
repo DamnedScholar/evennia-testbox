@@ -14,7 +14,7 @@ from pint import UnitRegistry
 from django.db.models import Q
 import evennia
 from evennia.utils.dbserialize import _SaverDict, _SaverList, _SaverSet
-from sr5.models import AccountingLog, AccountingIcetray, AccountingJournal
+from sr5.models import AccountingLog, AccountingIcetray, Ledger
 
 
 ureg = UnitRegistry()
@@ -436,88 +436,3 @@ def validate(target, validate, result_categories):
         to_display += output + "\n"
 
     return (ok, to_display)
-
-
-class Ledger(AccountingJournal):
-    """
-    The user-facing part of the accounting system, which contains methods to
-    update the account and run the long-term storage.
-    """
-    log_max = 5
-
-    def configure(self, owner, currencyName, initialValue=0):
-        self.db_owner = owner.dbref
-        self.db_currency = currencyName
-        self.db_initial = initialValue
-        self.db_value = initialValue
-        self.db_accrued = initialValue
-
-    def display(self):
-        owner = evennia.search_object(searchdata=self.db_owner)[0]
-
-        owner.msg("{}'s {} Ledger:\n"
-                  "{} / {}".format(str(owner).title(), self.db_currency,
-                                   self.db_value, self.db_accrued))
-
-    def record(self, value, reason):
-        owner = evennia.search_object(searchdata="#1")[0]
-
-        # Update the current value, and if the transaction is positive add to
-        # the running total.
-        self.db_value += value
-        if value > 0:
-            self.db_accrued += value
-
-        # Deposit entries in each of the log tables. AccountingLog is based on
-        # SharedMemoryModel and thus cached for rapid retrieval of recent
-        # entries, while Accounting Icetray is based on the Django model for
-        # long-term storage of every entry ever.
-        entry = AccountingLog()
-        entry.owner = self.db_owner
-        entry.currency = self.db_currency
-        entry.value = value
-        entry.reason = reason
-
-        entry = AccountingIcetray(db_owner=self.db_owner,
-                                  db_currency=self.db_currency,
-                                  db_value=value,
-                                  db_reason=reason)
-        entry.save()
-
-        # Retrieve the entries in the quick log, so that we can check how many
-        # there are and drop old ones that go over the cap.
-        quick_log_query = AccountingLog.objects.filter(
-            db_owner__iexact=self.db_owner,
-            db_currency__iexact=self.db_currency
-        )
-        # We call `list()` to force an evaluation of the QuerySet
-        # quick_log = list(quick_log_query)
-        output = "This is what I see:\n"
-
-        i = 0
-        for log in quick_log_query:
-            text = "({}) {}: {} {} {}".format(i, log.db_owner, log.db_currency, log.db_value, log.db_reason)
-
-            if i < len(quick_log_query) - self.log_max:
-                log.delete()
-                text += "<-- This is getting deleted."
-
-            i += 1
-
-            output += "{}\n".format(text)
-
-        return output
-
-    def ice(self):
-        owner = evennia.search_object(searchdata="#1")[0]
-        query = AccountingIcetray.objects.all()
-
-        for entry in query:
-            owner.msg(entry.db_reason)
-
-    def log(self):
-        owner = evennia.search_object(searchdata="#1")[0]
-        query = AccountingLog.objects.all()
-
-        for entry in query:
-            owner.msg(entry.reason)
