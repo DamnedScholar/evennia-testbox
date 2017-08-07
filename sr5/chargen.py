@@ -73,7 +73,17 @@ class ChargenScript(DefaultScript, Stats):
         self.desc = "Handles Character Creation"
         self.persistent = True
 
-        self.db.spent = {"nuyen": 0, "essence": 0}
+        self.db.essence = Ledger()
+        self.db.essence.configure(self.obj, "essence", 6)
+        # Don't touch the karma Ledger until the very end. Chargen will have
+        # its own karma count that it uses for qualities and metatype. When the
+        # player submits their sheet and locks it, then any metatype and
+        # qualities will be written to the Ledger and they will be able to
+        # spend karma on other stats.
+        self.db.karma = Ledger()
+        self.db.karma.configure(self.obj, "karma", 25)
+        self.db.nuyen = Ledger()
+        self.db.nuyen.configure(self.obj, "nuyen", 0)
 
         self.reset_all()
 
@@ -83,7 +93,6 @@ class ChargenScript(DefaultScript, Stats):
         self.db.tier = "experienced"
         self.db.priorities = {"a": "", "b": "", "c": "",
                               "d": "", "e": ""}
-        self.db.karma = {"current": 25, "total": 25}
 
         # TODO: Can't I automate this by polling __dict__ for functions that
         # start with `reset_`?
@@ -131,13 +140,17 @@ class ChargenScript(DefaultScript, Stats):
     def reset_resources(self):
         "Resets lifestyle and purchases."
         self.db.lifestyle = ""
-        self.db.nuyen = -1
+        self.obj.db.nuyen.configure(self.obj, "nuyen", 0)
+        self.obj.db.essence.configure(self.obj, "essence", 6)
         self.db.augments, self.db.gear = {}, {}
+        # TODO: The above line is highly suspect.
 
     def reset_qualities(self):
         "Resets qualities."
         self.db.qualities_positive = {}
         self.db.qualities_negative = {}
+        # Don't touch the karma Ledger until the very end.
+        self.db.cg_karma = 25
 
     def reset_vitals(self):
         "Resets name, birthdate, etc."
@@ -806,7 +819,9 @@ class CmdBuyAugment(default_cmds.MuxCommand):
         # Special category-based rules. For items that don't have special
         # properties, refer to the `else` at the end of this chain.
         # TODO: All of this could be moved to the Aug_Methods() class.
-        if umbrella == "cyberlimbs":
+        if umbrella in ["cyberlimbs", "cyberlimb", "cyberarm", "cyberleg",
+                        "cyberhead", "cyberskull", "cybertorso", "cyberhand",
+                        "cyberfoot"]:
             # Define options.
             strength = 0
             agility = 0
@@ -847,8 +862,11 @@ class CmdBuyAugment(default_cmds.MuxCommand):
             )[0]
             cost = cost + (strength + agility) * 5000
 
-            if cost > cg.db.nuyen:
+            if cost > cg.db.nuyen.value:
                 result = "You cannot afford that."
+
+                if synthetic:
+                    target[0] = "synthetic {}".format(target[0])
             else:
                 result = "Enjoy your shiny new " + target[0] + "."
                 purchased = spawner.spawn({
@@ -858,13 +876,18 @@ class CmdBuyAugment(default_cmds.MuxCommand):
                     "custom_agi": agility,
                     "synthetic": synthetic,
                     "grade": grade
-                })
+                })[0]
 
-                self.db.spent["nuyen"] += cost
+                if synthetic:
+                    target[0] = "synthetic {}".format(target[0])
+                target[0] += " ({})".format(grade)
 
-            # Format and print the results.
-            if synthetic:
-                target[0] = "synthetic " + target[0]
+                # Record expenditures and store the AccountingIcetray entries
+                # on the purchased object for easy reference later on.
+                purchased.db.essence_log = cg.db.nuyen.record(0 - cost, "Purchased " + target[0])[1]
+                purchased.db.essence_log = cg.db.essence.record(
+                    0 - purchased.db.essence, target[0].capitalize()
+                )[1]
 
             caller.msg(tag + "You have placed an order for a {} with strength "
                        "+{} and agility +{} at a cost of {} nuyen. "

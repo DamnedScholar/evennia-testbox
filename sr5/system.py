@@ -18,6 +18,55 @@ from sr5.utils import ureg
 #   * Limits?
 
 
+class SlotArray:
+    """
+    Instantiate an array of slots on an object for controlling the available
+    choices for Extras.
+
+    self.db.body = SlotArray("body", "Augments, mutations, and physical qualities.", ["head", "torso", "right_upper_arm", "right_lower_arm", "right_hand", "left_upper_arm", "left_lower_arm", "left_hand", "right_upper_leg", "right_lower_leg", "right_foot", "left_upper_leg", "left_lower_leg", "left_foot"])
+
+    Arguments:
+        kind (str): What does this SlotArray represent? Extras will look for this.
+        desc (str): Human-readable description.
+        options (sequence): All of the available slots (more can be added).
+
+    Methods:
+        add(to_add): Adds to the options list.
+        remove(to_remove): Removes from the options list.
+    """
+
+    def __init__(self, kind, desc, options):
+        self.kind = kind
+        self.desc = desc
+        self.options = list(options)
+
+    def add(self, to_add):
+        self.options.append(list(to_add))
+
+    def remove(self, to_remove):
+        new = []
+
+        for option in self.options:
+            if option not in to_remove:
+                new.append(option)
+
+        self.options = new
+
+    # TODO: This class isn't unpickling with its current state intact. Need to
+    # figure out why.
+
+    def __getstate__(self):
+        # Copy the object's state from self.__dict__ which contains
+        # all our instance attributes. Always use the dict.copy()
+        # method to avoid modifying the original state.
+        state = self.__dict__.copy()
+        return state
+
+    def __setstate__(self, state):
+        # Restore instance attributes (i.e., filename and lineno).
+        self.__dict__.update(state)
+
+
 class Stats:
     def set_vital(self, field, value):
         "Attempt to set a vitals field, then return `(bool, string)`."
