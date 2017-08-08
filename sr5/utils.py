@@ -23,7 +23,15 @@ ureg = UnitRegistry()
 
 
 class SlotsHandler:
-    "Handler for the slots system."
+    """
+    Handler for the slots system. This handler is designed to be attached to objects with a particular @lazy-property name, so it will be referred to as `.slots`, though individual games can set that however they like.
+
+    The purpose of this handler is to sit on a "holder" typeclassed object and manage slots for "held" objects. The first thing that should happen is using `self.slots.add()` on the holder object to identify the available options. `.slots.delete()` can be used to delete or pop old slots.
+
+    By default, a held object can have slots stored on it (the handler will check `.db.slots`, `.ndb.slots`, and `.slots` in that order), and `self.slots.attach()` will attempt to attach it on all of those slots (it should fail if it can't attach on every slot). `self.slots.drop()` will remove the target from any of the slots given it. Both of these methods have the option to be given a custom `slots` argument, which will override the slots on the held object.
+
+    Using the custom `slots` in `attach()` and `drop()` provides some customization facility in that you can store *any* object in a slot, not just an object that has been set up for it.
+    """
 
     def __init__(self, obj):
         self.obj = obj
@@ -120,6 +128,13 @@ class SlotsHandler:
 
         if not slots:
             slots = target.db.slots
+            if not slots:
+                slots = target.ndb.slots
+                if not slots:
+                    try:
+                        slots = target.slots
+                    except: AttributeError
+                        return (False, "No slots detected.")
 
         modified = {}
 
@@ -175,6 +190,14 @@ class SlotsHandler:
 
         if not slots:
             slots = target.db.slots
+
+            if not slots:
+                slots = target.ndb.slots
+                if not slots:
+                    try:
+                        slots = target.slots
+                    except: AttributeError
+                        return (False, "No slots detected.")
 
         modified = {}
 
