@@ -28,6 +28,7 @@ class SlotsHandler:
     objects with a particular @lazy-property name, so it will be referred to as
     `.slots`, though individual games can set that however they like.
 
+    Place on character or other typeclassed object:
     ```
     @lazy_property
     def slots(self):
