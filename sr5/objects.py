@@ -170,9 +170,6 @@ class Extra(DefaultObject):
         self.db.visible = False
         self.db.inherent = False
         self.db.permanent = True
-        self.db.slot = (False)
-        self.db.slot_list = []
-        # self.db.slot = (True, ["right_upper_arm", "right_lower_arm", "right_hand"])
 
     # TODO: Define methods used to get and set stats. It doesn't have to be
     # complicated, but it should be easy to at least make sure that only
@@ -314,7 +311,9 @@ class Augment(Extra):
         self.db.visible = True
         self.db.inherent = False
         self.db.permanent = True
-        self.db.slot = {"augments": []}
+
+        # This will hold the list of slots that the Extra consumes.
+        self.db.slot = {"body": []}
 
     # Initial setup functions called by the prototype.
     def apply_costs_and_capacity(self, slot_list, synthetic):
@@ -325,7 +324,7 @@ class Augment(Extra):
         self.db.cost = results[0]
         self.db.capacity = results[1]
 
-        self.db.slot["augments"] = slot_list
+        self.db.slots["body"] = slot_list
 
     def apply_customizations(self):
         self.db.strength += self.db.custom_str

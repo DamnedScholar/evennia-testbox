@@ -15,6 +15,7 @@ import pyparsing
 from dateutil import parser
 from pint import UnitRegistry
 from evennia import DefaultCharacter
+from evennia.utils.utils import lazy_property
 from sr5.chargen import ChargenScript
 from sr5.system import Stats
 from sr5.utils import ureg

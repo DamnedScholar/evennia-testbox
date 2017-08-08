@@ -22,6 +22,204 @@ ureg = UnitRegistry()
 # TODO: Implement modifiers system here.
 
 
+class SlotsHandler:
+    "Handler for the slots system."
+
+    def __init__(self, obj):
+        self.obj = obj
+        self._objid = obj.id
+
+    def add(self, name, num=0, *slots):
+        """
+        Create an array of slots, or add additional slots to an existing array.
+
+        Args:
+            name: The name of the array.
+            *slots: A set of lists, strings, and/or tuples defining slot names.
+            num: Any unnamed slots.
+        """
+
+        name = "slots_{}".format(name)
+        existing = self.obj.attributes.get(name)
+        slot_list = []
+        for arg in slots:
+            if isinstance(arg, list):
+                slot_list += arg
+            elif isinstance(arg, str):
+                slot_list.append(arg)
+            elif isinstance(arg, tuple):
+                slot_list.append(list(arg))
+            else:
+                raise ValueError
+        # To find where the numbers should start, iterate through numerical
+        # keys and store the highest value.
+        highest = 0
+        if existing:
+            for key in existing.keys():
+                if isinstance(key, int) and key > highest:
+                    highest = key
+        for i in range(highest, highest + num):
+            slot_list.append(i+1)
+        slots = dict(zip(slot_list, [""] * len(slot_list)))
+
+        if not existing:
+            new = self.obj.attributes.add(name, slots)
+
+            return True
+        else:
+            existing.update(slots)
+            return True
+
+    # TODO: Apparently named arguments aren't optional just because they have a
+    # default value. I need to figure out how to make them optional.
+
+    def delete(self, name, num=0, *slots):
+        """
+        This will delete slots from an existing array.
+        WARNING: If you have anything attached in slots when they are removed,
+        the slots' contents will also be removed. This function will return a
+        dict of any removed slots and their contents, so it can act as a pop(),
+        but if you don't catch that data, it WILL be lost.
+        """
+
+        name = "slots_{}".format(name)
+        existing = self.obj.attributes.get(name)
+        if not existing: # If the named array isn't there, don't bother.
+            return False
+        slot_list = []
+        if not num and not slots:
+            self.obj.attributes.remove(name)
+        for arg in slots:
+            if isinstance(arg, list):
+                slot_list += arg
+            elif isinstance(arg, str):
+                slot_list.append(arg)
+            elif isinstance(arg, tuple):
+                slot_list.append(list(arg))
+            else:
+                raise ValueError
+        # To find where the numbers should start, iterate through numerical
+        # keys and store the highest value.
+        highest = 0
+        if existing:
+            for key in existing.keys():
+                if isinstance(key, int) and key > highest:
+                    highest = key
+        for i in range(highest, highest - num, -1):
+            slot_list.append(i)
+
+        deleted = {}
+
+        for slot in slot_list:
+            deleted.update({slot: existing.pop(slot)})
+
+        return deleted
+
+    def attach(self, target, slots=None):
+        "Attempt to attach the target in all slots it consumes. Optionally, the target's slots may be overridden."
+
+        if not slots:
+            slots = target.db.slots
+
+        modified = {}
+
+        for name in slots:
+            array = self.obj.attributes.get("slots_{}".format(name))
+
+            # For any integers in `slots`, remove them and add to list of
+            # numbers to be appended.
+            highest = 0
+            numbered = []
+            place = 0
+            for slot in slots[name]:
+                if isinstance(slot, int):
+                    for i in range(highest, highest + slot):
+                        numbered.append(i)
+                    highest += slot
+                    slots[name].pop(place)
+                elif not isinstance(slot, str):
+                    slots[name].pop(place)
+                    slots[name].append(str(slot))
+
+                place += 1
+
+            new = {}
+
+            for slot in slots[name]:
+                if slot not in array.keys():
+                    return (False, "Slot name not recognized.")
+                if array[slot]:
+                    return (False, "Insufficient slots.")
+                new.update({slot: target})
+
+            highest = 0
+            success = 0
+            for i in range(0, len(numbered)):
+                for j in range(highest, len(array), 1):
+                    if array[j] is '':
+                        new.update({j: target})
+                        success += 1
+                        highest = j
+                        break
+
+            if success is not len(numbered):
+                return (False, "Insufficient slots.")
+
+            array.update(new)
+            modified.update(array)
+
+        return modified
+
+    def drop(self, target, slots=None):
+        "Attempt to drop the target from all slots it occupies, or the list of slots provided. This function is messy in that it doesn't care if the slots exist or not, it just tries to drop everything it is given."
+
+        if not slots:
+            slots = target.db.slots
+
+        modified = {}
+
+        for name in slots:
+            array = self.obj.attributes.get("slots_{}".format(name))
+
+            # For any integers in `slots`, remove them and add to list of
+            # numbers to be appended.
+            highest = 0
+            numbered = []
+            place = 0
+            for slot in slots[name]:
+                if isinstance(slot, int):
+                    for i in range(highest, highest + slot):
+                        numbered.append(i)
+                    highest += slot
+                    slots[name].pop(place)
+                elif not isinstance(slot, str):
+                    slots[name].pop(place)
+                    slots[name].append(str(slot))
+
+                place += 1
+
+            new = {}
+
+            for slot in slots[name]:
+                if array[slot] is target:
+                    new.update({slot: ''})
+
+            highest = 0
+            for i in range(0, len(numbered)):
+                for entry in array.keys():
+                    if isinstance(entry, int) and entry > highest:
+                        highest = entry
+                for j in range(highest, 0, -1):
+                    if array[j] is target:
+                        new.update({j: ''})
+                        break
+
+            array.update(new)
+            modified.update(array)
+
+        return modified
+
+
 def validate(target, validate, result_categories):
     """
     This is a dynamic chargen validation function that takes a set of

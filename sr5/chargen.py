@@ -14,12 +14,13 @@ from evennia import default_cmds
 from evennia import DefaultRoom
 from evennia import DefaultScript
 from evennia.utils import evtable, spawner
+from evennia.utils.utils import lazy_property
 from sr5.data.metatypes import Metatypes
 from sr5.data.skills import Skills
 from sr5.data.ware import BuyableWare, Grades, Obvious, Synthetic
 from sr5.objects import Augment, Aug_Methods
 from sr5.system import Stats
-from sr5.utils import validate, ureg
+from sr5.utils import SlotsHandler, validate, ureg
 
 
 class ChargenScript(DefaultScript, Stats):
@@ -67,6 +68,10 @@ class ChargenScript(DefaultScript, Stats):
                  "d": {"street": 15000, "experienced": 50000, "prime": 150000},
                  "e": {"street": 6000, "experienced": 6000, "prime": 100000}}
 
+    @lazy_property
+    def slots(self):
+        return SlotsHandler(self)
+
     def at_script_creation(self):
         # Evennia stuff
         self.key = "chargen"
@@ -84,6 +89,9 @@ class ChargenScript(DefaultScript, Stats):
         self.db.karma.configure(self.obj, "karma", 25)
         self.db.nuyen = Ledger()
         self.db.nuyen.configure(self.obj, "nuyen", 0)
+
+        # Establish body slots
+        self.slots.add("body", ["head", "torso", "right_upper_arm", "right_lower_arm", "right_hand", "left_upper_arm", "left_lower_arm", "left_hand", "right_upper_leg", "right_lower_leg", "right_foot", "left_upper_leg", "left_lower_leg", "left_foot"])
 
         self.reset_all()
 
@@ -747,6 +755,34 @@ class CmdSetLifestyle(default_cmds.MuxCommand):
         caller.msg("This command isn't in place yet.")
 
 
+class CmdCGInventory(default_cmds.MuxCommand):
+    """
+    Chargen inventory
+
+    Usage:
+      inventory
+      inv
+
+    Shows your inventory.
+    """
+    key = "inventory"
+    aliases = ["inv", "i"]
+    locks = "cmd:all()"
+    arg_regex = r"$"
+
+    def func(self):
+        """check inventory"""
+        items = self.caller.contents
+        if not items:
+            string = "You are not carrying anything."
+        else:
+            table = evtable.EvTable(border="header")
+            for item in items:
+                table.add_row("|C%s|n" % item.name, item.db.desc or "")
+            string = "|wYou are carrying:\n%s" % table
+        self.caller.msg(string)
+
+
 class CmdBuyAugment(default_cmds.MuxCommand):
     """
     Buy augments in character creation. This system needs to be figured out.
@@ -961,6 +997,7 @@ class ChargenCmdSet(CmdSet):
         self.add(CmdSetSpecialization())     # key: specialize, spec
         # Resources Room
         self.add(CmdSetLifestyle())          # key: lifestyle, life
+        self.add(CmdCGInventory())           # key: inventory, inv, i
         self.add(CmdBuyAugment())            # key: augment, aug
         # Qualities Room
         self.add(CmdSetQualities())          # key: quality, qual
