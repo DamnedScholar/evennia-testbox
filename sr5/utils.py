@@ -28,6 +28,12 @@ class SlotsHandler:
     objects with a particular @lazy-property name, so it will be referred to as
     `.slots`, though individual games can set that however they like.
 
+    ```
+    @lazy_property
+    def slots(self):
+        return SlotsHandler(self)
+    ```
+
     The purpose of this handler is to sit on a "holder" typeclassed object and
     manage slots for "held" objects. The first thing that should happen is
     using `self.slots.add()` on the holder object to identify the available
