@@ -50,7 +50,7 @@ class SlotsHandler:
             elif isinstance(arg, tuple):
                 slot_list.append(list(arg))
             else:
-                raise ValueError
+                raise ValueError("Only lists, strings, and tuples accepted.")
         # To find where the numbers should start, iterate through numerical
         # keys and store the highest value.
         highest = 0
