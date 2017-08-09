@@ -5,11 +5,12 @@ Commands describe the input the player can do to the game.
 
 """
 
+import math
+import string
+import evennia
 from evennia import Command as BaseCommand
 from evennia import default_cmds
 from evennia.utils import evtable
-import math
-import string
 
 class Command(BaseCommand):
     """
@@ -231,6 +232,170 @@ class CmdSheet(default_cmds.MuxCommand):
             caller.msg("Prove command coming soon.")
         else:
             caller.msg("I don't know what switch that is.")
+
+
+class CmdKarma(default_cmds.MuxCommand):
+    """
+    Command for spending karma and viewing logs. If the game allows it, you can
+    open a request ticket regarding karma from here, too.
+
+    Usage:
+    > karma
+    > karma/spend
+    > karma/log
+    > karma/request <title>=<body>
+    """
+
+    key = "karma"
+    aliases = ["ka", "xp"]
+    help_category = "Shadowrun 5e"
+
+    def func(self):
+        caller = self.caller
+        if self.args:
+            target = self.args
+        elif self.args:
+            return caller.msg("I can't find a player by that name.")
+        else:
+            target = caller
+
+        if target.cg:
+            target = target.cg
+            mode = "chargen"
+        else:
+            mode = "normal"
+
+        tag = "|Rsr5 > |n"
+
+        if not target.db.karma:
+            caller.msg(tag + "That target doesn't seem to have a karma log.")
+
+        if not self.switches:
+            caller.msg(target.db.karma)
+        elif "log" in self.switches:
+            table = evtable.EvTable("Date", "Transaction", "Origin")
+            log_list = target.db.karma.log()
+            for date, owner, value, currency, reason, origin in log_list:
+                # Origin comes in as a dbref and we need it to be a name.
+                origin = evennia.search_object(searchdata=origin)[0].name
+                table.add_row(
+                    date.strftime("%c"),
+                    "{} {}: {}".format(value, currency, reason),
+                    origin
+                )
+
+            caller.msg(table)
+        else:
+            return False
+
+
+class CmdNuyen(default_cmds.MuxCommand):
+    """
+    Command for spending nuyen and viewing logs. If the game allows it, you can
+    open a request ticket regarding nuyen from here, too.
+
+    Usage:
+    > nuyen
+    > nuyen/spend
+    > nuyen/log
+    > nuyen/request <title>=<body>
+    """
+
+    key = "nuyen"
+    aliases = ["ny", "nu"]
+    help_category = "Shadowrun 5e"
+
+    def func(self):
+        caller = self.caller
+        if self.args:
+            target = self.args
+        elif self.args:
+            return caller.msg("I can't find a player by that name.")
+        else:
+            target = caller
+
+        if target.cg:
+            target = target.cg
+            mode = "chargen"
+        else:
+            mode = "normal"
+
+        tag = "|Rsr5 > |n"
+
+        if not target.db.karma:
+            caller.msg(tag + "That target doesn't seem to have a nuyen log.")
+
+        if not self.switches:
+            caller.msg(target.db.nuyen)
+        elif "log" in self.switches:
+            table = evtable.EvTable("Date", "Transaction", "Origin")
+            log_list = target.db.nuyen.log()
+            for date, owner, value, currency, reason, origin in log_list:
+                # Origin comes in as a dbref and we need it to be a name.
+                origin = evennia.search_object(searchdata=origin)[0].name
+                table.add_row(
+                    date.strftime("%c"),
+                    "{} {}: {}".format(value, currency, reason),
+                    origin
+                )
+
+            caller.msg(table)
+        else:
+            return False
+
+
+class CmdEssence(default_cmds.MuxCommand):
+    """
+    Command for viewing essence and logs.
+
+    Usage:
+    > essence
+    > essence/log
+    > essence/request <title>=<body>
+    """
+
+    key = "essence"
+    aliases = ["ess", "e"]
+    help_category = "Shadowrun 5e"
+
+    def func(self):
+        caller = self.caller
+        if self.args:
+            target = self.args
+        elif self.args:
+            return caller.msg("I can't find a player by that name.")
+        else:
+            target = caller
+
+        if target.cg:
+            target = target.cg
+            mode = "chargen"
+        else:
+            mode = "normal"
+
+        tag = "|Rsr5 > |n"
+
+        if not target.db.karma:
+            caller.msg(tag + "That target doesn't seem to have an essence"
+                       "score.")
+
+        if not self.switches:
+            caller.msg(target.db.essence)
+        elif "log" in self.switches:
+            table = evtable.EvTable("Date", "Transaction", "Origin")
+            log_list = target.db.essence.log()
+            for date, owner, value, currency, reason, origin in log_list:
+                # Origin comes in as a dbref and we need it to be a name.
+                origin = evennia.search_object(searchdata=origin)[0].name
+                table.add_row(
+                    date.strftime("%c"),
+                    "{} {}: {}".format(value, currency, reason),
+                    origin
+                )
+
+            caller.msg(table)
+        else:
+            return False
 
 
 class CmdBody(default_cmds.MuxCommand):

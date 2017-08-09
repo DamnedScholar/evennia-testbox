@@ -153,7 +153,7 @@ class SlotsHandler:
                 if not slots:
                     try:
                         slots = target.slots
-                    except: AttributeError
+                    except AttributeError:
                         return (False, "No slots detected.")
 
         modified = {}
@@ -184,14 +184,16 @@ class SlotsHandler:
                 if slot not in array.keys():
                     return (False, "Slot name not recognized.")
                 if array[slot]:
-                    return (False, "Insufficient slots.")
+                    return (False, "The slot is already filled by {}.".format(
+                        str(array[slot])
+                    ))
                 new.update({slot: target})
 
             highest = 0
             success = 0
             for i in range(0, len(numbered)):
                 for j in range(highest, len(array), 1):
-                    if array[j] is '':
+                    if not array[j]:
                         new.update({j: target})
                         success += 1
                         highest = j
@@ -216,7 +218,7 @@ class SlotsHandler:
                 if not slots:
                     try:
                         slots = target.slots
-                    except: AttributeError
+                    except AttributeError:
                         return (False, "No slots detected.")
 
         modified = {}

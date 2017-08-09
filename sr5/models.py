@@ -66,7 +66,7 @@ class AccountingIcetray(models.Model):
                          "timestamp"]:
                 output.append(self.db_date_created)
 
-        return [output]
+        return output
 
     def display(self, show_owner=False):
         "Display all information about each entry."
@@ -133,7 +133,7 @@ class AccountingLog(SharedMemoryModel):
                          "timestamp"]:
                 output.append(self.db_date_created)
 
-        return [output]
+        return output
 
     def display(self, show_owner=False):
         if show_owner:
@@ -267,19 +267,25 @@ class Ledger(SharedMemoryModel):
             db_owner__iexact=self.db_owner,
             db_currency__iexact=self.db_currency
         )
+        output = []
 
         for entry in query:
-            owner.msg(entry.as_list("date", "owner", "value", "currency",
-                                    "reason", "origin"))
+            output.append(entry.as_list("date", "owner", "value", "currency",
+                                        "reason", "origin"))
+
+        return output
 
     def ice_all(self):
         "Display all log entries for everyone."
         owner = evennia.search_object(searchdata=self.owner)[0]
         query = AccountingIcetray.objects.all()
+        output = []
 
         for entry in query:
-            owner.msg(entry.as_list("date", "owner", "value", "currency",
-                                    "reason", "origin"))
+            output.append(entry.as_list("date", "owner", "value", "currency",
+                                        "reason", "origin"))
+
+        return output
 
     def log(self):
         "Display quick log entries for the owner."
@@ -288,16 +294,22 @@ class Ledger(SharedMemoryModel):
             db_owner__iexact=self.db_owner,
             db_currency__iexact=self.db_currency
         )
+        output = []
 
         for entry in query:
-            owner.msg(entry.as_list("date", "owner", "value", "currency",
-                                    "reason", "origin"))
+            output.append(entry.as_list("date", "owner", "value", "currency",
+                                        "reason", "origin"))
+
+        return output
 
     def log_all(self):
         "Display quick log entries for everyone."
         owner = evennia.search_object(searchdata=self.owner)[0]
         query = AccountingLog.objects.all()
+        output = []
 
         for entry in query:
-            owner.msg(entry.as_list("date", "owner", "value", "currency",
-                                    "reason", "origin"))
+            output.append(entry.as_list("date", "owner", "value", "currency",
+                                        "reason", "origin"))
+
+        return output

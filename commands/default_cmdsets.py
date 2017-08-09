@@ -15,7 +15,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
-from sr5.command import CmdSheet, CmdBody, CmdShowMe
+from sr5.command import *
 from sr5.chargen import CmdCGStart
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -38,6 +38,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdBody())            # key: body, anatomy
         self.add(CmdCGStart())         # key: chargen, cg
         self.add(CmdShowMe())          # key: showme
+        self.add(CmdKarma())           # key: karma, ka, xp
+        self.add(CmdNuyen())           # key: nuyen, ny, nu
+        self.add(CmdEssence())         # key: essence, ess, e
 
 
 class PlayerCmdSet(default_cmds.PlayerCmdSet):

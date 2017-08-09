@@ -313,7 +313,7 @@ class Augment(Extra):
         self.db.permanent = True
 
         # This will hold the list of slots that the Extra consumes.
-        self.db.slot = {"body": []}
+        self.db.slots = {"body": []}
 
     # Initial setup functions called by the prototype.
     def apply_costs_and_capacity(self, slot_list, synthetic):

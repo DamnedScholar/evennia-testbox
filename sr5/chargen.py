@@ -823,7 +823,7 @@ class CmdBuyAugment(default_cmds.MuxCommand):
             options = ["show"]
 
         # Make human- and code-readable versions of `target`
-        target = [options[0].lower().replace('_', ' '),
+        target = [options[0].lower(),
                   options[0].upper().replace(' ', '_')]
 
         # Grab the list of available things to be purchased.
@@ -846,7 +846,7 @@ class CmdBuyAugment(default_cmds.MuxCommand):
                 return False
 
         grades = Grades.__dict__.keys()
-        if options[1] == "show" and target[1] not in buyable:
+        if "show" in options and target[1] not in buyable:
             caller.msg("List of grades: " + str(grades))
             caller.msg("List of available 'ware': " + str(buyable[umbrella]))
 
@@ -914,22 +914,55 @@ class CmdBuyAugment(default_cmds.MuxCommand):
                     "grade": grade
                 })[0]
 
+                # Try to attach the new cyberlimb in its slots.
+                attach = cg.slots.attach(purchased)
+
+                if attach[0] is False:
+                    purchased.delete()
+                    caller.msg(tag + attach[1])
+                    return False
+
                 if synthetic:
                     target[0] = "synthetic {}".format(target[0])
                 target[0] += " ({})".format(grade)
 
                 # Record expenditures and store the AccountingIcetray entries
                 # on the purchased object for easy reference later on.
-                purchased.db.essence_log = cg.db.nuyen.record(0 - cost, "Purchased " + target[0])[1]
-                purchased.db.essence_log = cg.db.essence.record(
+                purchased.db.nuyen_logs = cg.db.nuyen.record(0 - cost, "Purchased " + target[0])
+                purchased.db.essence_logs = cg.db.essence.record(
                     0 - purchased.db.essence, target[0].capitalize()
-                )[1]
+                )
 
             caller.msg(tag + "You have placed an order for a {} with strength "
-                       "+{} and agility +{} at a cost of {} nuyen. "
-                       "{}".format(target[0], strength, agility, cost, result))
+                       "+{} and agility +{} at a cost of {} nuyen and "
+                       "{} essence. {}".format(target[0], strength, agility,
+                                               cost, purchased.db.essence,
+                                               result))
         elif umbrella == "headware":
             pass
+        elif umbrella == "sell":
+            subject = caller.search(target[0])
+            if isinstance(subject, list):
+                caller.msg(tag + "You seem to have multiple items that fit the description given. You should use more specific language.")
+
+                return False
+            elif not isinstance(subject, Augment):
+                caller.msg(tag + "That doesn't appear to be an augment.")
+
+                return False
+            else:
+                nuyen = 0 - subject.db.nuyen_logs[0].value
+                essence = 0 - subject.db.essence_logs[0].value
+                subject.db.nuyen_logs[0].delete()
+                subject.db.nuyen_logs[1].delete()
+                subject.db.essence_logs[0].delete()
+                subject.db.essence_logs[1].delete()
+                subject.delete()
+
+                cg.db.nuyen.value += nuyen
+                cg.db.essence.value += essence
+
+                caller.msg(tag + "The {} was returned to the store and {} nuyen and {} essence were refunded.".format(subject, nuyen, essence))
         else:
             # This is for items that don't have special creation rules.
             pass
