@@ -11,7 +11,10 @@ import re
 import pyparsing
 from dateutil import parser
 from evennia import DefaultObject
-from sr5.utils import ureg
+from sr5.utils import parse_subtype, ureg
+from sr5.data.metatypes import Metatypes
+from sr5.data.base_stats import Attr, SpecAttr
+from sr5.data.qualities import NegativeQualities, PositiveQualities
 
 # TODO: Implement default modifiers here.
 #   * Each point of Essence loss (rounded up) reduces Magic by 1 (SR5 p. 278)
@@ -91,20 +94,20 @@ class Stats:
         if not isinstance(attr, str):
             return (False, "The attribute must be a string.")
         if not isinstance(rating, int):
-            return (False, "Attribute ratings must be whole numbers.")
+            try:
+                rating = int(rating)
+            except ValueError:
+                return (False, "Attribute ratings must be numbers.")
         attr = attr.lower()
-        attrs = self.db.attr
 
-        if attr in attrs.keys():
-            bounds = list(self.db.met_attr[attr])
+        if attr in self.db.attr.keys():
+            bounds = list(self.db.meta_attr[attr])
             boost = ""
-            # Check for Aptitude
+            # Check for cap bonuses.
             if self.get_quality("exceptional attribute ({})".format(attr)):
                 bounds[1] += 1
                 boost = " (plus Exceptional Attribute)"
-            elif self.get_quality("Lucky") and attr == "edge":
-                bounds[1] += 1
-                boost = " (plus Lucky)"
+
             if rating < bounds[0]:
                 return (False, "You can't set this attribute below your "
                         "metatype{} minimum of {}".format(boost, bounds[0]))
@@ -112,7 +115,64 @@ class Stats:
                 return (False, "You can't set this attribute above your "
                         "metatype{} maximum of {}".format(boost, bounds[1]))
             else:
-                attrs.update({attr: rating})
+                # Separate the metatype base from the rating and save.
+                rating = rating - bounds[0]
+                self.db.attr.update({attr: rating})
+
+                return (True, "No error.")
+
+        if attr in self.db.spec_attr.keys():
+            bounds = list(self.db.meta_attr[attr])
+            boost = ""
+            # Check for cap bonuses.
+            if self.get_quality("exceptional attribute ({})".format(attr)):
+                bounds[1] += 1
+                boost = " (plus Exceptional Attribute)"
+            elif self.get_quality("Lucky") and attr is "edge":
+                bounds[1] += 1
+                boost = " (plus Lucky)"
+
+            if rating < bounds[0]:
+                return (False, "You can't set this attribute below your "
+                        "metatype{} minimum of {}".format(boost, bounds[0]))
+            elif rating > bounds[1]:
+                return (False, "You can't set this attribute above your "
+                        "metatype{} maximum of {}".format(boost, bounds[1]))
+            else:
+                # Separate the metatype base from the rating and save.
+                rating = rating - bounds[0]
+                self.db.spec_attr.update({attr: rating})
+
+                return (True, "No error.")
+
+    def get_attr(self, attr):
+        "Return the character's attributes."
+        for entry in Attr.names:
+            if attr in entry or attr in Attr.names[entry]:
+                return self.db.meta_attr[entry][0] + self.db.attr[entry]
+        for entry in SpecAttr.names:
+            if attr in entry or attr in SpecAttr.names[entry]:
+                return self.db.meta_attr[entry][0] + self.db.spec_attr[entry]
+
+        return False
+
+    def get_meta_attr(self, attr):
+        "Return the character's metatype's attribute bounds."
+        for entry in Attr.names:
+            if attr in entry or attr in Attr.names[entry]:
+                bounds = (self.db.meta_attr[entry][0],
+                          self.db.meta_attr[entry][1])
+        for entry in SpecAttr.names:
+            if attr in entry or attr in SpecAttr.names[entry]:
+                bounds = (self.db.meta_attr[entry][0],
+                          self.db.meta_attr[entry][1])
+
+        if self.get_quality("exceptional attribute ({})".format(attr)):
+            bounds[1] += 1
+        elif self.get_quality("lucky") and attr is "edge":
+            bounds[1] += 1
+
+        return bounds
 
     def set_skill(self, skill, rating):
         "Attempt to set a skill or group, then return `(bool, string)`."
@@ -233,9 +293,91 @@ class Stats:
             return (False, "That skill doesn't appear to have a"
                     "specialization.")
 
+    def query_qualities(self, quality):
+        quality = quality.lower()
+        name = pyparsing.Word(pyparsing.alphanums + " .-_/,")
+        arg = pyparsing.Suppress("(") + name + pyparsing.ZeroOrMore(
+                pyparsing.Suppress(",") + name
+              ) + pyparsing.Suppress(")")
+        hole = pyparsing.Combine("(" +
+                                 pyparsing.ZeroOrMore(pyparsing.Suppress("[") ^
+                                                      pyparsing.Suppress("]"))
+                                 + ")")
+        parser = name + pyparsing.ZeroOrMore(arg) + pyparsing.ZeroOrMore(hole)
+
+        query = parser.parseString(quality)
+        query = [q.strip() for q in query]
+
+        search = [query[0] + " ([])", query[0] + " ()", query[0]]
+        if len(query) > 1:
+            search[0:0] = ["{} ({})".format(query[0], query[1]),
+                           "{} ({}, [])".format(query[0], query[1])]
+        if len(query) > 2:
+            q1 = "{} ({}".format(query[0], query[1])
+            for i in range(2, len(query)):
+                q2 = "{}, []".format(q1)
+                q1 = "{}, {}".format(q1, query[i])
+
+                search[0:0] = [q1 + ")", q2 + ")"]
+        for name in PositiveQualities.names:
+            if name in search:
+                    cats = {"general": PositiveQualities.general,
+                            "metagenic": PositiveQualities.metagenic}
+                    for cat, items in cats.items():
+                        for s in search:
+                            if s in items:
+                                grab = items[s]
+                                grab.update(
+                                    {"name": name, "type": "negative",
+                                     "category": cat}
+                                )
+                                return grab
+        for name in NegativeQualities.names:
+            if name in search:
+                    cats = {"general": NegativeQualities.general,
+                            "metagenic": NegativeQualities.metagenic}
+                    for cat, items in cats.items():
+                        for s in search:
+                            if s in items:
+                                grab = items[s]
+                                grab.update(
+                                    {"name": name, "type": "negative",
+                                     "category": cat}
+                                )
+                                return grab
+
     def set_quality(self, quality, rating):
-        "Attempt to set a quality, then return `(bool, string)`."
-        pass
+        "Attempt to set a quality and return True or False."
+        quality = quality.lower()
+
+        query = self.query_qualities(quality)
+        name, subtype = parse_subtype(quality)
+        sub = None
+        if not query:
+            return False
+        if rating > len(query['rank']):
+            return False
+        for s in query['subtypes']:
+            if subtype[0] in s or s[0] == "*":
+                sub = s
+        if not sub:
+            return False
+        stats = self.attributes.get("qualities_" + query["type"])
+        stats.update({quality: rating})
+        return True
+
+    def get_quality(self, quality="", **cat):
+        """
+        Return the rating of the requested quality, or the whole list.
+
+        Args:
+            qual (str, optional): A quality name to look for.
+            **cat (str, optional): "Positive" or "negative", or the name
+                of one of the specialized lists, or a substring thereof.
+        """
+
+
+        return {}
 
     def set_magic_type(self, type):
         "Attempt to set a magic type, then return `(bool, string)`."
@@ -261,12 +403,11 @@ class Stats:
         # purchases unaffordable.
         pass
 
-
     def get_bod(self):
         """
         Return the character's Body.
         """
-        return self.db.attr["body"]
+        return self.db.meta_attr["body"][0] + self.db.attr["body"]
 
     def set_bod(self, new):
         """
@@ -283,7 +424,7 @@ class Stats:
         """
         Return the character's Agility.
         """
-        return self.db.attr['agility']
+        return self.db.meta_attr['agility'][0] + self.db.attr['agility']
 
     def set_agi(self, new):
         """
@@ -300,7 +441,7 @@ class Stats:
         """
         Return the character's Reaction.
         """
-        return self.db.attr['reaction']
+        return self.db.meta_attr['reaction'][0] + self.db.attr['reaction']
 
     def set_rea(self, new):
         """
@@ -317,7 +458,7 @@ class Stats:
         """
         Return the character's Strength.
         """
-        return self.db.attr['strength']
+        return self.db.meta_attr['strength'][0] + self.db.attr['strength']
 
     def set_str(self, new):
         """
@@ -334,7 +475,7 @@ class Stats:
         """
         Return the character's Willpower.
         """
-        return self.db.attr['willpower']
+        return self.db.meta_attr['willpower'][0] + self.db.attr['willpower']
 
     def set_wil(self, new):
         """
@@ -351,7 +492,7 @@ class Stats:
         """
         Return the character's Logic.
         """
-        return self.db.attr['logic']
+        return self.db.meta_attr['logic'][0] + self.db.attr['logic']
 
     def set_log(self, new):
         """
@@ -368,7 +509,7 @@ class Stats:
         """
         Return the character's Intuition.
         """
-        return self.db.attr['intuition']
+        return self.db.meta_attr['intuition'][0] + self.db.attr['intuition']
 
     def set_int(self, new):
         """
@@ -385,7 +526,7 @@ class Stats:
         """
         Return the character's Charisma.
         """
-        return self.db.attr['charisma']
+        return self.db.meta_attr['charisma'][0] + self.db.attr['charisma']
 
     def set_cha(self, new):
         """
@@ -402,8 +543,8 @@ class Stats:
         """
         Return the character's Essence.
         """
-        if self.attributes.get("spent"):
-            essence = 6 - self.db.spent.get("essence")
+        if self.attributes.get("essence"):
+            essence = self.db.essence.value
         else:
             essence = 6
 
@@ -427,6 +568,30 @@ class Stats:
 
         else:
             return ("", "")
+
+    def physical_limit(self):
+        "(STR x 2 + BOD + REA) / 3"
+
+        strength, body, reaction = self.get_str() * 2, self.get_bod(), self.get_rea()
+
+        output = math.ceil(strength + body + reaction / 3)
+        return int(output)
+
+    def mental_limit(self):
+        "(LOG x 2 + INT + WIL) / 3"
+
+        logic, intuition, willpower = self.get_log() * 2, self.get_int(), self.get_wil()
+
+        output = math.ceil(logic + intuition + willpower / 3)
+        return int(output)
+
+    def social_limit(self):
+        "(CHA x 2 + WIL + ESS) / 3"
+
+        charisma, willpower, reaction = self.get_cha() * 2, self.get_wil(), self.get_ess()
+
+        output = math.ceil(charisma + willpower + reaction / 3)
+        return int(output)
 
     def get_init(self):
         """

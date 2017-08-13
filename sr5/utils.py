@@ -21,6 +21,44 @@ ureg = UnitRegistry()
 
 # TODO: Implement modifiers system here.
 
+def a_n(words):
+    vocab = ["herb"]
+
+    for word in vocab:
+        if words[0:len(word)] is word:
+            return "an " + words
+    if words[0] in "aeiou":
+        return "an " + words
+    else:
+        return "a " + words
+
+
+def parse_subtype(quality):
+    "Takes a stat and returns a tuple `(name, subtype)`."
+    quality = quality.lower()
+
+    name = pyparsing.Word(pyparsing.alphanums + " .-_/,")
+    arg = pyparsing.Suppress("(") + name + pyparsing.ZeroOrMore(
+            pyparsing.Suppress(",") + name
+          ) + pyparsing.Suppress(")")
+    hole = pyparsing.Combine("(" +
+                             pyparsing.ZeroOrMore(pyparsing.Suppress("[") ^
+                                                  pyparsing.Suppress("]"))
+                             + ")")
+    parser = name + pyparsing.ZeroOrMore(arg) + pyparsing.ZeroOrMore(hole)
+
+    query = parser.parseString(quality)
+    query = [q.strip() for q in query]
+
+    subtype = [""]
+
+    if len(query) > 1:
+        query[0] += " ()"
+        if str(query[1]) != '()':
+            subtype = query[1:len(query)]
+
+    return (query[0], subtype)
+
 
 class SlotsHandler:
     """

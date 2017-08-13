@@ -1,4 +1,4 @@
-class Metatypes():
+class Metatypes:
     # Priorities entries: `(metatype, special attributes, karma cost)`
     priorities = {"a": [("human", 9, 0), ("elf", 8, 0), ("dwarf", 7, 0),
                         ("ork", 7, 0), ("troll", 5, 0)],
