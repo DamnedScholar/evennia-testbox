@@ -21,7 +21,7 @@ from sr5.data.skills import Skills
 from sr5.data.ware import BuyableWare, Grades, Obvious, Synthetic
 from sr5.objects import Augment, Aug_Methods
 from sr5.system import Stats
-from sr5.utils import a_n, SlotsHandler, validate, ureg
+from sr5.utils import a_n, itemize, flatten, SlotsHandler, validate, ureg
 
 
 class ChargenScript(DefaultScript, Stats):
@@ -142,6 +142,11 @@ class ChargenScript(DefaultScript, Stats):
         # TODO: Reset specifically qualities, skills, and gear that rely on
         # this category, and inform the player about that fact.
 
+    def reset_qualities(self):
+        "Resets qualities."
+        self.db.qualities_positive = {}
+        self.db.qualities_negative = {}
+
     def reset_skills(self):
         "Resets skills and specializations."
         self.db.skills = {}
@@ -155,13 +160,6 @@ class ChargenScript(DefaultScript, Stats):
         self.obj.db.essence.configure(self.obj, "essence", 6)
         self.db.augments, self.db.gear = {}, {}
         # TODO: The above line is highly suspect.
-
-    def reset_qualities(self):
-        "Resets qualities."
-        self.db.qualities_positive = {}
-        self.db.qualities_negative = {}
-        # Don't touch the karma Ledger until the very end.
-        self.db.cg_karma = 25
 
     def reset_vitals(self):
         "Resets name, birthdate, etc."
@@ -179,141 +177,186 @@ class ChargenScript(DefaultScript, Stats):
         self.obj.cg = self.obj.scripts.get("chargen")[0]
         self.obj.cmdset.add("sr5.chargen.ChargenCmdSet")
 
+    # TODO: I should probably move the entirety of cgview to separate functions
     def cgview(self, step, priority):
-        # Formatting functions.
+        "Calculate the view for the user that shows a particular CG step."
         def meta(attr):
+            "Local formatting function."
             return "{} ({} to {})".format(self.get_attr(attr),
                                           self.get_meta_attr(attr)[0],
                                           self.get_meta_attr(attr)[1])
 
         def magres(which, text):
+            "Local formatting function."
             if self.get_attr(which):
                 out = "{}".format(text)
             else:
                 out = "|x|h{}|n".format(text)
             return out
 
-        self.priorities = "You've set the following priorities:\n\n" \
-                          "A: {a}\nB: {b}\nC: {c}\nD: {d}\nE: {e}".format(
-                                a=self.db.priorities["a"].title(),
-                                b=self.db.priorities["b"].title(),
-                                c=self.db.priorities["c"].title(),
-                                d=self.db.priorities["d"].title(),
-                                e=self.db.priorities["e"].title()
-                          )
+        if step in "priorities":
+            output = "You've set the following priorities:\n\n" \
+                     "A: {a}\nB: {b}\nC: {c}\nD: {d}\nE: {e}".format(
+                        a=self.db.priorities["a"].title(),
+                        b=self.db.priorities["b"].title(),
+                        c=self.db.priorities["c"].title(),
+                        d=self.db.priorities["d"].title(),
+                        e=self.db.priorities["e"].title()
+                      )
+        elif step in "metatypes":
+            # Metatype View
+            options, names = Metatypes.priorities[priority], []
+            for option in options:
+                names += [option[0]]
+            # If no valid metatype is set, give options to set it.
+            if self.db.metatype not in names:
+                output = "At priority {0}, you have the following " \
+                         "choices:\n\n".format(priority.title())
+                output += "\t|h{left:<20}{right:>30}|n" \
+                          "\n".format(left="Command to Set",
+                                      right="Metatype (Attributes, Karma)")
+                for i in range(0, len(options)):
+                    option = options[i]
+                    left = "\t> meta {command}".format(command=option[0])
+                    right = "{name} ({sa} SA, {karma} Karma)" \
+                            "\n".format(name=option[0].title(),
+                                        sa=option[1], karma=option[2])
+                    output += "{left:<20}{right:>30}".format(left=left,
+                                                             right=right)
 
-        # TODO: Clean up this nomenclature so that it's clearer to third parties which variables refer to the stats store, which ones refer to choices the player has made, and which ones are views.
+                output += "\nYou can look at a metatype's stats " \
+                          "with \"stat <metatype>\"."
+            # If there's a valid metatype, give options to set
+            # special attributes.
+            else:
+                i = names.index(self.db.metatype)
+                current = self.db.spec_attr
+                total = sum(current.values())
 
-        # Metatype View
-        options, names = Metatypes.priorities[priority], []
-        for option in options:
-            names += [option[0]]
-        # If no valid metatype is set, give options to set it.
-        if self.db.metatype not in names:
-            self.metatype = "At priority {0}, you have the following " \
-                            "choices:\n\n".format(priority.title())
-            self.metatype += "\t|h{left:<20}{right:>30}|n" \
-                             "\n".format(left="Command to Set",
-                             right="Metatype (Attributes, Karma)")
-            for i in range(0, len(options)):
-                option = options[i]
-                left = "\t> meta {command}".format(command=option[0])
-                right = "{name} ({sa} SA, {karma} Karma)" \
-                        "\n".format(name=option[0].title(),
-                        sa=option[1], karma=option[2])
-                self.metatype += "{left:<20}{right:>30}".format(left=left,
-                                 right=right)
+                output = "As {mt}, you have {sa} points for " \
+                         "special attributes ({sp} spent) and will be " \
+                         "charged {ka} karma.".format(
+                            mt=a_n(self.db.metatype),
+                            sa=options[i][1], sp=total,
+                            ka=options[i][2])
+                output += "\n\n"
+                table = evtable.EvTable(border=None, width=70)
+                table.add_column(
+                    "Edge:", magres("magic", "Magic:"),
+                    magres("resonance", "Resonance:"),
+                    align="r"
+                )
+                table.add_column(
+                    meta("edg"), magres("magic", meta("mag")),
+                    magres("resonance", meta("res")),
+                    align="l"
+                )
+                output += str(table)
+        elif step in "attributes attrs":
+            # Attributes View
+            current = self.db.attr
+            points, total = Attr.priorities[priority], sum(current.values())
 
-            self.metatype += "\nYou can look at a metatype's stats " \
-                             "with \"stat <metatype>\"."
-        # If there's a valid metatype, give options to set special attributes.
-        else:
-            i = names.index(self.db.metatype)
-            current = self.db.spec_attr
-            total = sum(current.values())
-
-            self.metatype = "As {mt}, you have {sa} points for " \
-                            "special attributes ({sp} spent) and will be " \
-                            "charged {ka} karma.".format(
-                                mt=a_n(self.db.metatype),
-                                sa=options[i][1], sp=total,
-                                ka=options[i][2])
-            self.metatype += "\n\n"
-            # The maximum Edge rating is one higher if the character possesses the Lucky quality.
+            output = "You have {} points available for attributes at " \
+                     "priority {} ({} spent).".format(
+                        points, priority.title(), total)
+            if total > points:
+                output += " You have spent more points than you have " \
+                             "available. Please reduce some of your " \
+                             "attributes to bring yourself in line."
+            output += "\n\n"
             table = evtable.EvTable(border=None, width=70)
             table.add_column(
-                "Edge:", magres("magic", "Magic:"),
-                magres("resonance", "Resonance:"),
+                "|hPhysical|n",
+                "Body:", "Agility:", "Reaction:", "Strength:",
                 align="r"
             )
             table.add_column(
-                meta("edg"), magres("magic", meta("mag")), magres("resonance", meta("res")),
+                "",
+                meta("bod"), meta("agi"),
+                meta("rea"), meta("str"),
                 align="l"
             )
-            self.metatype += str(table)
-            # self.metatype += "\tEdge: {cur}/{max}\n".format(
-            #                  cur=self.db.meta_attr["edge"][0] + self.db.spec_attr["edge"],
-            #                  max=self.db.meta_attr["edge"][1] + self.db.qualities_positive.get("lucky", 0))
-            # # No character can have both Magic and Resonance. If a character has an innate Magic rating, such as the metasapients, they cannot possess Resonance.
-            # if self.db.meta_attr["resonance"][0] or self.db.spec_attr["resonance"]:
-            #     # The maximum Resonance rating is one higher if the character possesses the Exceptional Attribute (Resonance) quality.
-            #     self.metatype += "\tResonance: {cur}/{max}\n".format(
-            #                      cur=self.db.spec_attr["resonance"],
-            #                      max=self.db.meta_attr["resonance"][1] + self.db.qualities_positive.get("exceptional attribute (resonance)", 0))
-            # elif self.db.meta_attr["magic"][0] or self.db.spec_attr["magic"]:
-            #     # The maximum Magic rating is one higher if the character possesses the Exceptional Attribute (Magic) quality.
-            #     self.metatype += "\tMagic: {cur}/{max}\n".format(
-            #                      cur=self.db.spec_attr["magic"],
-            #                      max=self.db.meta_attr["magic"][1] + self.db.qualities_positive.get("exceptional attribute (magic)", 0))
-            # else:
-            #     self.metatype += "\tMagic: 0/6\n" \
-            #                      "\tResonance: 0/6\n"
+            table.add_column(
+                "|hMental|n",
+                "Willpower:", "Logic:", "Intuition:", "Charisma:",
+                align="r"
+            )
+            table.add_column(
+                "",
+                meta("wil"), meta("log"),
+                meta("int"), meta("cha"),
+                align="l"
+            )
+            table.add_column(
+                "|hLimits|n",
+                "Physical:", "Mental:", "Social:",
+                align="r"
+            )
+            table.add_column(
+                "",
+                self.physical_limit(), self.mental_limit(),
+                self.social_limit(),
+                align="l"
+            )
 
-        # Attributes View
-        current = self.db.attr
-        points, total = Attr.priorities[priority], sum(current.values())
+            output += str(table)
+        elif step in "magic resonance":
+            # Magres View
+            output = "You have arrived at the CG step for Magic/Resonance. " \
+                     "Well, let me tell you, that shit is a pain in the " \
+                     "ass. The Magic/Resonance step will be implemented " \
+                     "after literally everything else. In the mean time, " \
+                     "set the priority to E, because you can't use this " \
+                     "step right now."
+        elif step in "quality qualities":
+            # Qualities View
+            positive = self.get_qualities("positive")
+            negative = self.get_qualities("negative")
+            pos, neg = 0, 0
+            for qual, rank in positive.items():
+                pos += self.query_qualities(qual)['rank'][rank - 1]
+            for qual, rank in negative:
+                neg += self.query_qualities(qual)['rank'][rank - 1]
+            current = self.db.karma.value - pos + neg
 
-        self.attr = "You have {} points available for attributes at priority {} ({} spent).".format(points, priority.title(), total)
-        if total > points:
-            self.attr += " You have spent more points than you have available. Please reduce some of your attributes to bring yourself in line."
-        self.attr += "\n\n"
-        table = evtable.EvTable(border=None, width=70)
-        table.add_column(
-            "|hPhysical|n",
-            "Body:", "Agility:", "Reaction:", "Strength:",
-            align="r"
-        )
-        table.add_column(
-            "",
-            meta("bod"), meta("agi"),
-            meta("rea"), meta("str"),
-            align="l"
-        )
-        table.add_column(
-            "|hMental|n",
-            "Willpower:", "Logic:", "Intuition:", "Charisma:",
-            align="r"
-        )
-        table.add_column(
-            "",
-            meta("wil"), meta("log"),
-            meta("int"), meta("cha"),
-            align="l"
-        )
-        table.add_column(
-            "|hLimits|n",
-            "Physical:", "Mental:", "Social:",
-            align="r"
-        )
-        table.add_column(
-            "",
-            self.physical_limit(), self.mental_limit(), self.social_limit(),
-            align="l"
-        )
+            output = "In character creation, you begin with {} karma " \
+                     "and can take up to 25 karma worth of positive " \
+                     "qualities and up to 25 karma worth of negative " \
+                     "qualities.".format(self.db.karma.initial)
+            if current < 0:
+                output += " |rYou have spent more karma than you have " \
+                          "available. Please take on negative qualities " \
+                          "or remove some positive ones.|n"
+            if pos > 25:
+                output += " |rYou have spent more karma on positive " \
+                          "qualities than permitted. You will not be " \
+                          "permitted to submit your character sheet " \
+                          "until you remove some.|n"
+            if neg > 25:
+                output += " |rYou have gained more karma from negative " \
+                          "qualities than permitted. You will not be " \
+                          "permitted to submit your character sheet " \
+                          "until you remove some.|n"
+            output += "\n\n"
+            table = evtable.EvTable("Positive: " + str(pos),
+                                    border="header", width=70)
+            table.add_row(itemize(flatten(positive), case="title"))
+            output += unicode(table) + "\n\n"
+            table = evtable.EvTable("Negative: " + str(neg),
+                                    border="header", width=70)
+            table.add_row(itemize(flatten(negative), case="title"))
+            output += unicode(table)
+        elif step in "skills":
+            # Skills View
+            pass
+        elif step in "lifestyle resources":
+            # Lifestyle and Resources View
+            pass
+        else:
+            output = "We're not finding that step."
 
-        self.attr += str(table)
-
-        return getattr(self, step, "We're not finding that step.")
+        return output
 
     # Stats are validated through a series of if and for statements passed in
     # a dict. They can be passed two statements deep (this could be expanded
@@ -501,7 +544,7 @@ class CmdCGRoom(default_cmds.MuxCommand):
         step, match, priority = '', False, ''
 
         # Check if the args match a CG step.
-        for i in range(0,len(cg.cg_steps)):
+        for i in range(0, len(cg.cg_steps)):
             if self.args in cg.cg_steps[i]:
                 match = True
                 step = cg.cg_steps[i]
@@ -517,12 +560,17 @@ class CmdCGRoom(default_cmds.MuxCommand):
         if not priority and step in "priority priorities":
             priority = "a"
             step = "priorities"
+        elif not priority and step in "quality qualities":
+            priority = "a"
+            step = "qualities"
         elif not priority:
             caller.msg(tag + "You have to set a priority for it first.")
             return False
 
         if step in "attributes attrs":
             step = "attr"
+        elif step in "magic resonance":
+            step = "magres"
 
         caller.msg(cg.cgview(step, priority))
 

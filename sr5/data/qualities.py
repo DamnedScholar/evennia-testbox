@@ -1,18 +1,30 @@
 class PositiveQualities:
-    names = ["exceptional attribute (strength)"]
+    names = ["ambidextrous", "exceptional attribute ([])"]
+    categories = ["general", "metagenic"]
 
-    general = {"exceptional attribute ([])": {
-                    "subtypes": ["body", "strength"],
-                    "rank": tuple([14]),
-                    "description": "",
-                    "source": ""
-               }}
+    general = {
+        "ambidextrous": {
+            "subtypes": None,
+            "rank": tuple([4]),
+            "description": "",
+            "source": ""
+        },
+        "exceptional attribute ([])": {
+            "subtypes": ["body", "agility", "reaction", "strength",
+                         "willpower", "logic", "intuition", "charisma",
+                         "magic", "resonance"],
+            "rank": tuple([14]),
+            "description": "",
+            "source": ""
+        }
+    }
 
     metagenic = {"functional tail ([])": {}}
 
 
 class NegativeQualities:
     names = ["allergy - common ([])"]
+    categories = ["general", "metagenic"]
 
     general = {"allergy - common ([])": {
                     "subtypes": ["*allergen"],

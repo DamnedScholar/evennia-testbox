@@ -10,6 +10,7 @@ import string
 import re
 import pyparsing
 from dateutil import parser
+from decimal import Decimal
 from pint import UnitRegistry
 from django.db.models import Q
 import evennia
@@ -21,7 +22,10 @@ ureg = UnitRegistry()
 
 # TODO: Implement modifiers system here.
 
+
 def a_n(words):
+    if not words:
+        return None
     vocab = ["herb"]
 
     for word in vocab:
@@ -31,6 +35,44 @@ def a_n(words):
         return "an " + words
     else:
         return "a " + words
+
+
+def itemize(words, case=""):
+    """
+    Takes a list and optional case argument, and converts the list into a
+    comma-delimited string with the requested case.
+    """
+    if not words:
+        return None
+    if isinstance(words, (int, float, Decimal)):
+        words = str(words)
+    try:
+        a = "and"
+        words = map(str, words)
+        if case in "title":
+            words = [word.title() for word in words]
+        elif case in "upper":
+            words = [word.upper() for word in words]
+            a = a.upper()
+        elif case in "lower":
+            words = [word.lower() for word in words]
+        words[len(words) - 1] = "{} {}".format(a, words[len(words) - 1])
+        words = ", ".join(words)
+    except TypeError:
+        raise TypeError("itemize() expects an iterable, string, or number.")
+
+    return words
+
+
+def flatten(d):
+    if not d:
+        return None
+    output = []
+
+    for key, val in d.items():
+        output.append("{}: {}".format(key, val))
+
+    return output
 
 
 def parse_subtype(quality):
@@ -58,6 +100,44 @@ def parse_subtype(quality):
             subtype = query[1:len(query)]
 
     return (query[0], subtype)
+
+
+def purge_empty_values(d):
+    "Iterates through a dictionary and removes all keys that have no values."
+
+    purge = []
+    for item in d:
+        if not d[item]:
+            purge.append(item)
+    for item in purge:
+        d.pop(item)
+
+    return d
+
+
+class StatMsg:
+    """
+    Lightweight error message object. Will evaluate as a bool with ~ or ==
+    operators, and will evaluate as a string if asked to.
+    """
+    def __init__(self, status, msg):
+        self.status = status
+        self.msg = msg
+
+    def __eq__(self):
+        if self.status:
+            return True
+        else:
+            return False
+
+    def __invert__(self):
+        if self.status:
+            return True
+        else:
+            return False
+
+    def __str__(self):
+        return self.msg
 
 
 class SlotsHandler:
