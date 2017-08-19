@@ -47,7 +47,9 @@ def itemize(words, case=""):
     if isinstance(words, (int, float, Decimal)):
         words = str(words)
     try:
-        a = "and"
+        a = ""
+        if len(words) != 1:
+            a = "and "
         words = map(str, words)
         if case in "title":
             words = [word.title() for word in words]
@@ -56,7 +58,7 @@ def itemize(words, case=""):
             a = a.upper()
         elif case in "lower":
             words = [word.lower() for word in words]
-        words[len(words) - 1] = "{} {}".format(a, words[len(words) - 1])
+        words[len(words) - 1] = "{}{}".format(a, words[len(words) - 1])
         words = ", ".join(words)
     except TypeError:
         raise TypeError("itemize() expects an iterable, string, or number.")

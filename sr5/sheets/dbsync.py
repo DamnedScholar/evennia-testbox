@@ -1,5 +1,7 @@
 
 from __future__ import print_function
+import autopep8
+from collections import OrderedDict
 import httplib2
 import os
 
@@ -34,8 +36,9 @@ def get_credentials():
     credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'sheets.googleapis.com-python-quickstart.json')
+    credential_path = os.path.join(
+        credential_dir, 'sheets.googleapis.com-python-quickstart.json'
+    )
 
     store = Storage(credential_path)
     credentials = store.get()
@@ -44,17 +47,29 @@ def get_credentials():
         flow.user_agent = APPLICATION_NAME
         if flags:
             credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
+        else:  # Needed only for compatibility with Python 2.6
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
 
+
 def fill_defaults(result, length):
+    "Empty cells will be represented by empty values."
     for i in range(0, length):
         if i + 1 > len(result):
             result += [""]
 
     return result
+
+
+def space(n):
+    "Insert n spaces here."
+    output = ""
+    for i in range(0, n):
+        output += " "
+
+    return output
+
 
 def main():
     """Shows basic usage of the Sheets API.
@@ -70,9 +85,21 @@ def main():
     spreadsheetId = '1IgOcna1hLMRZwl0Zy6lC_XArWmQIMEvZNDmbOwGBaw4'
 
     # Skills
-    groups = {}
-    categories = {}
-    attr = {}
+    groups, categories, attr = {}, {}, {}
+
+    # Get priority values.
+    rangeName = 'Priorities!B3:F4'
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=rangeName).execute()
+    values = result.get('values', [])
+    priorities = "{"
+
+    values = zip(map(int, values[0]), map(int, values[1]))
+    values = dict(zip("abcde", values))
+    for pri in "abcde":
+        priorities += "'{}': {},".format(pri, values[pri])
+
+    priorities += "}"
 
     # Get active skills.
     rangeName = 'Skills!A2:H'
@@ -87,7 +114,21 @@ def main():
         print('Active Skills: Doing it!')
         for row in values:
             row = fill_defaults(row, 8)
-            active += '\t\t"%s": {\n\t\t\t"attribute": "%s", "default": "%s",\n\t\t\t"group": "%s", "category": "%s",\n\t\t\t"description": "%s",\n\t\t\t"specs": "%s",\n\t\t\t"source": "%s"\n\t\t},\n' % (row[0].lower(), row[1].lower(), row[2].lower(), row[3].lower(), row[4].lower(), row[5], row[6], row[7])
+            row = map(str, row)
+            active += '%s"%s": ' \
+                      '{\n%s"attribute": "%s", "default": "%s",\n' \
+                      '%s"group": "%s", "category": "%s",\n' \
+                      '%s"description": "%s",\n' \
+                      '%s"specs": "%s",\n' \
+                      '%s"source": "%s"\n' \
+                      '%s},\n' % (
+                        space(8), row[0].lower(),
+                        space(12), row[1].lower(), row[2].lower(),
+                        space(12), row[3].lower(), row[4].lower(),
+                        space(12), row[5],
+                        space(12), row[6],
+                        space(12), row[7],
+                        space(8))
 
             # Populate groups dict.
             if row[3] and row[3].lower() != "none":
@@ -102,45 +143,114 @@ def main():
                 attr.setdefault(row[1].lower(), [])
                 attr[row[1].lower()] += [row[0].lower()]
 
-    # Get knowledge and language skills.
-    rangeName = 'Skills!J2:O'
+    # Get knowledge skills.
+    rangeName = 'Skills!J2:O5'
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     values = result.get('values', [])
     knowledge = ""
 
     if not values:
-        print('Knowledge/Language Skills: No data found.')
+        print('Knowledge Skills: No data found.')
     else:
-        print('Knowledge/Language Skills: Doing it!')
+        print('Knowledge Skills: Doing it!')
         for row in values:
             row = fill_defaults(row, 8)
-            knowledge += '\t\t"%s": {\n\t\t\t"attribute": "%s", "default": "%s",\n\t\t\t"description": "%s",\n\t\t\t"specs": "%s",\n\t\t\t"source": "%s"\n\t\t},\n' % (row[0].lower(), row[1].lower(), row[2].lower(), row[3], row[4], row[5])
+            row = map(str, row)
+            knowledge += '%s"%s": ' \
+                         '{\n%s"attribute": "%s", "default": "%s",\n' \
+                         '%s"description": "%s",\n' \
+                         '%s"specs": "%s",\n' \
+                         '%s"source": "%s"\n' \
+                         '%s},\n' % (
+                           space(8), row[0].lower(),
+                           space(12), row[1].lower(), row[2].lower(),
+                           space(12), row[3],
+                           space(12), row[4],
+                           space(12), row[5],
+                           space(8))
 
             # Populate attributes dict.
             if row[1] and row[1].lower() != "none":
                 attr.setdefault(row[1].lower(), [])
                 attr[row[1].lower()] += [row[0].lower()]
 
+    # Get language skill.
+    rangeName = 'Skills!J7:O7'
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=rangeName).execute()
+    values = result.get('values', [])
+    language = ""
+
+    for row in values:
+        row = fill_defaults(row, 8)
+        row = map(str, row)
+        language += '%s"%s": ' \
+                     '{\n%s"attribute": "%s", "default": "%s",\n' \
+                     '%s"description": "%s",\n' \
+                     '%s"specs": "%s",\n' \
+                     '%s"source": "%s"\n' \
+                     '%s},\n' % (
+                       space(8), row[0].lower(),
+                       space(12), row[1].lower(), row[2].lower(),
+                       space(12), row[3],
+                       space(12), row[4],
+                       space(12), row[5],
+                       space(8))
+
+        # Populate attributes dict.
+        if row[1] and row[1].lower() != "none":
+            attr.setdefault(row[1].lower(), [])
+            attr[row[1].lower()] += [row[0].lower()]
+
+    # Get languages.
+    rangeName = 'Languages!A1:B'
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=rangeName).execute()
+    values = result.get('values', [])
+
+    for row in values:
+        language += '"%s": [%s],\n' % (row[0], row[1])
+
+    rangeName = 'Languages!D1:E'
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=rangeName).execute()
+    values = result.get('values', [])
+    language += '"secret" : {'
+
+    for row in values:
+        language += '"%s": [%s],\n' % (row[0], row[1])
+
+    language += '}\n\n'
+
     # Generate the storage document.
     skills_data = open("../data/skills.py", "w+")
 
-    skills_data.write('class Skills():\n'\
-                      '\t"""\n'\
-                      '\tThis class has been automatically generated based on a Google sheet.\n'\
-                      '\t"""\n')
+    output = 'class Skills():\n' \
+             '    """\n' \
+             '    This class has been automatically generated based on a ' \
+             'Google sheet.\n' \
+             '    """\n'
 
-    skills_data.write('\tactive = {\n')
-    skills_data.write(active)
-    skills_data.write('\t}\n\n')
-    skills_data.write('\tknowledge = {\n')
-    skills_data.write(knowledge)
-    skills_data.write('\t}')
+    output += '    priorities = ' \
+              '{}\n\n'.format(priorities)
 
-    skills_data.write('\n')
-    skills_data.write('\tgroups = ' + str(groups) + '\n')
-    skills_data.write('\tcategories = ' + str(categories) + '\n')
-    skills_data.write('\tattr = ' + str(attr) + '\n')
+    output += '    active = {\n'
+    output += '{}'.format(active)
+    output += '    }\n\n'
+    output += '    knowledge = {\n'
+    output += '{}'.format(knowledge)
+    output += '    }\n\n'
+    output += '    language = {\n'
+    output += '{}'.format(language)
+    output += '    }\n\n'
+
+    output += '    groups = {}\n\n'.format(groups)
+    output += '    categories = {}\n\n'.format(categories)
+    output += '    attr = {}\n\n'.format(attr)
+
+    skills_data.write(autopep8.fix_code(output,
+                                        options={'aggressive': 3}))
 
 if __name__ == '__main__':
     main()

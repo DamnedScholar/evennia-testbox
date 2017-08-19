@@ -66,13 +66,12 @@ class DefaultShadowrunner(DefaultCharacter, Stats):
             'willpower': 1, 'logic': 1, 'intuition': 1, 'charisma': 1,
             'essence': 6, 'edge': 1, 'magic': 0, 'resonance': 0
         }
-        self.db.active_skills = {
-            "archery": 4, "automatics": 2, "blades":1, "clubs": 8,
+        self.cg.db.active_skills = {
+            "archery": 4, "automatics": 2, "blades": 1, "clubs": 8,
             "escape artist": 3, "exotic melee weapon (specific)": 4,
             "academic knowledge": 2, "aeronautics mechanic": 2, "arcana": 2,
             "armorer": 2, "automotive mechanic": 2, "biotechnology": 2,
-            "chemistry": 2
-        }
+            "chemistry": 2}
         self.db.active_specializations = {"archery": "horseback"}
         self.db.active_skill_groups = {}
         self.db.knowledge_skills = {"biotech": 2, "megacorps": 2, "seattle": 2, "slums": 2, "ballistics": 2, "metahumans": 2}

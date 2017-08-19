@@ -56,11 +56,11 @@ class ChargenScript(DefaultScript, Stats):
     resonance = {"a": {"resonance": 6, "skills": (2, 5), "forms": 5},
                  "b": {"resonance": 4, "skills": (2, 4), "forms": 2},
                  "c": {"resonance": 3, "skills": (0, 0), "forms": 1}}
-    skills = {"a": {"points": 46, "group": 10},
-              "b": {"points": 36, "group": 5},
-              "c": {"points": 28, "group": 2},
-              "d": {"points": 22, "group": 0},
-              "e": {"points": 18, "group": 0}}
+    skills = {"a": (46, 10),
+              "b": (36, 5),
+              "c": (28, 2),
+              "d": (22, 0),
+              "e": (18, 0)}
     resources = {"a": {"street": 75000, "experienced": 450000, "prime": 500000},
                  "b": {"street": 50000, "experienced": 275000, "prime": 325000},
                  "c": {"street": 25000, "experienced": 140000, "prime": 210000},
@@ -149,9 +149,10 @@ class ChargenScript(DefaultScript, Stats):
 
     def reset_skills(self):
         "Resets skills and specializations."
-        self.db.skills = {}
-        self.db.skill_groups = {}
+        self.db.active_skills = {}
         self.db.specs = {}
+        self.db.knowledge_skills = {}
+        self.db.languages = {}
 
     def reset_resources(self):
         "Resets lifestyle and purchases."
@@ -193,6 +194,16 @@ class ChargenScript(DefaultScript, Stats):
             else:
                 out = "|x|h{}|n".format(text)
             return out
+
+        def spec(skills):
+            "Local formatting function."
+            for sk in skills:
+                spec = self.get_specialization(sk)
+                if spec:
+                    pop = skills.pop(sk)
+                    skills.update({"{} ({})".format(sk, spec): pop})
+
+            return skills
 
         if step in "priorities":
             output = "You've set the following priorities:\n\n" \
@@ -316,7 +327,7 @@ class ChargenScript(DefaultScript, Stats):
             pos, neg = 0, 0
             for qual, rank in positive.items():
                 pos += self.query_qualities(qual)['rank'][rank - 1]
-            for qual, rank in negative:
+            for qual, rank in negative.items():
                 neg += self.query_qualities(qual)['rank'][rank - 1]
             current = self.db.karma.value - pos + neg
 
@@ -349,7 +360,49 @@ class ChargenScript(DefaultScript, Stats):
             output += unicode(table)
         elif step in "skills":
             # Skills View
-            pass
+            active = self.get_skills("active")
+            group = self.get_skills("group")
+            knowledge = self.get_skills("knowledge")
+            language = self.get_skills("language")
+            points, group_points = Skills.priorities[priority]
+            know_points = self.get_attr("int") + self.get_attr("log")
+            # Knowledge and language points come from the same pool, but we're
+            # keeping the totals separate.
+            act_total, group_total = sum(active.values()), sum(group.values())
+            know_total = sum(knowledge.values())
+            lang_total = sum(language.values())
+
+            output = "At priority {}, you begin with {} points to spend on " \
+                     "active skills and {} to spend on active skill groups. " \
+                     "A specialization costs 1 skill point, and you can't " \
+                     "have a skill group including any skill in which you " \
+                     "possess a specialization.\n\n" \
+                     "With Intuition {} and Logic {}, you have {} points to " \
+                     "spend on knowledge and language skills.".format(
+                        priority.title(), points, group_points,
+                        self.get_attr("int"), self.get_attr("log"),
+                        know_points)
+            if points - act_total < 0:
+                output += " |rYou have spent more skill points than you " \
+                          "have available. Please take on negative " \
+                          "qualities or remove some positive ones.|n"
+            output += "\n\n"
+            table = evtable.EvTable("Active: " + str(act_total),
+                                    border="header", width=70)
+            table.add_row(itemize(flatten(spec(active)), case="title"))
+            output += unicode(table) + "\n\n"
+            table = evtable.EvTable("Groups: " + str(group_total),
+                                    border="header", width=70)
+            table.add_row(itemize(flatten(group), case="title"))
+            output += unicode(table) + "\n\n"
+            table = evtable.EvTable("Knowledge: " + str(know_total),
+                                    border="header", width=70)
+            table.add_row(itemize(flatten(spec(knowledge)), case="title"))
+            output += unicode(table) + "\n\n"
+            table = evtable.EvTable("Language: " + str(lang_total),
+                                    border="header", width=70)
+            table.add_row(itemize(flatten(language), case="title"))
+            output += unicode(table)
         elif step in "lifestyle resources":
             # Lifestyle and Resources View
             pass
