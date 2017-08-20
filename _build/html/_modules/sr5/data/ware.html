@@ -1,0 +1,286 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>sr5.data.ware &#8212; Evennia Testbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for sr5.data.ware</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cyberware and bioware prototype dictionary and rules reference.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="Grades"><a class="viewcode-back" href="../../../sr5/sphinx/sr5.data.html#sr5.data.ware.Grades">[docs]</a><span class="k">class</span> <span class="nc">Grades</span><span class="p">():</span>
+    <span class="c1"># TODO: Remove this if Grades.__dict__.keys() does the same thing.</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="s2">&quot;alphaware&quot;</span><span class="p">,</span> <span class="s2">&quot;betaware&quot;</span><span class="p">,</span> <span class="s2">&quot;deltaware&quot;</span><span class="p">,</span> <span class="s2">&quot;used&quot;</span><span class="p">]</span>
+
+    <span class="n">standard</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;availability&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+    <span class="n">alphaware</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">&quot;availability&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">}</span>
+    <span class="n">betaware</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s2">&quot;availability&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}</span>
+    <span class="n">deltaware</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;availability&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">}</span>
+    <span class="n">used</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">1.25</span><span class="p">,</span> <span class="s2">&quot;availability&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Obvious"><a class="viewcode-back" href="../../../sr5/sphinx/sr5.data.html#sr5.data.ware.Obvious">[docs]</a><span class="k">class</span> <span class="nc">Obvious</span><span class="p">():</span>
+    <span class="n">full_arm</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">15000</span><span class="p">}</span>
+    <span class="n">full_leg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">15000</span><span class="p">}</span>
+    <span class="n">hand_foot</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">}</span>
+    <span class="n">lower_arm</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">}</span>
+    <span class="n">lower_leg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">}</span>
+    <span class="n">torso</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">20000</span><span class="p">}</span>
+    <span class="n">skull</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Synthetic"><a class="viewcode-back" href="../../../sr5/sphinx/sr5.data.html#sr5.data.ware.Synthetic">[docs]</a><span class="k">class</span> <span class="nc">Synthetic</span><span class="p">():</span>
+    <span class="n">full_arm</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">20000</span><span class="p">}</span>
+    <span class="n">full_leg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">20000</span><span class="p">}</span>
+    <span class="n">hand_foot</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">6000</span><span class="p">}</span>
+    <span class="n">lower_arm</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">12000</span><span class="p">}</span>
+    <span class="n">lower_leg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">12000</span><span class="p">}</span>
+    <span class="n">torso</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">25000</span><span class="p">}</span>
+    <span class="n">skull</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">15000</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="BuyableWare"><a class="viewcode-back" href="../../../sr5/sphinx/sr5.data.html#sr5.data.ware.BuyableWare">[docs]</a><span class="k">class</span> <span class="nc">BuyableWare</span><span class="p">():</span>
+    <span class="n">cyberlimbs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LEFT_ARM&quot;</span><span class="p">,</span> <span class="s2">&quot;LEFT_FOOT&quot;</span><span class="p">,</span> <span class="s2">&quot;LEFT_HAND&quot;</span><span class="p">,</span> <span class="s2">&quot;LEFT_LEG&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LEFT_LOWER_ARM&quot;</span><span class="p">,</span> <span class="s2">&quot;LEFT_LOWER_LEG&quot;</span><span class="p">,</span> <span class="s2">&quot;RIGHT_ARM&quot;</span><span class="p">,</span> <span class="s2">&quot;RIGHT_FOOT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;RIGHT_HAND&quot;</span><span class="p">,</span> <span class="s2">&quot;RIGHT_LEG&quot;</span><span class="p">,</span> <span class="s2">&quot;RIGHT_LOWER_ARM&quot;</span><span class="p">,</span> <span class="s2">&quot;RIGHT_LOWER_LEG&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SKULL&quot;</span><span class="p">,</span> <span class="s2">&quot;TORSO&quot;</span><span class="p">]</span></div>
+
+
+<span class="c1"># Cyberlimbs</span>
+<span class="n">CYBERLIMB</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Cyberlimb Prototype&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;typeclass&quot;</span><span class="p">:</span> <span class="s2">&quot;sr5.objects.Augment&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;strength&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+             <span class="s2">&quot;agility&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+             <span class="s2">&quot;armor&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s2">&quot;phys_cond&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s2">&quot;exec&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;obj.apply_costs_and_capacity(&quot;</span>
+                    <span class="s2">&quot;obj.db.slot_list, obj.db.synthetic&quot;</span>
+                <span class="s2">&quot;)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;obj.apply_customizations()&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;obj.apply_grade()&quot;</span>
+             <span class="p">]}</span>
+<span class="n">TORSO</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Torso&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;CYBERLIMB&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;modifiers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># Tuple (&lt;stat&gt;, &lt;type&gt;, &lt;value&gt;, &lt;condition or False&gt;)</span>
+            <span class="p">(</span><span class="s2">&quot;attributes.strength&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;this:strength&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;attributes.agility&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;this:agility&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;condition.physical&quot;</span><span class="p">,</span> <span class="s2">&quot;bonus&quot;</span><span class="p">,</span> <span class="s2">&quot;this:phys_cond&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+         <span class="p">],</span>
+         <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+         <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the torso.&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;torso&quot;</span><span class="p">]}</span>
+<span class="n">SKULL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Skull&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;CYBERLIMB&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;modifiers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># Tuple (&lt;stat&gt;, &lt;type&gt;, &lt;value&gt;, &lt;condition or False&gt;)</span>
+            <span class="p">(</span><span class="s2">&quot;attributes.strength&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;this:strength&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;attributes.agility&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;this:agility&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;weapons&quot;</span><span class="p">,</span> <span class="s2">&quot;innate&quot;</span><span class="p">,</span> <span class="s2">&quot;cyberhead&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;condition.physical&quot;</span><span class="p">,</span> <span class="s2">&quot;bonus&quot;</span><span class="p">,</span> <span class="s2">&quot;this:phys_cond&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+         <span class="p">],</span>
+         <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
+         <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the head.&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;skull&quot;</span><span class="p">]}</span>
+<span class="n">RIGHT_ARM</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Right Arm&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;CYBERLIMB&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;modifiers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="c1"># Tuple (&lt;stat&gt;, &lt;type&gt;, &lt;value&gt;, &lt;condition or False&gt;)</span>
+                <span class="p">(</span><span class="s2">&quot;attributes.strength&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;this:strength&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;attributes.agility&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;this:agility&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;weapons&quot;</span><span class="p">,</span> <span class="s2">&quot;innate&quot;</span><span class="p">,</span> <span class="s2">&quot;cyberhand&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;condition.physical&quot;</span><span class="p">,</span> <span class="s2">&quot;bonus&quot;</span><span class="p">,</span> <span class="s2">&quot;this:phys_cond&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+             <span class="p">],</span>
+             <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the right arm.&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;right_upper_arm&quot;</span><span class="p">,</span> <span class="s2">&quot;right_lower_arm&quot;</span><span class="p">,</span> <span class="s2">&quot;right_hand&quot;</span><span class="p">]}</span>
+<span class="n">RIGHT_LOWER_ARM</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Right Lower Arm&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;RIGHT_ARM&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;phys_cond&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                   <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+                   <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the right lower arm.&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;right_lower_arm&quot;</span><span class="p">,</span> <span class="s2">&quot;right_hand&quot;</span><span class="p">]}</span>
+<span class="n">RIGHT_HAND</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Right Hand&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;RIGHT_ARM&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;phys_cond&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+              <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+              <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the right hand.&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;right_hand&quot;</span><span class="p">]}</span>
+<span class="n">LEFT_ARM</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Left Arm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;CYBERLIMB&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;modifiers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="c1"># Tuple (&lt;stat&gt;, &lt;type&gt;, &lt;value&gt;, &lt;condition or False&gt;)</span>
+                <span class="p">(</span><span class="s2">&quot;attributes.strength&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;this:strength&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;attributes.agility&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;this:agility&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;weapons&quot;</span><span class="p">,</span> <span class="s2">&quot;innate&quot;</span><span class="p">,</span> <span class="s2">&quot;cyberhand&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;condition.physical&quot;</span><span class="p">,</span> <span class="s2">&quot;bonus&quot;</span><span class="p">,</span> <span class="s2">&quot;this:phys_cond&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+            <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the left arm.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;left_upper_arm&quot;</span><span class="p">,</span> <span class="s2">&quot;left_lower_arm&quot;</span><span class="p">,</span> <span class="s2">&quot;left_hand&quot;</span><span class="p">]}</span>
+<span class="n">LEFT_LOWER_ARM</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Left Lower Arm&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;LEFT_ARM&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;phys_cond&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                  <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+                  <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the left lower arm.&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;left_lower_arm&quot;</span><span class="p">,</span> <span class="s2">&quot;left_hand&quot;</span><span class="p">]}</span>
+<span class="n">LEFT_HAND</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Left Hand&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;LEFT_ARM&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;phys_cond&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+             <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the left hand.&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;left_hand&quot;</span><span class="p">]}</span>
+<span class="n">RIGHT_LEG</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Right Leg&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;CYBERLIMB&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;modifiers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="c1"># Tuple (&lt;stat&gt;, &lt;type&gt;, &lt;value&gt;, &lt;condition or False&gt;)</span>
+                <span class="p">(</span><span class="s2">&quot;attributes.strength&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;this:strength&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;attributes.agility&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;this:agility&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;weapons&quot;</span><span class="p">,</span> <span class="s2">&quot;innate&quot;</span><span class="p">,</span> <span class="s2">&quot;cyberfoot&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;condition.physical&quot;</span><span class="p">,</span> <span class="s2">&quot;bonus&quot;</span><span class="p">,</span> <span class="s2">&quot;this:phys_cond&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+             <span class="p">],</span>
+             <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+             <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the right leg.&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;right_upper_leg&quot;</span><span class="p">,</span> <span class="s2">&quot;right_lower_leg&quot;</span><span class="p">,</span> <span class="s2">&quot;right_foot&quot;</span><span class="p">]}</span>
+<span class="n">RIGHT_LOWER_LEG</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Right Lower Leg&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;RIGHT_LEG&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;phys_cond&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                   <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+                   <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the right lower leg.&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;right_lower_leg&quot;</span><span class="p">,</span> <span class="s2">&quot;right_foot&quot;</span><span class="p">]}</span>
+<span class="n">RIGHT_FOOT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Right Foot&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;RIGHT_LEG&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;phys_cond&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+              <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+              <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the right foot.&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;right_foot&quot;</span><span class="p">]}</span>
+<span class="n">LEFT_LEG</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Left Leg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;CYBERLIMB&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;modifiers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="c1"># Tuple (&lt;stat&gt;, &lt;type&gt;, &lt;value&gt;, &lt;condition or False&gt;)</span>
+                <span class="p">(</span><span class="s2">&quot;attributes.strength&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;this:strength&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;attributes.agility&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;this:agility&quot;</span><span class="p">,</span> <span class="s2">&quot;this:condition&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;weapons&quot;</span><span class="p">,</span> <span class="s2">&quot;innate&quot;</span><span class="p">,</span> <span class="s2">&quot;cyberfoot&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;condition.physical&quot;</span><span class="p">,</span> <span class="s2">&quot;bonus&quot;</span><span class="p">,</span> <span class="s2">&quot;this:phys_cond&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the left leg.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;left_upper_leg&quot;</span><span class="p">,</span> <span class="s2">&quot;left_lower_leg&quot;</span><span class="p">,</span> <span class="s2">&quot;left_foot&quot;</span><span class="p">]}</span>
+<span class="n">LEFT_LOWER_LEG</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Left Lower Leg&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;LEFT_LEG&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;phys_cond&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                  <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+                  <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the left lower leg.&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;left_lower_leg&quot;</span><span class="p">,</span> <span class="s2">&quot;left_foot&quot;</span><span class="p">]}</span>
+<span class="n">LEFT_FOOT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;Left Foot&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;prototype&quot;</span><span class="p">:</span> <span class="s2">&quot;LEFT_LEG&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;phys_cond&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s2">&quot;essence&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+             <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;When using the left foot.&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;slot_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;left_foot&quot;</span><span class="p">]}</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Evennia Testbox</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Holland Wilson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

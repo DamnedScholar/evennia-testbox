@@ -37,7 +37,7 @@ def a_n(words):
         return "a " + words
 
 
-def itemize(words, case=""):
+def itemize(words, case="no change"):
     """
     Takes a list and optional case argument, and converts the list into a
     comma-delimited string with the requested case.
@@ -59,7 +59,11 @@ def itemize(words, case=""):
         elif case in "lower":
             words = [word.lower() for word in words]
         words[len(words) - 1] = "{}{}".format(a, words[len(words) - 1])
-        words = ", ".join(words)
+        if len(words) == 2:
+            j = " "
+        else:
+            j = ", "
+        words = j.join(words)
     except TypeError:
         raise TypeError("itemize() expects an iterable, string, or number.")
 
@@ -126,11 +130,11 @@ class StatMsg:
         self.status = status
         self.msg = msg
 
-    def __eq__(self):
-        if self.status:
-            return True
-        else:
+    def __eq__(self, other):
+        if self.status == False:
             return False
+        else:
+            return True
 
     def __invert__(self):
         if self.status:
@@ -140,6 +144,14 @@ class StatMsg:
 
     def __str__(self):
         return self.msg
+
+    def __getitem__(self, n):
+        if n == 0:
+            r = self.status
+        elif n == 1:
+            r = self.msg
+        else:
+            raise KeyError("StatMsg only has two members.")
 
 
 class SlotsHandler:
@@ -217,9 +229,6 @@ class SlotsHandler:
         else:
             existing.update(slots)
             return True
-
-    # TODO: Apparently named arguments aren't optional just because they have a
-    # default value. I need to figure out how to make them optional.
 
     def delete(self, name, num=0, *slots):
         """

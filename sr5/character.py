@@ -81,5 +81,3 @@ class DefaultShadowrunner(DefaultCharacter, Stats):
         # Don't store the Karma value of qualities. Store the level and calculate the Karma points based on the lookup table.
         self.db.qualities_positive = {}
         self.db.qualities_negative = {}
-
-    pass

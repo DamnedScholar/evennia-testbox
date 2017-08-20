@@ -9,6 +9,7 @@ import math
 import string
 import re
 import pyparsing
+from collections import OrderedDict
 from dateutil import parser
 from evennia import DefaultObject
 from sr5.utils import parse_subtype, purge_empty_values, StatMsg, ureg
@@ -193,9 +194,16 @@ class Stats:
 
         return bounds
 
-    def lang(self):
-        langs = []
-        lists = {"language": [langs += l for l in Skills.language]}
+    def available_skills(self):
+        secret = []
+        if self.db.metatype in Skills.language['secret'].keys():
+            secret = Skills.language['secret'][self.db.metatype]
+        return OrderedDict([("groups", Skills.groups.keys()),
+                           ("active", Skills.active.keys()),
+                           ("knowledge", Skills.knowledge.keys()),
+                           ("language", Skills.language['general'] +
+                           Skills.language['other'] +
+                           Skills.language['sign'] + secret)])
 
     def set_skill(self, skill, rating):
         "Attempt to set a skill or group, then return a StatMsg."
@@ -203,14 +211,11 @@ class Stats:
             return StatMsg(False, "The skill must be a string.")
         if not isinstance(rating, int):
             return StatMsg(False, "Skill ratings must be whole numbers.")
+        as_entered = skill
         skill = skill.lower()
-        if self.db.metatype in Skills.language['secret'].keys():
-            secret = Skills.language['secret'][self.db.metatype]
-        lists = {"active": Skills.active.keys(),
-                 "groups": Skills.groups.keys(),
-                 "knowledge": Skills.knowledge.keys(),
-                 "language": Skills.language['general'] +
-                 Skills.language['other'] + Skills.language['sign'] + secret}
+        lists = self.available_skills()
+
+        self.obj.msg("Setting {} to {}".format(skill, rating))
 
         # The max for each skill is 6 in chargen or 12 otherwise.
         if self.typeclass_path == "sr5.chargen.ChargenScript":
@@ -224,7 +229,7 @@ class Stats:
             cap_msg = "The maximum rating for skills is 12, " \
                 "or 13 if you have Aptitude ({}).".format(skill.title())
 
-        if skill in lists["groups"]:
+        if [s.startswith(skill) for s in lists["groups"]].count(True):
             # Check if the skill group is valid (the ratings are the same and
             # no skill in the group has a specialization).
             # Aptitude isn't relevant here.
@@ -252,6 +257,7 @@ class Stats:
                 return StatMsg(True, "Skill group {} set at {}".format(
                     skill, rating))
         elif skill in lists["active"]:
+            # TODO: Figure out exotic skills.
             # Check for Aptitude
             if self.get_quality("aptitude ({})".format(skill)):
                 skill_cap += 1
@@ -261,7 +267,7 @@ class Stats:
             skills = self.attributes.get("active_skills")
 
             skills.update({skill: rating})
-        elif [skill.endswith("({})".format(i)) for i in lists["knowledge"]]:
+        elif [skill.endswith("({})".format(i.lower())) for i in lists["knowledge"]].count(True):
             # Check for Aptitude
             if self.get_quality("aptitude ({})".format(skill)):
                 skill_cap += 1
@@ -270,33 +276,41 @@ class Stats:
 
             skills = self.attributes.get("knowledge_skills")
 
-            skills.update({skill: rating})
-        elif [skill.startswith("{}".format(i)) for i in lists["language"]]:
+            skills.update({as_entered: rating})
+        elif [bool(s.lower().count(skill)) for s in lists["language"]].count(True):
+            i = [bool(s.lower().count(skill)) for s in lists["language"]].index(True)
             # Check for Aptitude
             if self.get_quality("aptitude ({})".format(skill)):
                 skill_cap += 1
             if rating > skill_cap:
                 return StatMsg(False, cap_msg)
 
-            skills = self.attributes.get("language_skills")
+            skills = self.attributes.get("languages")
 
-            skills.update({skill: rating})
+            cur = skills.get(lists['language'][i], False)
+            if cur == "N":
+                return StatMsg(False, "You can't raise a native language.")
+
+            skills.update({lists['language'][i]: rating})
         else:
             return StatMsg(False, "Skill {} not found.".format(skill.title()))
 
     def set_specialization(self, skill, spec):
         "Attempt to set a specialization, then return `(bool, string)`."
         skill, spec = skill.lower(), spec.lower()
-        lists = {"active": Skills.active.keys(),
-                 "knowledge": Skills.knowledge.keys()}
+        lists = {"active": self.db.active_skills.keys(),
+                 "knowledge": self.db.knowledge_skills.keys(),
+                 "language": self.db.language_skills.keys()}
 
         if skill in lists["active"]:
             specs = self.db.active_specializations
         elif skill in lists["knowledge"]:
             specs = self.db.knowledge_specializations
+        elif skill in lists["language"]:
+            specs = self.db.language_specializations
         else:
             return StatMsg(False,
-                           "{} doesn't seem to be a valid skill.".format(
+                           "{} doesn't seem to be a skill you possess.".format(
                                 skill.title()))
 
         if skill in specs.keys():
@@ -354,6 +368,7 @@ class Stats:
                  "knowledge": Skills.knowledge.keys()}
 
         for item in lists["active"]:
+            # TODO: Figure out exotic skills.
             if skill in item:
                 stat = self.attributes.get("active_skills")
                 return stat.get(item, None)
@@ -374,7 +389,6 @@ class Stats:
         "interest", and "street".
         """
         output, raw, stat = {}, [], {}
-        # TODO: Figure out exotic skills.
         if cat in "active":
             raw = Skills.active.keys()
             stat = dict(self.attributes.get("active_skills"))
@@ -387,7 +401,7 @@ class Stats:
                     stat.pop(skills[2])
         elif cat in "group":
             raw = Skills.groups.keys()
-            stat = self.attributes.get("active_skills")
+            stat = dict(self.attributes.get("active_skills"))
 
             for group in raw:
                 # Check that all skills in the group have the same rating and
@@ -401,31 +415,31 @@ class Stats:
             return output
         elif cat in "knowledge":
             raw = Skills.knowledge.keys()
-            stat = self.attributes.get("knowledge_skills")
+            stat = dict(self.attributes.get("knowledge_skills"))
         elif cat in "language":
             output = self.attributes.get("languages")
         elif cat in "academic":
-            raw = "academic"
-            stat = self.attributes.get("knowledge_skills")
+            raw = ["academic"]
+            stat = dict(self.attributes.get("knowledge_skills"))
         elif cat in "professional":
-            raw = "professional"
-            stat = self.attributes.get("knowledge_skills")
+            raw = ["professional"]
+            stat = dict(self.attributes.get("knowledge_skills"))
         elif cat in "interest":
-            raw = "interest"
-            stat = self.attributes.get("knowledge_skills")
+            raw = ["interest"]
+            stat = dict(self.attributes.get("knowledge_skills"))
         elif cat in "street":
-            raw = "street"
-            stat = self.attributes.get("knowledge_skills")
+            raw = ["street"]
+            stat = dict(self.attributes.get("knowledge_skills"))
         else:
             for group in Skills.groups.keys():
                 if cat in group:
                     raw = Skills.groups[group]
-                    stat = self.attributes.get("active_skills")
+                    stat = dict(self.attributes.get("active_skills"))
                     break
             for category in Skills.categories.keys():
                 if cat in category:
                     raw = Skills.categories[category]
-                    stat = self.attributes.get("active_skills")
+                    stat = dict(self.attributes.get("active_skills"))
                     break
             for attr in Attr.names.keys():
                 if cat in attr:
@@ -434,13 +448,14 @@ class Stats:
                     stat.update(dict(self.attributes.get("knowledge_skills")))
                     break
 
-        if not stat:
-            return {}
         if not output:
+            if not stat:
+                return {}
             # Search in stat for all instances in raw.
             for k in sorted(stat.keys()):
                 for r in raw:
-                    if k.startswith("{}".format(r)) or k.endswith(
+                    if k.lower().startswith(
+                        "{}".format(r)) or k.lower().endswith(
                         "({})".format(r)
                     ):
                         output.update({k: stat[k]})

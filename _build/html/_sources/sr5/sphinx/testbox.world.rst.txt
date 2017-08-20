@@ -1,0 +1,22 @@
+testbox\.world package
+======================
+
+Submodules
+----------
+
+testbox\.world\.prototypes module
+---------------------------------
+
+.. automodule:: testbox.world.prototypes
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.world
+    :members:
+    :undoc-members:
+    :show-inheritance:

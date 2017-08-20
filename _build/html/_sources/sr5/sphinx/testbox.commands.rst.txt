@@ -1,0 +1,30 @@
+testbox\.commands package
+=========================
+
+Submodules
+----------
+
+testbox\.commands\.command module
+---------------------------------
+
+.. automodule:: testbox.commands.command
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.commands\.default\_cmdsets module
+------------------------------------------
+
+.. automodule:: testbox.commands.default_cmdsets
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.commands
+    :members:
+    :undoc-members:
+    :show-inheritance:

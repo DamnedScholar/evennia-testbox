@@ -1,0 +1,434 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>testbox.tekmunkey.adaptiveDisplay package &#8212; Evennia Testbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="testbox-tekmunkey-adaptivedisplay-package">
+<h1>testbox.tekmunkey.adaptiveDisplay package<a class="headerlink" href="#testbox-tekmunkey-adaptivedisplay-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="testbox-tekmunkey-adaptivedisplay-adaptivedisplaycommandsets-module">
+<h2>testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayCommandSets module<a class="headerlink" href="#testbox-tekmunkey-adaptivedisplay-adaptivedisplaycommandsets-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="testbox-tekmunkey-adaptivedisplay-adaptivedisplaycommands-module">
+<h2>testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayCommands module<a class="headerlink" href="#testbox-tekmunkey-adaptivedisplay-adaptivedisplaycommands-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions">
+<span id="testbox-tekmunkey-adaptivedisplay-adaptivedisplayfunctions-module"></span><h2>testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions module<a class="headerlink" href="#module-testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.bottomBorderFor">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">bottomBorderFor</code><span class="sig-paren">(</span><em>player</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#bottomBorderFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.bottomBorderFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias or shortcut for centerTextAt, substituting the player’s screen width (as manually specified or given by
+NAWS) for linewidth and substituting devault_display_vars.borderChar_Bottom as the fillchar automatically.</p>
+<p>This passes an empty text string to produce a clean Bottom Border line.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>player</strong> – {player} An instance of typeclass player.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{str} The devault_display_vars.borderChar_Bottom string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.bottomHeaderFor">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">bottomHeaderFor</code><span class="sig-paren">(</span><em>player</em>, <em>headertext=''</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#bottomHeaderFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.bottomHeaderFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias or shortcut for centerTextAt, substituting the player’s screen width (as manually specified or given by
+NAWS) for linewidth and substituting devault_display_vars.borderChar_Bottom as the fillchar automatically.</p>
+<p>If headertext is a string instance of length &gt; 0, then the header text is additionally wrappered in
+default_display_vars.headerBoxChar_Left and default_display_vars.headerBoxChar_Right</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>player</strong> – {player} An instance of typeclass player.</li>
+<li><strong>headertext</strong> – {str} The text to create a header from.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The specified text bottom-headerized.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.boxTextAt">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">boxTextAt</code><span class="sig-paren">(</span><em>text=''</em>, <em>lboxchar=' '</em>, <em>rboxchar=' '</em>, <em>paddingchar=' '</em>, <em>linewidth=78</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#boxTextAt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.boxTextAt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps the specified text and presents it inside a boxed display at the specified linewidth, or 78 columns by default.
+If lboxchar, rboxchar, and paddingchar are not specified, default characters are pulled from
+default_display_vars.py</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – {str} The string to box.</li>
+<li><strong>lboxchar</strong> – {str} The left-side boxing character.  If omitted, defaults to default_display_vars.borderChar_Left</li>
+<li><strong>rboxchar</strong> – {str} The right-side boxing character.    If omitted, defaults to default_display_vars.borderChar_Right</li>
+<li><strong>paddingchar</strong> – {str} The this_pad_string character that extends from the end of each wrapped line to the right-side
+boxing character.  If omitted, defaults to default_display_vars.boxText_padding</li>
+<li><strong>linewidth</strong> – {int} The output display width, in characters or columns.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The specified text wrapped to fit inside the specified boxing characters.  The entire boxed line fits
+inside the specified linewidth.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.boxTextFor">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">boxTextFor</code><span class="sig-paren">(</span><em>player</em>, <em>text=''</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#boxTextFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.boxTextFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias or shortcut for boxTextAt, substituting the player’s screen width (as manually specified or given by
+NAWS) for linewidth and passing default_display_vars.headerBoxChar_Left and default_display_vars.headerBoxChar_Right
+as the boxing characters automatically.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>player</strong> – {player} An instance of typeclass player.</li>
+<li><strong>headertext</strong> – {str} The text to wrap and box.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The specified text wrapped and boxed at the player’s screen width.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.centerTextAt">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">centerTextAt</code><span class="sig-paren">(</span><em>text=''</em>, <em>fillchar=' '</em>, <em>linewidth=78</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#centerTextAt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.centerTextAt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Centers the specified text in the specified linewidth, or 78 columns by default.  If fillchar is not specified, it
+defaults to a space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – {str} The text to center.  This may be None or an empty string to produce a horizontal header line.</li>
+<li><strong>fillchar</strong> – {str} The character or characters to fill the line on each side of the text with.</li>
+<li><strong>linewidth</strong> – {int} The output display width, in characters or columns.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The specified text centered in the specified linewidth, filled on each side with the specified
+fillchar string.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.centerTextFor">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">centerTextFor</code><span class="sig-paren">(</span><em>player</em>, <em>text=''</em>, <em>fillchar=' '</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#centerTextFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.centerTextFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias or shortcut for centerTextAt, substituting the player’s screen width (as manually specified or given by
+NAWS) for linewidth.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>player</strong> – {player} An instance of typeclass player.</li>
+<li><strong>text</strong> – {str} The text to center.  This may be None or an empty string to produce a horizontal header line.</li>
+<li><strong>fillchar</strong> – {str} The character or characters to fill the line on each side of the text with.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The specified text centered in the specified player’s screen width, filled on each side with the
+specified fillchar string.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.getClientScreenWidth">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">getClientScreenWidth</code><span class="sig-paren">(</span><em>player</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#getClientScreenWidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.getClientScreenWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the screen width reported by NAWS to the ServerSession by a player’s client, or returns the minimum width
+value of 40, or returns the default value of 78 if the ServerSession or Client returns 0 or 1 (which would mean
+NAWS was unsupported or badly supported in the client).</p>
+<p>If for any reason the player object has multiple sessions attached to it, this function will return the value
+reported by the last session in their sessions collection, or it will return the default or minimum if that last
+reported value requires it.</p>
+<p>If for any reason the player object has no sessions attached to it, this function will always return the default
+value 78.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>player</strong> – {player} An instance of the player typeclass.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{int} The player’s screen width, as determined by NAWS or defaults.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.getUserScreenWidth">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">getUserScreenWidth</code><span class="sig-paren">(</span><em>player</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#getUserScreenWidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.getUserScreenWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns either the user’s specified screen width as set into a persistent db attribute by the +setscreenwidth
+command or else the value of getClientScreenWidth, if there is no persistent db value to retrieve.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>player</strong> – {player} An instance of the player typeclass.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{int} The player’s screen width, as determined by their specified/databased value or by NAWS or defaults.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.ljustText">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">ljustText</code><span class="sig-paren">(</span><em>text=''</em>, <em>fillchar=' '</em>, <em>fieldwidth=78</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#ljustText"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.ljustText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Left justifies the specified text in the specified fieldwidth, or 78 columns by default.  If fillchar is not
+specified, it defaults to a space.  If fieldseparator is not specified, it defaults to no field separator string
+(fields are separated only by fillchar padding, or by nothing if the text reaches the extend of fieldwidth).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – {str} The text to left justify.</li>
+<li><strong>fillchar</strong> – {str} The character or characters to fill up the field with, between the end of the text and the
+field extent.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The specified text left-justified in the specified fieldwidth, with the specified fieldseparator
+string on the left hand side.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.rjustText">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">rjustText</code><span class="sig-paren">(</span><em>text=''</em>, <em>fillchar=' '</em>, <em>fieldwidth=78</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#rjustText"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.rjustText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Right justifies the specified text in the specified fieldwidth, or 78 columns by default.  If fillchar is not
+specified, it defaults to a space.  If fieldseparator is not specified, it defaults to no field separator string
+(fields are separated only by fillchar padding, or by nothing if the text reaches the extend of fieldwidth).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – {str} The text to right justify.</li>
+<li><strong>fillchar</strong> – {str} The character or characters to fill up the field with, between the end of the text and the
+field extent.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The specified text right-justified in the specified fieldwidth, with the specified fieldseparator
+string on the right hand side.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.topBorderFor">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">topBorderFor</code><span class="sig-paren">(</span><em>player</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#topBorderFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.topBorderFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias or shortcut for centerTextAt, substituting the player’s screen width (as manually specified or given by
+NAWS) for linewidth and substituting devault_display_vars.borderChar_Top as the fillchar automatically.</p>
+<p>This passes an empty text string to produce a clean Top Border line.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>player</strong> – {player} An instance of typeclass player.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{str} The devault_display_vars.borderChar_Top string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.topHeaderFor">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">topHeaderFor</code><span class="sig-paren">(</span><em>player</em>, <em>headertext=''</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#topHeaderFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.topHeaderFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias or shortcut for centerTextAt, substituting the player’s screen width (as manually specified or given by
+NAWS) for linewidth and substituting devault_display_vars.borderChar_Top as the fillchar automatically.</p>
+<p>If headertext is a string instance of length &gt; 0, then the header text is additionally wrappered in
+default_display_vars.headerBoxChar_Left and default_display_vars.headerBoxChar_Right</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>player</strong> – {player} An instance of typeclass player.</li>
+<li><strong>headertext</strong> – {str} The text to create a header from.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The specified text top-headerized.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.wrapTextAt">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">wrapTextAt</code><span class="sig-paren">(</span><em>text</em>, <em>linewidth=78</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#wrapTextAt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.wrapTextAt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps the specified text at the specified line linewidth, or 78 columns by default.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – {str} The string to wrap.</li>
+<li><strong>linewidth</strong> – {int} The output display width, in characters or columns.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The specified text wrapped at the specified line width.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.wrapTextFor">
+<code class="descclassname">testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.</code><code class="descname">wrapTextFor</code><span class="sig-paren">(</span><em>player</em>, <em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/adaptiveDisplay/adaptiveDisplayFunctions.html#wrapTextFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.wrapTextFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias or shortcut for wraptTextAt, substituting the player’s screen width (as manually specified or given by
+NAWS) for linewidth</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>player</strong> – {player} An instance of typeclass player.</li>
+<li><strong>text</strong> – {str} The text to wrap.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The specified text wrapped at the specified line width.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-testbox.tekmunkey.adaptiveDisplay.default_display_vars">
+<span id="testbox-tekmunkey-adaptivedisplay-default-display-vars-module"></span><h2>testbox.tekmunkey.adaptiveDisplay.default_display_vars module<a class="headerlink" href="#module-testbox.tekmunkey.adaptiveDisplay.default_display_vars" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-testbox.tekmunkey.adaptiveDisplay">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-testbox.tekmunkey.adaptiveDisplay" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Evennia Testbox</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Holland Wilson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,32 @@
+testbox\.tekmunkey package
+==========================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    testbox.tekmunkey.adaptiveDisplay
+    testbox.tekmunkey.baseOverrides
+    testbox.tekmunkey.devUtils
+    testbox.tekmunkey.evennia_overrides
+
+Submodules
+----------
+
+testbox\.tekmunkey\.tekmunkeyCommandSets module
+-----------------------------------------------
+
+.. automodule:: testbox.tekmunkey.tekmunkeyCommandSets
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.tekmunkey
+    :members:
+    :undoc-members:
+    :show-inheritance:

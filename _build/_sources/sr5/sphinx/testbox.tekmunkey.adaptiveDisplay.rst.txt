@@ -1,0 +1,46 @@
+testbox\.tekmunkey\.adaptiveDisplay package
+===========================================
+
+Submodules
+----------
+
+testbox\.tekmunkey\.adaptiveDisplay\.adaptiveDisplayCommandSets module
+----------------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayCommandSets
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.adaptiveDisplay\.adaptiveDisplayCommands module
+-------------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayCommands
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.adaptiveDisplay\.adaptiveDisplayFunctions module
+--------------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.adaptiveDisplay\.default\_display\_vars module
+------------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.adaptiveDisplay.default_display_vars
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.tekmunkey.adaptiveDisplay
+    :members:
+    :undoc-members:
+    :show-inheritance:

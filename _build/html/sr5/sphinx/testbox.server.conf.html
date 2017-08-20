@@ -1,0 +1,471 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>testbox.server.conf package &#8212; Evennia Testbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="testbox-server-conf-package">
+<h1>testbox.server.conf package<a class="headerlink" href="#testbox-server-conf-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-testbox.server.conf.at_initial_setup">
+<span id="testbox-server-conf-at-initial-setup-module"></span><h2>testbox.server.conf.at_initial_setup module<a class="headerlink" href="#module-testbox.server.conf.at_initial_setup" title="Permalink to this headline">¶</a></h2>
+<p>At_initial_setup module template</p>
+<p>Custom at_initial_setup method. This allows you to hook special
+modifications to the initial server startup process. Note that this
+will only be run once - when the server starts up for the very first
+time! It is called last in the startup process and can thus be used to
+overload things that happened before it.</p>
+<p>The module must contain a global function at_initial_setup().  This
+will be called without arguments. Note that tracebacks in this module
+will be QUIETLY ignored, so make sure to check it well to make sure it
+does what you expect it to.</p>
+<dl class="function">
+<dt id="testbox.server.conf.at_initial_setup.at_initial_setup">
+<code class="descclassname">testbox.server.conf.at_initial_setup.</code><code class="descname">at_initial_setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/at_initial_setup.html#at_initial_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.at_initial_setup.at_initial_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-testbox.server.conf.at_search">
+<span id="testbox-server-conf-at-search-module"></span><h2>testbox.server.conf.at_search module<a class="headerlink" href="#module-testbox.server.conf.at_search" title="Permalink to this headline">¶</a></h2>
+<p>Search and multimatch handling</p>
+<p>This module allows for overloading two functions used by Evennia’s
+search functionality:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>at_search_result:</dt>
+<dd>This is called whenever a result is returned from an object
+search (a common operation in commands).  It should (together
+with at_multimatch_input below) define some way to present and
+differentiate between multiple matches (by default these are
+presented as 1-ball, 2-ball etc)</dd>
+<dt>at_multimatch_input:</dt>
+<dd>This is called with a search term and should be able to
+identify if the user wants to separate a multimatch-result
+(such as that from a previous search). By default, this
+function understands input on the form 1-ball, 2-ball etc as
+indicating that the 1st or 2nd match for “ball” should be
+used.</dd>
+</dl>
+</div></blockquote>
+<p>This module is not called by default, to use it, add the following
+line to your settings file:</p>
+<blockquote>
+<div>SEARCH_AT_RESULT = “server.conf.at_search.at_search_result”</div></blockquote>
+<dl class="function">
+<dt id="testbox.server.conf.at_search.at_search_result">
+<code class="descclassname">testbox.server.conf.at_search.</code><code class="descname">at_search_result</code><span class="sig-paren">(</span><em>matches</em>, <em>caller</em>, <em>query=''</em>, <em>quiet=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/at_search.html#at_search_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.at_search.at_search_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a generic hook for handling all processing of a search
+result, including error reporting.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>matches (list): This is a list of 0, 1 or more typeclass instances,</dt>
+<dd>the matched result of the search. If 0, a nomatch error should
+be echoed, and if &gt;1, multimatch errors should be given. Only
+if a single match should the result pass through.</dd>
+</dl>
+<p class="last">caller (Object): The object performing the search and/or which should
+receive error messages.</p>
+</dd>
+<dt>query (str, optional): The search query used to produce <cite>matches</cite>.</dt>
+<dd><dl class="first last docutils">
+<dt>quiet (bool, optional): If <cite>True</cite>, no messages will be echoed to caller</dt>
+<dd>on errors.</dd>
+</dl>
+</dd>
+<dt>Kwargs:</dt>
+<dd>nofound_string (str): Replacement string to echo on a notfound error.
+multimatch_string (str): Replacement string to echo on a multimatch error.</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>processed_result (Object or None): This is always a single result</dt>
+<dd>or <cite>None</cite>. If <cite>None</cite>, any error reporting/handling should
+already have happened.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-testbox.server.conf.at_server_startstop">
+<span id="testbox-server-conf-at-server-startstop-module"></span><h2>testbox.server.conf.at_server_startstop module<a class="headerlink" href="#module-testbox.server.conf.at_server_startstop" title="Permalink to this headline">¶</a></h2>
+<p>Server startstop hooks</p>
+<p>This module contains functions called by Evennia at various
+points during its startup, reload and shutdown sequence. It
+allows for customizing the server operation as desired.</p>
+<p>This module must contain at least these global functions:</p>
+<p>at_server_start()
+at_server_stop()
+at_server_reload_start()
+at_server_reload_stop()
+at_server_cold_start()
+at_server_cold_stop()</p>
+<dl class="function">
+<dt id="testbox.server.conf.at_server_startstop.at_server_cold_start">
+<code class="descclassname">testbox.server.conf.at_server_startstop.</code><code class="descname">at_server_cold_start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/at_server_startstop.html#at_server_cold_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.at_server_startstop.at_server_cold_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is called only when the server starts “cold”, i.e. after a
+shutdown or a reset.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.server.conf.at_server_startstop.at_server_cold_stop">
+<code class="descclassname">testbox.server.conf.at_server_startstop.</code><code class="descname">at_server_cold_stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/at_server_startstop.html#at_server_cold_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.at_server_startstop.at_server_cold_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is called only when the server goes down due to a shutdown or
+reset.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.server.conf.at_server_startstop.at_server_reload_start">
+<code class="descclassname">testbox.server.conf.at_server_startstop.</code><code class="descname">at_server_reload_start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/at_server_startstop.html#at_server_reload_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.at_server_startstop.at_server_reload_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is called only when server starts back up after a reload.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.server.conf.at_server_startstop.at_server_reload_stop">
+<code class="descclassname">testbox.server.conf.at_server_startstop.</code><code class="descname">at_server_reload_stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/at_server_startstop.html#at_server_reload_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.at_server_startstop.at_server_reload_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is called only time the server stops before a reload.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.server.conf.at_server_startstop.at_server_start">
+<code class="descclassname">testbox.server.conf.at_server_startstop.</code><code class="descname">at_server_start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/at_server_startstop.html#at_server_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.at_server_startstop.at_server_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is called every time the server starts up, regardless of
+how it was shut down.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.server.conf.at_server_startstop.at_server_stop">
+<code class="descclassname">testbox.server.conf.at_server_startstop.</code><code class="descname">at_server_stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/at_server_startstop.html#at_server_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.at_server_startstop.at_server_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is called just before the server is shut down, regardless
+of it is for a reload, reset or shutdown.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-testbox.server.conf.cmdparser">
+<span id="testbox-server-conf-cmdparser-module"></span><h2>testbox.server.conf.cmdparser module<a class="headerlink" href="#module-testbox.server.conf.cmdparser" title="Permalink to this headline">¶</a></h2>
+<p>Changing the default command parser</p>
+<p>The cmdparser is responsible for parsing the raw text inserted by the
+user, identifying which command/commands match and return one or more
+matching command objects. It is called by Evennia’s cmdhandler and
+must accept input and return results on the same form. The default
+handler is very generic so you usually don’t need to overload this
+unless you have very exotic parsing needs; advanced parsing is best
+done at the Command.parse level.</p>
+<p>The default cmdparser understands the following command combinations
+(where [] marks optional parts.)</p>
+<p>[cmdname[ cmdname2 cmdname3 …] [the rest]</p>
+<p>A command may consist of any number of space-separated words of any
+length, and contain any character. It may also be empty.</p>
+<p>The parser makes use of the cmdset to find command candidates. The
+parser return a list of matches. Each match is a tuple with its first
+three elements being the parsed cmdname (lower case), the remaining
+arguments, and the matched cmdobject from the cmdset.</p>
+<p>This module is not accessed by default. To tell Evennia to use it
+instead of the default command parser, add the following line to
+your settings file:</p>
+<blockquote>
+<div>COMMAND_PARSER = “server.conf.cmdparser.cmdparser”</div></blockquote>
+<dl class="function">
+<dt id="testbox.server.conf.cmdparser.cmdparser">
+<code class="descclassname">testbox.server.conf.cmdparser.</code><code class="descname">cmdparser</code><span class="sig-paren">(</span><em>raw_string</em>, <em>cmdset</em>, <em>caller</em>, <em>match_index=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/cmdparser.html#cmdparser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.cmdparser.cmdparser" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is called by the cmdhandler once it has
+gathered and merged all valid cmdsets valid for this particular parsing.</p>
+<p>raw_string - the unparsed text entered by the caller.
+cmdset - the merged, currently valid cmdset
+caller - the caller triggering this parsing
+match_index - an optional integer index to pick a given match in a</p>
+<blockquote>
+<div>list of same-named command matches.</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>list of tuples: [(cmdname, args, cmdobj, cmdlen, mratio), …]</dt>
+<dd>where cmdname is the matching command name and args is
+everything not included in the cmdname. Cmdobj is the actual
+command instance taken from the cmdset, cmdlen is the length
+of the command name and the mratio is some quality value to
+(possibly) separate multiple matches.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="testbox-server-conf-connection-screens-module">
+<h2>testbox.server.conf.connection_screens module<a class="headerlink" href="#testbox-server-conf-connection-screens-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-testbox.server.conf.inlinefuncs">
+<span id="testbox-server-conf-inlinefuncs-module"></span><h2>testbox.server.conf.inlinefuncs module<a class="headerlink" href="#module-testbox.server.conf.inlinefuncs" title="Permalink to this headline">¶</a></h2>
+<p>Inlinefunc</p>
+<p>Inline functions allow for direct conversion of text users mark in a
+special way. Inlinefuncs are deactivated by default. To activate, add</p>
+<blockquote>
+<div>INLINEFUNC_ENABLED = True</div></blockquote>
+<p>to your settings file. The default inlinefuncs are found in
+evennia.utils.inlinefunc.</p>
+<p>In text, usage is straightforward:</p>
+<p>$funcname([arg1,[arg2,…]])</p>
+<dl class="docutils">
+<dt>Example 1 (using the “pad” inlinefunc):</dt>
+<dd>say This is $pad(“a center-padded text”, 50,c,-) of width 50.
+-&gt;
+John says, “This is ————– a center-padded text————— of width 50.”</dd>
+<dt>Example 2 (using nested “pad” and “time” inlinefuncs):</dt>
+<dd>say The time is $pad($time(), 30)right now.
+-&gt;
+John says, “The time is         Oct 25, 11:09         right now.”</dd>
+</dl>
+<p>To add more inline functions, add them to this module, using
+the following call signature:</p>
+<blockquote>
+<div>def funcname(text, <a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs)</div></blockquote>
+<p>where <cite>text</cite> is always the part between {funcname(args) and
+{/funcname and the <a href="#id5"><span class="problematic" id="id6">*</span></a>args are taken from the appropriate part of the
+call. If no {/funcname is given, <cite>text</cite> will be the empty string.</p>
+<p>It is important that the inline function properly clean the
+incoming <cite>args</cite>, checking their type and replacing them with sane
+defaults if needed. If impossible to resolve, the unmodified text
+should be returned. The inlinefunc should never cause a traceback.</p>
+<p>While the inline function should accept <a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs, the keyword is
+never accepted as a valid call - this is only intended to be used
+internally by Evennia, notably to send the <cite>session</cite> keyword to
+the function; this is the session of the object viewing the string
+and can be used to customize it to each session.</p>
+</div>
+<div class="section" id="module-testbox.server.conf.inputfuncs">
+<span id="testbox-server-conf-inputfuncs-module"></span><h2>testbox.server.conf.inputfuncs module<a class="headerlink" href="#module-testbox.server.conf.inputfuncs" title="Permalink to this headline">¶</a></h2>
+<p>Input functions</p>
+<p>Input functions are always called from the client (they handle server
+input, hence the name).</p>
+<p>This module is loaded by being included in the
+<cite>settings.INPUT_FUNC_MODULES</cite> tuple.</p>
+<p>All <em>global functions</em> included in this module are considered
+input-handler functions and can be called by the client to handle
+input.</p>
+<p>An input function must have the following call signature:</p>
+<blockquote>
+<div>cmdname(session, <a href="#id9"><span class="problematic" id="id10">*</span></a>args, <a href="#id11"><span class="problematic" id="id12">**</span></a>kwargs)</div></blockquote>
+<p>Where session will be the active session and <a href="#id13"><span class="problematic" id="id14">*</span></a>args, <a href="#id15"><span class="problematic" id="id16">**</span></a>kwargs are extra
+incoming arguments and keyword properties.</p>
+<p>A special command is the “default” command, which is will be called
+when no other cmdname matches. It also receives the non-found cmdname
+as argument.</p>
+<blockquote>
+<div>default(session, cmdname, <a href="#id17"><span class="problematic" id="id18">*</span></a>args, <a href="#id19"><span class="problematic" id="id20">**</span></a>kwargs)</div></blockquote>
+</div>
+<div class="section" id="module-testbox.server.conf.lockfuncs">
+<span id="testbox-server-conf-lockfuncs-module"></span><h2>testbox.server.conf.lockfuncs module<a class="headerlink" href="#module-testbox.server.conf.lockfuncs" title="Permalink to this headline">¶</a></h2>
+<p>Lockfuncs</p>
+<p>Lock functions are functions available when defining lock strings,
+which in turn limits access to various game systems.</p>
+<p>All functions defined globally in this module are assumed to be
+available for use in lockstrings to determine access. See the
+Evennia documentation for more info on locks.</p>
+<p>A lock function is always called with two arguments, accessing_obj and
+accessed_obj, followed by any number of arguments. All possible
+arguments should be handled with <a href="#id21"><span class="problematic" id="id22">*</span></a>args, <a href="#id23"><span class="problematic" id="id24">**</span></a>kwargs. The lock function
+should handle all eventual tracebacks by logging the error and
+returning False.</p>
+<p>Lock functions in this module extend (and will overload same-named)
+lock functions from evennia.locks.lockfuncs.</p>
+</div>
+<div class="section" id="module-testbox.server.conf.mssp">
+<span id="testbox-server-conf-mssp-module"></span><h2>testbox.server.conf.mssp module<a class="headerlink" href="#module-testbox.server.conf.mssp" title="Permalink to this headline">¶</a></h2>
+<p>MSSP (Mud Server Status Protocol) meta information</p>
+<p>MUD website listings (that you have registered with) can use this
+information to keep up-to-date with your game stats as you change
+them. Also number of currently active players and uptime will
+automatically be reported. You don’t have to fill in everything
+(and most are not used by all crawlers); leave the default
+if so needed. You need to &#64;reload the game before updated
+information is made available to crawlers (reloading does not
+affect uptime).</p>
+</div>
+<div class="section" id="module-testbox.server.conf.portal_services_plugins">
+<span id="testbox-server-conf-portal-services-plugins-module"></span><h2>testbox.server.conf.portal_services_plugins module<a class="headerlink" href="#module-testbox.server.conf.portal_services_plugins" title="Permalink to this headline">¶</a></h2>
+<p>Start plugin services</p>
+<p>This plugin module can define user-created services for the Portal to
+start.</p>
+<p>This module must handle all imports and setups required to start
+twisted services (see examples in evennia.server.portal.portal). It
+must also contain a function start_plugin_services(application).
+Evennia will call this function with the main Portal application (so
+your services can be added to it). The function should not return
+anything. Plugin services are started last in the Portal startup
+process.</p>
+<dl class="function">
+<dt id="testbox.server.conf.portal_services_plugins.start_plugin_services">
+<code class="descclassname">testbox.server.conf.portal_services_plugins.</code><code class="descname">start_plugin_services</code><span class="sig-paren">(</span><em>portal</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/portal_services_plugins.html#start_plugin_services"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.portal_services_plugins.start_plugin_services" title="Permalink to this definition">¶</a></dt>
+<dd><p>This hook is called by Evennia, last in the Portal startup process.</p>
+<p>portal - a reference to the main portal application.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-testbox.server.conf.server_services_plugins">
+<span id="testbox-server-conf-server-services-plugins-module"></span><h2>testbox.server.conf.server_services_plugins module<a class="headerlink" href="#module-testbox.server.conf.server_services_plugins" title="Permalink to this headline">¶</a></h2>
+<p>Server plugin services</p>
+<p>This plugin module can define user-created services for the Server to
+start.</p>
+<p>This module must handle all imports and setups required to start a
+twisted service (see examples in evennia.server.server). It must also
+contain a function start_plugin_services(application). Evennia will
+call this function with the main Server application (so your services
+can be added to it). The function should not return anything. Plugin
+services are started last in the Server startup process.</p>
+<dl class="function">
+<dt id="testbox.server.conf.server_services_plugins.start_plugin_services">
+<code class="descclassname">testbox.server.conf.server_services_plugins.</code><code class="descname">start_plugin_services</code><span class="sig-paren">(</span><em>server</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/server_services_plugins.html#start_plugin_services"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.server_services_plugins.start_plugin_services" title="Permalink to this definition">¶</a></dt>
+<dd><p>This hook is called by Evennia, last in the Server startup process.</p>
+<p>server - a reference to the main server application.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="testbox-server-conf-serversession-module">
+<h2>testbox.server.conf.serversession module<a class="headerlink" href="#testbox-server-conf-serversession-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-testbox.server.conf.settings">
+<span id="testbox-server-conf-settings-module"></span><h2>testbox.server.conf.settings module<a class="headerlink" href="#module-testbox.server.conf.settings" title="Permalink to this headline">¶</a></h2>
+<p>Evennia settings file.</p>
+<p>The available options are found in the default settings file found
+here:</p>
+<p>D:githubevenniaevenniasettings_default.py</p>
+<p>Remember:</p>
+<p>Don’t copy more from the default file than you actually intend to
+change; this will make sure that you don’t overload upstream updates
+unnecessarily.</p>
+<p>When changing a setting requiring a file system path (like
+path/to/actual/file.py), use GAME_DIR and EVENNIA_DIR to reference
+your game folder and the Evennia library folders respectively. Python
+paths (path.to.module) should be given relative to the game’s root
+folder (typeclasses.foo) whereas paths within the Evennia library
+needs to be given explicitly (evennia.foo).</p>
+</div>
+<div class="section" id="module-testbox.server.conf.web_plugins">
+<span id="testbox-server-conf-web-plugins-module"></span><h2>testbox.server.conf.web_plugins module<a class="headerlink" href="#module-testbox.server.conf.web_plugins" title="Permalink to this headline">¶</a></h2>
+<p>Web plugin hooks.</p>
+<dl class="function">
+<dt id="testbox.server.conf.web_plugins.at_webserver_root_creation">
+<code class="descclassname">testbox.server.conf.web_plugins.</code><code class="descname">at_webserver_root_creation</code><span class="sig-paren">(</span><em>web_root</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/server/conf/web_plugins.html#at_webserver_root_creation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.server.conf.web_plugins.at_webserver_root_creation" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is called as the web server has finished building its default
+path tree. At this point, the media/ and static/ URIs have already
+been added to the web root.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>web_root (twisted.web.resource.Resource): The root</dt>
+<dd>resource of the URI tree. Use .putChild() to
+add new subdomains to the tree.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>web_root (twisted.web.resource.Resource): The potentially</dt>
+<dd>modified root structure.</dd>
+</dl>
+</dd>
+<dt>Example:</dt>
+<dd>from twisted.web import static
+my_page = static.File(“web/mypage/”)
+my_page.indexNames = [“index.html”]
+web_root.putChild(“mypage”, my_page)</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-testbox.server.conf">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-testbox.server.conf" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Evennia Testbox</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Holland Wilson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/sr5/sphinx/testbox.server.conf.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

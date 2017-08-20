@@ -1,0 +1,95 @@
+testbox\.sr5 package
+====================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    testbox.sr5.data
+    testbox.sr5.migrations
+    testbox.sr5.systemview
+
+Submodules
+----------
+
+testbox\.sr5\.character module
+------------------------------
+
+.. automodule:: testbox.sr5.character
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.chargen module
+----------------------------
+
+.. automodule:: testbox.sr5.chargen
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.command module
+----------------------------
+
+.. automodule:: testbox.sr5.command
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.models module
+---------------------------
+
+.. automodule:: testbox.sr5.models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.msg\_format module
+--------------------------------
+
+.. automodule:: testbox.sr5.msg_format
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.objects module
+----------------------------
+
+.. automodule:: testbox.sr5.objects
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.system module
+---------------------------
+
+.. automodule:: testbox.sr5.system
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.test\_utils module
+--------------------------------
+
+.. automodule:: testbox.sr5.test_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.utils module
+--------------------------
+
+.. automodule:: testbox.sr5.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.sr5
+    :members:
+    :undoc-members:
+    :show-inheritance:

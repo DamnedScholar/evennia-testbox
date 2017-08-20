@@ -1,0 +1,62 @@
+testbox\.tekmunkey\.baseOverrides\.typeclasses package
+======================================================
+
+Submodules
+----------
+
+testbox\.tekmunkey\.baseOverrides\.typeclasses\.channels module
+---------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.baseOverrides.typeclasses.channels
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.baseOverrides\.typeclasses\.characters module
+-----------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.baseOverrides.typeclasses.characters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.baseOverrides\.typeclasses\.exits module
+------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.baseOverrides.typeclasses.exits
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.baseOverrides\.typeclasses\.objects module
+--------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.baseOverrides.typeclasses.objects
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.baseOverrides\.typeclasses\.players module
+--------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.baseOverrides.typeclasses.players
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.baseOverrides\.typeclasses\.rooms module
+------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.baseOverrides.typeclasses.rooms
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.tekmunkey.baseOverrides.typeclasses
+    :members:
+    :undoc-members:
+    :show-inheritance:

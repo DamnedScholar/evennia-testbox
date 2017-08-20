@@ -1,0 +1,17 @@
+testbox\.server package
+=======================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    testbox.server.conf
+
+Module contents
+---------------
+
+.. automodule:: testbox.server
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,109 @@
+testbox\.paxboards package
+==========================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    testbox.paxboards.migrations
+
+Submodules
+----------
+
+testbox\.paxboards\.admin module
+--------------------------------
+
+.. automodule:: testbox.paxboards.admin
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.paxboards\.apps module
+-------------------------------
+
+.. automodule:: testbox.paxboards.apps
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.paxboards\.board\_utils module
+---------------------------------------
+
+.. automodule:: testbox.paxboards.board_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.paxboards\.boards module
+---------------------------------
+
+.. automodule:: testbox.paxboards.boards
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.paxboards\.commands module
+-----------------------------------
+
+.. automodule:: testbox.paxboards.commands
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.paxboards\.forms module
+--------------------------------
+
+.. automodule:: testbox.paxboards.forms
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.paxboards\.managers module
+-----------------------------------
+
+.. automodule:: testbox.paxboards.managers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.paxboards\.models module
+---------------------------------
+
+.. automodule:: testbox.paxboards.models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.paxboards\.tests module
+--------------------------------
+
+.. automodule:: testbox.paxboards.tests
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.paxboards\.urls module
+-------------------------------
+
+.. automodule:: testbox.paxboards.urls
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.paxboards\.views module
+--------------------------------
+
+.. automodule:: testbox.paxboards.views
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.paxboards
+    :members:
+    :undoc-members:
+    :show-inheritance:

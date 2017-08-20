@@ -1,0 +1,30 @@
+testbox\.tekmunkey\.devUtils\.findCode package
+==============================================
+
+Submodules
+----------
+
+testbox\.tekmunkey\.devUtils\.findCode\.findCodeCommands module
+---------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.devUtils.findCode.findCodeCommands
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.devUtils\.findCode\.findCodeFunctions module
+----------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.devUtils.findCode.findCodeFunctions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.tekmunkey.devUtils.findCode
+    :members:
+    :undoc-members:
+    :show-inheritance:

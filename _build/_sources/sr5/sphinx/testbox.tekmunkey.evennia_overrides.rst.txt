@@ -1,0 +1,38 @@
+testbox\.tekmunkey\.evennia\_overrides package
+==============================================
+
+Submodules
+----------
+
+testbox\.tekmunkey\.evennia\_overrides\.command\_overrides module
+-----------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.evennia_overrides.command_overrides
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.evennia\_overrides\.overrideCommandSets module
+------------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.evennia_overrides.overrideCommandSets
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.evennia\_overrides\.typeclass\_overrides module
+-------------------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.evennia_overrides.typeclass_overrides
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.tekmunkey.evennia_overrides
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,54 @@
+testbox\.sr5\.data package
+==========================
+
+Submodules
+----------
+
+testbox\.sr5\.data\.base\_stats module
+--------------------------------------
+
+.. automodule:: testbox.sr5.data.base_stats
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.data\.metatypes module
+------------------------------------
+
+.. automodule:: testbox.sr5.data.metatypes
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.data\.qualities module
+------------------------------------
+
+.. automodule:: testbox.sr5.data.qualities
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.data\.skills module
+---------------------------------
+
+.. automodule:: testbox.sr5.data.skills
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.data\.ware module
+-------------------------------
+
+.. automodule:: testbox.sr5.data.ware
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.sr5.data
+    :members:
+    :undoc-members:
+    :show-inheritance:

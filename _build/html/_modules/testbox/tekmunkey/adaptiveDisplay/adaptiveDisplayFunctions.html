@@ -1,0 +1,484 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions &#8212; Evennia Testbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">tekmunkey.adaptiveDisplay</span> <span class="k">import</span> <span class="n">default_display_vars</span>
+<span class="kn">from</span> <span class="nn">tekmunkey.devUtils</span> <span class="k">import</span> <span class="n">stringExtends</span>
+
+<span class="n">ansiTags</span> <span class="o">=</span> \
+    <span class="p">[</span>
+        <span class="sa">r</span><span class="s2">&quot;|r&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|R&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[r&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[R&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|g&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|G&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[g&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[G&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|y&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|Y&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[y&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[Y&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|b&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|B&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[b&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[B&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|m&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|M&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[m&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[M&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|c&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|C&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[c&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[C&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|w&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|W&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[w&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[W&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|x&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|X&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[x&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|[X&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|X&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|*&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|u&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;|h&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+<div class="viewcode-block" id="getClientScreenWidth"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.getClientScreenWidth">[docs]</a><span class="k">def</span> <span class="nf">getClientScreenWidth</span><span class="p">(</span> <span class="n">player</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the screen width reported by NAWS to the ServerSession by a player&#39;s client, or returns the minimum width</span>
+<span class="sd">    value of 40, or returns the default value of 78 if the ServerSession or Client returns 0 or 1 (which would mean</span>
+<span class="sd">    NAWS was unsupported or badly supported in the client).</span>
+
+<span class="sd">    If for any reason the player object has multiple sessions attached to it, this function will return the value</span>
+<span class="sd">    reported by the last session in their sessions collection, or it will return the default or minimum if that last</span>
+<span class="sd">    reported value requires it.</span>
+
+<span class="sd">    If for any reason the player object has no sessions attached to it, this function will always return the default</span>
+<span class="sd">    value 78.</span>
+
+<span class="sd">    :param player: {player} An instance of the player typeclass.</span>
+<span class="sd">    :return: {int} The player&#39;s screen width, as determined by NAWS or defaults.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="mi">78</span>  <span class="c1"># default screen width for any output</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">player</span><span class="o">.</span><span class="n">sessions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">player</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">player</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mi">78</span>
+            <span class="n">s_width</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_client_size</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># if NAWS reported screen width is not none and is either &gt; 78 or is at least &gt; 40 (the mininum allowed)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">s_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s_width</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">r</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s_width</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">40</span><span class="p">)):</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s_width</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">s_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s_width</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="c1">#</span>
+                <span class="c1"># We are told by Evennia devs that sometimes clients will return 0 so then Evennia&#39;s</span>
+                <span class="c1"># session.get_client_size()[0] will be 1 to avoid DBZ issues... in those cases we do want to</span>
+                <span class="c1"># default to 78.</span>
+                <span class="c1"># In cases where clients return values &gt; 0 or 1 but &lt; 40 we want to default to 40 instead</span>
+                <span class="c1">#</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="mi">40</span>
+    <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="getUserScreenWidth"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.getUserScreenWidth">[docs]</a><span class="k">def</span> <span class="nf">getUserScreenWidth</span><span class="p">(</span> <span class="n">player</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns either the user&#39;s specified screen width as set into a persistent db attribute by the +setscreenwidth</span>
+<span class="sd">    command or else the value of getClientScreenWidth, if there is no persistent db value to retrieve.</span>
+
+<span class="sd">    :param player: {player} An instance of the player typeclass.</span>
+<span class="sd">    :return: {int} The player&#39;s screen width, as determined by their specified/databased value or by NAWS or defaults.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">player</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">screenWidth</span>
+    <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">getClientScreenWidth</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="wrapTextAt"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.wrapTextAt">[docs]</a><span class="k">def</span> <span class="nf">wrapTextAt</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">78</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wraps the specified text at the specified line linewidth, or 78 columns by default.</span>
+
+<span class="sd">    :param text: {str} The string to wrap.</span>
+<span class="sd">    :param linewidth: {int} The output display width, in characters or columns.</span>
+<span class="sd">    :return: {str} The specified text wrapped at the specified line width.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ansistring</span> <span class="o">=</span> <span class="n">ansistring</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot;&quot;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span><span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="n">line_width</span> <span class="o">=</span> <span class="mi">78</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">linewidth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">linewidth</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="p">):</span>
+        <span class="n">line_width</span> <span class="o">=</span> <span class="n">linewidth</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ansistring</span><span class="o">.</span><span class="n">ansiTextWrap</span><span class="p">(</span> <span class="n">line_width</span> <span class="p">):</span>
+        <span class="n">r</span> <span class="o">+=</span> <span class="n">line</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="boxTextAt"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.boxTextAt">[docs]</a><span class="k">def</span> <span class="nf">boxTextAt</span><span class="p">(</span> <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">lboxchar</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">rboxchar</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">paddingchar</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">78</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wraps the specified text and presents it inside a boxed display at the specified linewidth, or 78 columns by default.</span>
+<span class="sd">    If lboxchar, rboxchar, and paddingchar are not specified, default characters are pulled from</span>
+<span class="sd">    default_display_vars.py</span>
+
+<span class="sd">    :param text: {str} The string to box.</span>
+<span class="sd">    :param lboxchar: {str} The left-side boxing character.  If omitted, defaults to default_display_vars.borderChar_Left</span>
+<span class="sd">    :param rboxchar: {str} The right-side boxing character.    If omitted, defaults to default_display_vars.borderChar_Right</span>
+<span class="sd">    :param paddingchar: {str} The this_pad_string character that extends from the end of each wrapped line to the right-side</span>
+<span class="sd">                              boxing character.  If omitted, defaults to default_display_vars.boxText_padding</span>
+<span class="sd">    :param linewidth: {int} The output display width, in characters or columns.</span>
+<span class="sd">    :return: {str} The specified text wrapped to fit inside the specified boxing characters.  The entire boxed line fits</span>
+<span class="sd">                   inside the specified linewidth.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ansistring_text</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot;&quot;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_text</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="n">ansistring_lboxchar</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">borderChar_Left</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">lboxchar</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_lboxchar</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">lboxchar</span>
+
+    <span class="n">ansistring_rboxchar</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">borderChar_Right</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">rboxchar</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)</span> <span class="p">)</span> <span class="p">:</span>
+        <span class="n">ansistring_rboxchar</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">rboxchar</span>
+
+    <span class="n">ansistring_paddingchar</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">boxText_padding</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">paddingchar</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)</span> <span class="p">)</span> <span class="p">:</span>
+        <span class="n">ansistring_paddingchar</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">paddingchar</span>
+
+    <span class="n">line_width</span> <span class="o">=</span> <span class="mi">78</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">linewidth</span><span class="p">,</span> <span class="p">(</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">line_width</span> <span class="o">=</span> <span class="n">linewidth</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s1">&#39;&#39;</span> <span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">ansiTextWrap</span><span class="p">(</span> <span class="n">line_width</span> <span class="o">-</span> <span class="p">(</span> <span class="n">ansistring_lboxchar</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">+</span> <span class="n">ansistring_rboxchar</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_line</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="n">line</span> <span class="p">)</span>
+
+        <span class="n">pad_len</span> <span class="o">=</span> <span class="n">line_width</span> <span class="o">-</span> <span class="p">(</span> <span class="n">ansistring_lboxchar</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">+</span> <span class="n">ansistring_rboxchar</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">+</span> <span class="n">ansistring_line</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span>
+
+        <span class="n">this_pad_string</span> <span class="o">=</span> <span class="p">(</span> <span class="n">ansistring_paddingchar</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span> <span class="n">pad_len</span> <span class="o">/</span> <span class="n">ansistring_paddingchar</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+
+        <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="n">ansistring_lboxchar</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span> <span class="o">+</span> <span class="n">ansistring_line</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span> <span class="o">+</span> <span class="n">this_pad_string</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">+</span> <span class="n">ansistring_rboxchar</span><span class="o">.</span><span class="n">ansiTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="o">&lt;</span> <span class="n">line_width</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="n">ansistring_paddingchar</span><span class="o">.</span><span class="n">ansiSlice</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span> <span class="n">line_width</span> <span class="o">-</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="o">-</span> <span class="n">ansistring_rboxchar</span><span class="o">.</span><span class="n">ansiTextLen</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="n">ansistring_rboxchar</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+    <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">Text</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">Text</span></div>
+
+<div class="viewcode-block" id="centerTextAt"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.centerTextAt">[docs]</a><span class="k">def</span> <span class="nf">centerTextAt</span><span class="p">(</span> <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">fillchar</span><span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">78</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Centers the specified text in the specified linewidth, or 78 columns by default.  If fillchar is not specified, it</span>
+<span class="sd">    defaults to a space.</span>
+
+<span class="sd">    :param text: {str} The text to center.  This may be None or an empty string to produce a horizontal header line.</span>
+<span class="sd">    :param fillchar: {str} The character or characters to fill the line on each side of the text with.</span>
+<span class="sd">    :param linewidth: {int} The output display width, in characters or columns.</span>
+<span class="sd">    :return: {str} The specified text centered in the specified linewidth, filled on each side with the specified</span>
+<span class="sd">                   fillchar string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r_linewidth</span> <span class="o">=</span> <span class="mi">78</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">linewidth</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="p">):</span>
+        <span class="n">r_linewidth</span> <span class="o">=</span> <span class="n">linewidth</span>
+    <span class="n">center_line</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span> <span class="n">r_linewidth</span> <span class="o">/</span> <span class="mi">2</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="n">ansistring_printheader</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot;&quot;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_printheader</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="n">text</span> <span class="p">)</span>
+    <span class="n">center_header</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span> <span class="n">ansistring_printheader</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="n">ansistring_fillchar</span> <span class="o">=</span> <span class="n">ansistring_fillchar</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot; &quot;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">fillchar</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_fillchar</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="n">fillchar</span> <span class="p">)</span>
+    <span class="n">fillchar_repeat_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span> <span class="p">(</span> <span class="p">(</span> <span class="p">(</span> <span class="n">center_line</span> <span class="o">-</span> <span class="n">center_header</span> <span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot;&quot;</span> <span class="p">)</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="p">(</span><span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span> <span class="o">*</span> <span class="n">fillchar_repeat_count</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">&lt;</span> <span class="p">(</span> <span class="n">center_line</span> <span class="o">-</span> <span class="n">center_header</span> <span class="p">):</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">ansiSlice</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span> <span class="p">(</span> <span class="n">center_line</span> <span class="o">-</span> <span class="n">center_header</span> <span class="p">)</span> <span class="o">-</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="n">ansistring_printheader</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span>
+
+    <span class="n">fillchar_repeat_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span> <span class="p">(</span> <span class="n">r_linewidth</span> <span class="o">-</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="o">/</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="p">(</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span> <span class="o">*</span> <span class="n">fillchar_repeat_count</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">r_linewidth</span><span class="p">:</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">ansiSlice</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span> <span class="n">r_linewidth</span> <span class="o">-</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">Text</span></div>
+
+<div class="viewcode-block" id="ljustText"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.ljustText">[docs]</a><span class="k">def</span> <span class="nf">ljustText</span><span class="p">(</span> <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">fillchar</span><span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">fieldwidth</span> <span class="o">=</span> <span class="mi">78</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Left justifies the specified text in the specified fieldwidth, or 78 columns by default.  If fillchar is not</span>
+<span class="sd">    specified, it defaults to a space.  If fieldseparator is not specified, it defaults to no field separator string</span>
+<span class="sd">    (fields are separated only by fillchar padding, or by nothing if the text reaches the extend of fieldwidth).</span>
+
+<span class="sd">    :param text: {str} The text to left justify.</span>
+<span class="sd">    :param fillchar: {str} The character or characters to fill up the field with, between the end of the text and the</span>
+<span class="sd">                           field extent.</span>
+<span class="sd">    :return: {str} The specified text left-justified in the specified fieldwidth, with the specified fieldseparator</span>
+<span class="sd">                   string on the left hand side.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ansistring_text</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot;&quot;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_text</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="n">ansistring_fillchar</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot; &quot;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">fillchar</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">fillchar</span>
+
+    <span class="n">return_fieldwidth</span> <span class="o">=</span> <span class="mi">78</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">fieldwidth</span><span class="p">,</span> <span class="p">(</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">return_fieldwidth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">fieldwidth</span> <span class="p">)</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot;&quot;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">return_fieldwidth</span><span class="p">:</span>
+        <span class="c1"># need to do a little math ro figure out padding length, and apply padding</span>
+        <span class="n">padding_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span> <span class="p">(</span> <span class="n">return_fieldwidth</span> <span class="o">-</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="o">/</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span> <span class="o">*</span> <span class="n">padding_length</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">return_fieldwidth</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">ansiSlice</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span> <span class="n">return_fieldwidth</span> <span class="o">-</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># we have to slice into the original text since it&#39;s longer than the fieldwidth</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">ansiSlice</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">return_fieldwidth</span> <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">Text</span></div>
+
+
+<div class="viewcode-block" id="rjustText"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.rjustText">[docs]</a><span class="k">def</span> <span class="nf">rjustText</span><span class="p">(</span> <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">fillchar</span><span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">fieldwidth</span> <span class="o">=</span> <span class="mi">78</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Right justifies the specified text in the specified fieldwidth, or 78 columns by default.  If fillchar is not</span>
+<span class="sd">    specified, it defaults to a space.  If fieldseparator is not specified, it defaults to no field separator string</span>
+<span class="sd">    (fields are separated only by fillchar padding, or by nothing if the text reaches the extend of fieldwidth).</span>
+
+<span class="sd">    :param text: {str} The text to right justify.</span>
+<span class="sd">    :param fillchar: {str} The character or characters to fill up the field with, between the end of the text and the</span>
+<span class="sd">                           field extent.</span>
+<span class="sd">    :return: {str} The specified text right-justified in the specified fieldwidth, with the specified fieldseparator</span>
+<span class="sd">                   string on the right hand side.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ansistring_text</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot;&quot;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_text</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="n">ansistring_fillchar</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot; &quot;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">fillchar</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">fillchar</span>
+
+    <span class="n">return_fieldwidth</span> <span class="o">=</span> <span class="mi">78</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">fieldwidth</span><span class="p">,</span> <span class="p">(</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">return_fieldwidth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">fieldwidth</span> <span class="p">)</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="s2">&quot;&quot;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">return_fieldwidth</span><span class="p">:</span>
+        <span class="c1"># need to do a little math ro figure out padding length, and apply padding</span>
+        <span class="n">padding_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span> <span class="p">(</span> <span class="n">return_fieldwidth</span> <span class="o">-</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="o">/</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="p">(</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span> <span class="o">*</span> <span class="n">padding_length</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="p">)</span> <span class="o">&lt;</span> <span class="n">return_fieldwidth</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="n">ansistring_fillchar</span><span class="o">.</span><span class="n">ansiSlice</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span> <span class="n">return_fieldwidth</span> <span class="o">-</span> <span class="p">(</span> <span class="n">r</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">(</span> <span class="p">)</span> <span class="o">+</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">(</span> <span class="p">)</span> <span class="p">)</span>  <span class="p">)</span> <span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">+=</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># we have to slice into the original text since it&#39;s longer than the fieldwidth</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">ansistring_text</span><span class="o">.</span><span class="n">ansiSlice</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">return_fieldwidth</span> <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">Text</span></div>
+
+<div class="viewcode-block" id="wrapTextFor"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.wrapTextFor">[docs]</a><span class="k">def</span> <span class="nf">wrapTextFor</span><span class="p">(</span><span class="n">player</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An alias or shortcut for wraptTextAt, substituting the player&#39;s screen width (as manually specified or given by</span>
+<span class="sd">    NAWS) for linewidth</span>
+
+<span class="sd">    :param player: {player} An instance of typeclass player.</span>
+<span class="sd">    :param text: {str} The text to wrap.</span>
+<span class="sd">    :return: {str} The specified text wrapped at the specified line width.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">wrapTextAt</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="n">getUserScreenWidth</span><span class="p">(</span> <span class="n">player</span> <span class="p">)</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="centerTextFor"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.centerTextFor">[docs]</a><span class="k">def</span> <span class="nf">centerTextFor</span><span class="p">(</span> <span class="n">player</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">fillchar</span><span class="o">=</span> <span class="s2">&quot; &quot;</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An alias or shortcut for centerTextAt, substituting the player&#39;s screen width (as manually specified or given by</span>
+<span class="sd">    NAWS) for linewidth.</span>
+
+<span class="sd">    :param player: {player} An instance of typeclass player.</span>
+<span class="sd">    :param text: {str} The text to center.  This may be None or an empty string to produce a horizontal header line.</span>
+<span class="sd">    :param fillchar: {str} The character or characters to fill the line on each side of the text with.</span>
+<span class="sd">    :return: {str} The specified text centered in the specified player&#39;s screen width, filled on each side with the</span>
+<span class="sd">                   specified fillchar string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">centerTextAt</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="n">fillchar</span><span class="p">,</span> <span class="n">getUserScreenWidth</span><span class="p">(</span> <span class="n">player</span> <span class="p">)</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="topBorderFor"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.topBorderFor">[docs]</a><span class="k">def</span> <span class="nf">topBorderFor</span><span class="p">(</span> <span class="n">player</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An alias or shortcut for centerTextAt, substituting the player&#39;s screen width (as manually specified or given by</span>
+<span class="sd">    NAWS) for linewidth and substituting devault_display_vars.borderChar_Top as the fillchar automatically.</span>
+
+<span class="sd">    This passes an empty text string to produce a clean Top Border line.</span>
+
+<span class="sd">    :param player: {player} An instance of typeclass player.</span>
+<span class="sd">    :return: {str} The devault_display_vars.borderChar_Top string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">centerTextAt</span><span class="p">(</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">borderChar_Top</span><span class="p">,</span> <span class="n">getUserScreenWidth</span><span class="p">(</span> <span class="n">player</span> <span class="p">)</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="bottomBorderFor"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.bottomBorderFor">[docs]</a><span class="k">def</span> <span class="nf">bottomBorderFor</span><span class="p">(</span> <span class="n">player</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An alias or shortcut for centerTextAt, substituting the player&#39;s screen width (as manually specified or given by</span>
+<span class="sd">    NAWS) for linewidth and substituting devault_display_vars.borderChar_Bottom as the fillchar automatically.</span>
+
+<span class="sd">    This passes an empty text string to produce a clean Bottom Border line.</span>
+
+<span class="sd">    :param player: {player} An instance of typeclass player.</span>
+<span class="sd">    :return: {str} The devault_display_vars.borderChar_Bottom string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">centerTextFor</span><span class="p">(</span> <span class="n">player</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">borderChar_Bottom</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="topHeaderFor"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.topHeaderFor">[docs]</a><span class="k">def</span> <span class="nf">topHeaderFor</span><span class="p">(</span> <span class="n">player</span><span class="p">,</span> <span class="n">headertext</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An alias or shortcut for centerTextAt, substituting the player&#39;s screen width (as manually specified or given by</span>
+<span class="sd">    NAWS) for linewidth and substituting devault_display_vars.borderChar_Top as the fillchar automatically.</span>
+
+<span class="sd">    If headertext is a string instance of length &gt; 0, then the header text is additionally wrappered in</span>
+<span class="sd">    default_display_vars.headerBoxChar_Left and default_display_vars.headerBoxChar_Right</span>
+
+<span class="sd">    :param player: {player} An instance of typeclass player.</span>
+<span class="sd">    :param headertext: {str} The text to create a header from.</span>
+<span class="sd">    :return: {str} The specified text top-headerized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pass_header</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">headertext</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_headertext</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="n">headertext</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ansistring_headertext</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">pass_header</span> <span class="o">=</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">headerBoxChar_Left</span> <span class="o">+</span> <span class="n">headertext</span> <span class="o">+</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">headerBoxChar_Right</span>
+
+    <span class="k">return</span> <span class="n">centerTextFor</span><span class="p">(</span><span class="n">player</span><span class="p">,</span> <span class="n">pass_header</span><span class="p">,</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">borderChar_Top</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="bottomHeaderFor"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.bottomHeaderFor">[docs]</a><span class="k">def</span> <span class="nf">bottomHeaderFor</span><span class="p">(</span> <span class="n">player</span><span class="p">,</span> <span class="n">headertext</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An alias or shortcut for centerTextAt, substituting the player&#39;s screen width (as manually specified or given by</span>
+<span class="sd">    NAWS) for linewidth and substituting devault_display_vars.borderChar_Bottom as the fillchar automatically.</span>
+
+<span class="sd">    If headertext is a string instance of length &gt; 0, then the header text is additionally wrappered in</span>
+<span class="sd">    default_display_vars.headerBoxChar_Left and default_display_vars.headerBoxChar_Right</span>
+
+<span class="sd">    :param player: {player} An instance of typeclass player.</span>
+<span class="sd">    :param headertext: {str} The text to create a header from.</span>
+<span class="sd">    :return: {str} The specified text bottom-headerized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pass_header</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">headertext</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">ansistring_headertext</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">ansiStringClass</span><span class="p">(</span> <span class="n">headertext</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ansistring_headertext</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">pass_header</span> <span class="o">=</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">headerBoxChar_Left</span> <span class="o">+</span> <span class="n">headertext</span> <span class="o">+</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">headerBoxChar_Right</span>
+
+    <span class="k">return</span> <span class="n">centerTextFor</span><span class="p">(</span> <span class="n">player</span><span class="p">,</span> <span class="n">pass_header</span><span class="p">,</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">borderChar_Bottom</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="boxTextFor"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.adaptiveDisplay.html#testbox.tekmunkey.adaptiveDisplay.adaptiveDisplayFunctions.boxTextFor">[docs]</a><span class="k">def</span> <span class="nf">boxTextFor</span><span class="p">(</span><span class="n">player</span><span class="p">,</span> <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An alias or shortcut for boxTextAt, substituting the player&#39;s screen width (as manually specified or given by</span>
+<span class="sd">    NAWS) for linewidth and passing default_display_vars.headerBoxChar_Left and default_display_vars.headerBoxChar_Right</span>
+<span class="sd">    as the boxing characters automatically.</span>
+
+<span class="sd">    :param player: {player} An instance of typeclass player.</span>
+<span class="sd">    :param headertext: {str} The text to wrap and box.</span>
+<span class="sd">    :return: {str} The specified text wrapped and boxed at the player&#39;s screen width.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pass_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">pass_text</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="k">return</span> <span class="n">boxTextAt</span><span class="p">(</span> <span class="n">pass_text</span><span class="p">,</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">borderChar_Left</span><span class="p">,</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">borderChar_Right</span><span class="p">,</span> <span class="n">default_display_vars</span><span class="o">.</span><span class="n">boxText_padding</span><span class="p">,</span> <span class="n">getUserScreenWidth</span><span class="p">(</span> <span class="n">player</span> <span class="p">)</span> <span class="p">)</span></div>
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">Evennia Testbox</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Holland Wilson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

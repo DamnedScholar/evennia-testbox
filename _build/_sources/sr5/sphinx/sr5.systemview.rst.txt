@@ -1,0 +1,70 @@
+sr5\.systemview package
+=======================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    sr5.systemview.migrations
+    sr5.systemview.templatetags
+
+Submodules
+----------
+
+sr5\.systemview\.admin module
+-----------------------------
+
+.. automodule:: sr5.systemview.admin
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.systemview\.apps module
+----------------------------
+
+.. automodule:: sr5.systemview.apps
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.systemview\.models module
+------------------------------
+
+.. automodule:: sr5.systemview.models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.systemview\.tests module
+-----------------------------
+
+.. automodule:: sr5.systemview.tests
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.systemview\.urls module
+----------------------------
+
+.. automodule:: sr5.systemview.urls
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.systemview\.views module
+-----------------------------
+
+.. automodule:: sr5.systemview.views
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: sr5.systemview
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,38 @@
+testbox\.sr5\.migrations package
+================================
+
+Submodules
+----------
+
+testbox\.sr5\.migrations\.0001\_initial module
+----------------------------------------------
+
+.. automodule:: testbox.sr5.migrations.0001_initial
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.migrations\.0002\_auto\_20170804\_1445 module
+-----------------------------------------------------------
+
+.. automodule:: testbox.sr5.migrations.0002_auto_20170804_1445
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.migrations\.0003\_auto\_20170805\_0023 module
+-----------------------------------------------------------
+
+.. automodule:: testbox.sr5.migrations.0003_auto_20170805_0023
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.sr5.migrations
+    :members:
+    :undoc-members:
+    :show-inheritance:

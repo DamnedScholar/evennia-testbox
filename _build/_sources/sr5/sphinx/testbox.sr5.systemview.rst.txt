@@ -1,0 +1,70 @@
+testbox\.sr5\.systemview package
+================================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    testbox.sr5.systemview.migrations
+    testbox.sr5.systemview.templatetags
+
+Submodules
+----------
+
+testbox\.sr5\.systemview\.admin module
+--------------------------------------
+
+.. automodule:: testbox.sr5.systemview.admin
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.systemview\.apps module
+-------------------------------------
+
+.. automodule:: testbox.sr5.systemview.apps
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.systemview\.models module
+---------------------------------------
+
+.. automodule:: testbox.sr5.systemview.models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.systemview\.tests module
+--------------------------------------
+
+.. automodule:: testbox.sr5.systemview.tests
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.systemview\.urls module
+-------------------------------------
+
+.. automodule:: testbox.sr5.systemview.urls
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.sr5\.systemview\.views module
+--------------------------------------
+
+.. automodule:: testbox.sr5.systemview.views
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.sr5.systemview
+    :members:
+    :undoc-members:
+    :show-inheritance:

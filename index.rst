@@ -1,0 +1,26 @@
+.. Evennia Testbox documentation master file, created by
+   sphinx-quickstart on Sun Aug 20 03:47:38 2017.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to Evennia Testbox's documentation!
+===========================================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   sr5.chargen
+
+
+I am experimenting with Sphinx as a potential documentation framework.
+
+.. automodule:: sr5.chargen
+    :members:
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

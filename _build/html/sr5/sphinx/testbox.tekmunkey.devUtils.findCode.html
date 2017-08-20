@@ -1,0 +1,723 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>testbox.tekmunkey.devUtils.findCode package &#8212; Evennia Testbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="testbox-tekmunkey-devutils-findcode-package">
+<h1>testbox.tekmunkey.devUtils.findCode package<a class="headerlink" href="#testbox-tekmunkey-devutils-findcode-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="testbox-tekmunkey-devutils-findcode-findcodecommands-module">
+<h2>testbox.tekmunkey.devUtils.findCode.findCodeCommands module<a class="headerlink" href="#testbox-tekmunkey-devutils-findcode-findcodecommands-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-testbox.tekmunkey.devUtils.findCode.findCodeFunctions">
+<span id="testbox-tekmunkey-devutils-findcode-findcodefunctions-module"></span><h2>testbox.tekmunkey.devUtils.findCode.findCodeFunctions module<a class="headerlink" href="#module-testbox.tekmunkey.devUtils.findCode.findCodeFunctions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass">
+<em class="property">class </em><code class="descclassname">testbox.tekmunkey.devUtils.findCode.findCodeFunctions.</code><code class="descname">codeBlockClass</code><span class="sig-paren">(</span><em>line</em>, <em>code</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeBlockClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass" title="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass"><code class="xref py py-class docutils literal"><span class="pre">testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass</span></code></a></p>
+<p>The codeBlockClass represents a block of code, which is a line of code that begins a collection of codelines which
+may contain additional code blocks as well as additional code lines.</p>
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.clearEmptyBlocks">
+<code class="descname">clearEmptyBlocks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeBlockClass.clearEmptyBlocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.clearEmptyBlocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates through each member of this codeBlockClass instance’s codeBlocks[] array, calling its
+codeBlockClass.clearEmptyBlocks() function, then removing any members whose codeType is ‘class’ and whose
+codeBlocks[] array contain no members themselves.  This iteratively removes empty blocks through the child
+chain, ultimately leaving this block empty itself if none of its children contain function definitions.</p>
+<p>This function is most useful when searching for a specific function name, since the codeFileClass will populate
+codeBlockClass instances regardless and we don’t want to output a long list of irrelevant class definitions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">No return value.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.codeBlocks">
+<code class="descname">codeBlocks</code><em class="property"> = None</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.codeBlocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>codeBlocks is an array of codeBlockClass instances representing code blocks that are contained by or subordinate to
+this one (ie class or function declarations at deeper indentation levels in the codefile where they were found).</p>
+<p>This value is found on all individual instances as well but is set in here as a placemarker.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.countCodeBlocks">
+<code class="descname">countCodeBlocks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeBlockClass.countCodeBlocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.countCodeBlocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a count of the codeblocks contained in this codeBlockClass instance, including their children, and their
+children, and their…</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{int} The total number of codeblocks subordinate to this codeBlockClass instance, including itself.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.getClassOwningIndent">
+<code class="descname">getClassOwningIndent</code><span class="sig-paren">(</span><em>indent=0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeBlockClass.getClassOwningIndent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.getClassOwningIndent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an indentation level, rewinds through the members of its codeBlocks[] array (including itself) and
+returns the first one (or the last one, if you prefer, since it starts at the end and works toward the
+beginning) whose indentation level is LESS THAN the indent specified, or returns itself, or returns None if the
+indent specified is less than the indent level of itself and all of its child blocks.</p>
+<p>The return value will therefore be the codeBlockClass instance that owns the specified indentation level, not
+the codeBlockClass instance at the specified indentation level, or None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indent</strong> – {int} The number of whitespace characters representing the indent level to search for.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{codeBlockClass} The first codeBlockClass instance in the backward chain that matches the specified
+indent level.<p>The return value will therefore be the codeBlockClass instance that owns the
+specified indentation level, not the codeBlockClass instance at the specified
+indentation level.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.getNamedBlock">
+<code class="descname">getNamedBlock</code><span class="sig-paren">(</span><em>namematch=None</em>, <em>blocktype=None</em>, <em>skipvaluechecking=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeBlockClass.getNamedBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.getNamedBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the named, and optionally typed, block from the members of its codeBlocks[] array (including itself), or
+returns None if no match is found.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>namematch</strong> – {str} or {stringExtends.stringMatchClass}
+A string instance representing the exact, case-sensitive name of
+the block to search for or else a stringMatchClass instance
+representing the matching algorithm used to match the name of the
+block to search for.</li>
+<li><strong>blocktype</strong> – {str}
+The type of the block to search for.  This may be any type recognized by the
+isValidCodeCodeType() function, including abbreviations.  If omitted or None, default
+is ‘def’ or ‘function’</li>
+<li><strong>skipvaluechecking</strong> – {bool}
+A shortcut we can use to enhance performance if we already know parameter
+values are good.  FOR USE ONLY AFTER AT LEAST THE FIRST PASS OF VALIDATION!</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{codeBlockClass} The codeBlockClass instance whose getCodeType() and getCodeName() values match the
+specified blockname and blocktype values, or None if no match was found.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.getStrings">
+<code class="descname">getStrings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeBlockClass.getStrings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.getStrings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a formatted string that represents this codeLineClass instance in a meaningful way, by calling its base
+codeLineClass.getString() first and then calling codeBlockClass.getStrings() on each member found in its
+codeBlocks[] array.
+ie:  Line 120      : class myClass():</p>
+<blockquote>
+<div>Line 125      :     class mySubClass():
+Line 126      :         def __init__( self ):</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{str} A formatted string that represents this codeLineClass instance in a meaningful way, by calling</td>
+</tr>
+</tbody>
+</table>
+<p>its base codeLineClass.getString() first and then calling codeBlockClass.getStrings() on each child found in
+its codeBlocks[] array.
+ie:  Line 120      : class myClass():</p>
+<blockquote>
+<div>Line 125      :     class mySubClass():
+Line 126      :         def __init__( self ):</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass">
+<em class="property">class </em><code class="descclassname">testbox.tekmunkey.devUtils.findCode.findCodeFunctions.</code><code class="descname">codeFileClass</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeFileClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>The codeFileClass represents a code file which contains a collection of code lines and/or code blocks in a
+filesystem.</p>
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.catalogBlockAtLine">
+<code class="descname">catalogBlockAtLine</code><span class="sig-paren">(</span><em>filename=None</em>, <em>linenumber=0</em>, <em>appendcatalog=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeFileClass.catalogBlockAtLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.catalogBlockAtLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a line number and a filename, if it locates any definition (class or function) at that line number,
+produces a catalog of that definition.  If a class is found, it catalogs subclasses and functions.  If a
+function is found, it catalogs only that function.</p>
+<p>If no filename is provided, filename defaults to self.fileName.</p>
+<p>If no linenumber is provided, linenumber defaults to 0.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> – {string} A Fully Qualified Path (FQP) or Relative Path (RP) to the file to be catalogued.
+If no filename is provided, filename defaults to self.fileName.</li>
+<li><strong>linenumber</strong> – {int} A line number into the file where cataloguing should begin.
+If no linenumber is provided, linenumber defaults to 0.</li>
+<li><strong>appendcatalog</strong> – {bool} If True, appends the new data to the existing catalog.  If False, clears the
+existing catalog before performing the new cataloguing operation.  Default is
+True.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Returns nothing.  Populates its own codeBlocks[] array instead.  Use instance.getString() to retrieve
+the report.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.catalogFile">
+<code class="descname">catalogFile</code><span class="sig-paren">(</span><em>filename=None</em>, <em>appendcatalog=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeFileClass.catalogFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.catalogFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a filename, catalogs every block declaration in that file matching the instance’s classNameFilter and
+defNameFilter.</p>
+<p>If no filename is provided, filename defaults to self.fileName.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> – {string} A Fully Qualified Path (FQP) or Relative Path (RP) to the file to be catalogued.
+If no filename is provided, filename defaults to self.fileName.</li>
+<li><strong>appendcatalog</strong> – {bool} If True, appends the new data to the existing catalog.  If False, clears the
+existing catalog before performing the new cataloguing operation.  Default is
+False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Returns nothing.  Populates its own codeBlocks[] array instead.  Use instance.getString() to retrieve
+the report.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.catalogTopLevelBlockContainingLine">
+<code class="descname">catalogTopLevelBlockContainingLine</code><span class="sig-paren">(</span><em>filename=None</em>, <em>linenumber=0</em>, <em>appendcatalog=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeFileClass.catalogTopLevelBlockContainingLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.catalogTopLevelBlockContainingLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a line number and a filename, locates the first toplevel (unindented) block above that line number and
+produces a catalog of that declaration.</p>
+<p>If no filename is provided, filename defaults to self.fileName.</p>
+<p>If no linenumber is provided, linenumber defaults to 0.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> – {string} A Fully Qualified Path (FQP) or Relative Path (RP) to the file to be catalogued.
+If no filename is provided, filename defaults to self.fileName.</li>
+<li><strong>linenumber</strong> – {int} A line number into the file where cataloguing should begin.
+If no linenumber is provided, linenumber defaults to 0.</li>
+<li><strong>appendcatalog</strong> – {bool} If True, appends the new data to the existing catalog.  If False, clears the
+existing catalog before performing the new cataloguing operation.  Default is
+True.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Returns nothing.  Populates its own codeBlocks[] array instead.  Use instance.getString() to retrieve
+the report.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.classNameFilter">
+<code class="descname">classNameFilter</code><em class="property"> = None</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.classNameFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>classNameFilter is a stringExtends.stringMatchClass instance representing a filter that will be applied to classes located when
+cataloguing operations are performed by this codeFileClass instance.</p>
+<p>Any time a class definition is found during a cataloguing operation, it will only be catalogued (added to the
+codeFileClass instance’s codeBlocks array) if the classNameFilter.isRawMatch( codeBlock.getCodeName() ) operation
+returns True.</p>
+<ul class="simple">
+<li>If a classNameFilter is in place, then only functions found in classes matching the classNameFilter will be
+catalogued whether a defNameFilter is in place or not.</li>
+<li>If both a classNameFilter and a defNameFilter are in place, then functions matching the defNameFilter may be
+omitted if they do not appear in classes which no not pass the classNameFilter.</li>
+</ul>
+<p>This value is found on all individual instances as well but is set in here as a placemarker.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.clearCatalog">
+<code class="descname">clearCatalog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeFileClass.clearCatalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.clearCatalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simply sets the codeFileClass instance’s catalog to None and then redeclares it as an empty array.  Returns
+nothing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Returns nothing.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.clearEmptyBlocks">
+<code class="descname">clearEmptyBlocks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeFileClass.clearEmptyBlocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.clearEmptyBlocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates through each member of this codeFileClass instance’s codeBlocks[] array, calling its
+codeBlockClass.clearEmptyBlocks() function, then removing any members whose codeType is ‘class’ and whose
+codeBlocks[] array contain no members themselves.  If the resulting codeBlock is itself empty at that point, it
+is then removed from the codeFileClass instance’s codeBlocks[] array.</p>
+<p>This function is most useful when searching for a specific function name, since the codeFileClass will populate
+codeBlockClass instances regardless and we don’t want to output a long list of irrelevant class definitions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">No return value.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.codeBlocks">
+<code class="descname">codeBlocks</code><em class="property"> = None</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.codeBlocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>codeBlocks is an array of codeBlockClass instances representing code blocks that are contained by or subordinate to
+this codeFileClass instance (ie class or function declarations in the codefile).</p>
+<p>This value is found on all individual instances as well but is set in here as a placemarker.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.countCodeBlocks">
+<code class="descname">countCodeBlocks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeFileClass.countCodeBlocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.countCodeBlocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a count of the codeblocks contained in this codeFileClass instance, including their children, and their
+children, and their…</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{int} The total number of codeblocks subordinate to this codeFileClass instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.defNameFilter">
+<code class="descname">defNameFilter</code><em class="property"> = None</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.defNameFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>defNameFilter is a stringExtends.stringMatchClass instance representing a filter that will be applied to functions located when
+cataloguing operations are performed by this codeFileClass instance.</p>
+<p>Any time a function definition is found during a cataloguing operation, it will only be catalogued (added to the
+codeFileClass instance’s codeBlocks array) if the defNameFilter.isRawMatch( codeBlock.getCodeName() ) operation
+returns True.</p>
+<ul class="simple">
+<li>See starred notes under classNameFilter</li>
+<li>If no classNameFilter is in place, then defNameFilter is applied both to functions at the top level in the code
+file and to functions found in class definitions.</li>
+</ul>
+<p>This value is found on all individual instances as well but is set in here as a placemarker.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.fileName">
+<code class="descname">fileName</code><em class="property"> = None</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.fileName" title="Permalink to this definition">¶</a></dt>
+<dd><p>fileName represents the Fully Qualified Path (FQP) or the Relative Path (RP) or simply the File Name (FN),
+depending on how you, the consumer of the codeFileClass, choose to pass the value in at runtime.  Since this value
+is used as a default filepath in File IO and also output in reports, it is highly recommended that you use some
+manner of path, either FQP in the filesystem or RP to the calling script.</p>
+<p>This value is found on all individual instances as well but is set in here as a placemarker.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.getClassOwningIndent">
+<code class="descname">getClassOwningIndent</code><span class="sig-paren">(</span><em>indent=0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeFileClass.getClassOwningIndent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.getClassOwningIndent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an indentation level, rewinds through the members of its codeBlocks[] array and returns the first one (or
+the last one, if you prefer, since it starts at the end and works toward the beginning) whose indentation level
+is LESS THAN the indent specified, or returns itself, or returns None if the indent specified is less than the
+indent level of all of its child blocks.</p>
+<p>The return value will therefore be the codeBlockClass instance that owns the specified indentation level, not
+the codeBlockClass instance at the specified indentation level, or None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indent</strong> – {int} The number of whitespace characters representing the indent level to search for.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{codeBlockClass} The first codeBlockClass instance in the backward chain that matches the specified
+indent level.<p>The return value will therefore be the codeBlockClass instance that owns the
+specified indentation level, not the codeBlockClass instance at the specified
+indentation level.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.getNamedBlock">
+<code class="descname">getNamedBlock</code><span class="sig-paren">(</span><em>namematch=None</em>, <em>blocktype=None</em>, <em>skipvaluechecking=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeFileClass.getNamedBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.getNamedBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the named, and optionally typed, block from the members of its codeBlocks[] array, or returns None if no
+match is found.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>namematch</strong> – {str} or {stringExtends.stringMatchClass} A string instance representing the exact, case-sensitive name of
+the block to search for or else a stringMatchClass instance
+representing the matching algorithm used to match the name of the
+block to search for.</li>
+<li><strong>blocktype</strong> – {str} The type of the block to search for.  This may be any type recognized by the
+isValidCodeCodeType() function, including abbreviations.  If omitted or None, default
+is ‘def’ or ‘function’</li>
+<li><strong>skipvaluechecking</strong> – {bool} A shortcut we can use to enhance performance if we already know parameter
+values are good.  FOR USE ONLY AFTER AT LEAST THE FIRST PASS OF VALIDATION!</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{codeBlockClass} The codeBlockClass instance whose getCodeType() and getCodeName() values match the
+specified blockname and blocktype values, or None if no match was found.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.getString">
+<code class="descname">getString</code><span class="sig-paren">(</span><em>custom_unprefix=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeFileClass.getString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.getString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a formatted string that represents this codeFileClass instance in a meaningful way, by prepending its
+fileName value before calling codeBlockClass.getStrings() on each member found in its codeBlocks[] array.
+ie:  myDirectory/someCodeFile.py</p>
+<blockquote>
+<div>Line 120      : class myClass():
+Line 125      :     class mySubClass():
+Line 126      :         def __init__( self ):</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{str} A formatted string that represents this codeFileClass instance in a meaningful way, by
+prepending its fileName value before calling codeBlockClass.getStrings() on each member found in
+its codeBlocks[] array.
+ie:  myDirectory/someCodeFile.py<blockquote>
+<div>Line 120      : class myClass():
+Line 125      :     class mySubClass():
+Line 126      :         def __init__( self ):</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass">
+<em class="property">class </em><code class="descclassname">testbox.tekmunkey.devUtils.findCode.findCodeFunctions.</code><code class="descname">codeLineClass</code><span class="sig-paren">(</span><em>line</em>, <em>code</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeLineClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>The codeLineClass represents a single line of Python code and provides functions for pulling metadata pertaining to
+that line of code.</p>
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.codeString">
+<code class="descname">codeString</code><em class="property"> = None</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.codeString" title="Permalink to this definition">¶</a></dt>
+<dd><p>codeString contains the actual code, from the original file, which a given codeLineClass instance represents.</p>
+<p>This value is found on all individual instances as well but is set in here as a placemarker.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getCodeName">
+<code class="descname">getCodeName</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeLineClass.getCodeName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getCodeName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the name of the code declaration that this codeLineClass instance represents.
+ie:  def myFunc():
+Returns myFunc</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{str} The name of the code declaration that this codeLineClass instance represents.
+ie:  def myFunc():
+Returns myFunc</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getCodeType">
+<code class="descname">getCodeType</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeLineClass.getCodeType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getCodeType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the type of code declaration that this codeLineClass instance rapresents.  This will always return ‘class’
+or ‘def’</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{str} The type of code declaration that this codeLineClass instance rapresents.  This will always
+return ‘class’ or ‘def’</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getIndent">
+<code class="descname">getIndent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeLineClass.getIndent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getIndent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the indentation, if any, preceding the code that this codeLineClass instance represents.  This returns the
+actual indentation, ie the space(s) or tabstop(s) themselve(s).  To get a count of the whitespace, use
+getIndent_Len()</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{str} The indentation, if any, preceding the code that this codeLineClass instance represents.  This
+returns the actual indentation, ie the space(s) or tabstop(s) themselve(s).  To get a count of
+the whitespace, use getIndent_Len()</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getIndent_Len">
+<code class="descname">getIndent_Len</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeLineClass.getIndent_Len"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getIndent_Len" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the length of the indendation, if any, preceding the code that this codeLineClass instance represents.
+This returns a count of the number of space(s) or tabstop(s) found.  To get the actual whitespace, use
+getIndent()</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{int}  The length of the indendation, if any, preceding the code that this codeLineClass instance
+represents.  This returns a count of the number of space(s) or tabstop(s) found.  To get the
+actual whitespace, use getIndent()</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getString">
+<code class="descname">getString</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#codeLineClass.getString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a formatted string that represents this codeLineClass instance in a meaningful way.
+ie:  Line 120      : def myFunc():</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{str} Gets a formatted string that represents this codeLineClass instance in a meaningful way.
+ie:  Line 120      : def myFunc():</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.lineNumber">
+<code class="descname">lineNumber</code><em class="property"> = None</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.lineNumber" title="Permalink to this definition">¶</a></dt>
+<dd><p>lineNumber contains the line number, in the original file, that the code which a given codeLineClass instance
+represents was found on.</p>
+<p>This value is found on all individual instances as well but is set in here as a placemarker.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.findCode">
+<code class="descclassname">testbox.tekmunkey.devUtils.findCode.findCodeFunctions.</code><code class="descname">findCode</code><span class="sig-paren">(</span><em>topdir=None</em>, <em>subdirs=False</em>, <em>filename=None</em>, <em>matchinclassname=None</em>, <em>isclassmatchregex=False</em>, <em>matchindefname=None</em>, <em>isdefmatchregex=False</em>, <em>clearemptyblocks=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#findCode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.findCode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a specific code declaration given a specific toplevel directory, optionally iterating through subdirectories,
+optionally filtering by a specific filename, optionally filtering by a specific class name,</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>topdir</strong> – </li>
+<li><strong>subdirs</strong> – </li>
+<li><strong>filename</strong> – </li>
+<li><strong>matchinclassname</strong> – </li>
+<li><strong>isclassmatchregex</strong> – </li>
+<li><strong>matchindefname</strong> – </li>
+<li><strong>isdefmatchregex</strong> – </li>
+<li><strong>clearemptyblocks</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.getPathSep">
+<code class="descclassname">testbox.tekmunkey.devUtils.findCode.findCodeFunctions.</code><code class="descname">getPathSep</code><span class="sig-paren">(</span><em>forceLinuxPathSep=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#getPathSep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.getPathSep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Anyone developing/debugging on Windows but hosting on Linux must pass forceLinuxPathSep as True or else Windows
+path separators (the char) will be passed along into the Linux environment at debug time and nothing will work,
+since Linux expects the / char.</p>
+<p>Anyone developing/debugging on the same platform they’re hosting on (doesn’t matter if it’s Linux or Windows) can
+call this without arguments or call with forcelinuxpathsep = False.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>forcePinuxPathSep</strong> – {bool} Indicates whether / should be returned regardless of runtime environment.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{str} A path separator.  Returns os.pathsep unless forceLinuxPathSep is True, then returns / always.</td>
+</tr>
+</tbody>
+</table>
+<p>This function will never raise exceptions or return an error and will always return some string value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.devUtils.findCode.findCodeFunctions.isValidCodeType">
+<code class="descclassname">testbox.tekmunkey.devUtils.findCode.findCodeFunctions.</code><code class="descname">isValidCodeType</code><span class="sig-paren">(</span><em>codetype=None</em>, <em>robustconsumer=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/findCode/findCodeFunctions.html#isValidCodeType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.isValidCodeType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a codetype representing a type of code declaration (class or object, function or def), validates whether that
+is a valid codetype as supported by scripts found alongside the isValidCodeType function.</p>
+<p>More importantly, this function translates different types of programming experience and concepts into python
+concepts.  For example programmers who want to search for ‘def’ may pass in either ‘function’ or ‘def’ and this
+function will translate both into the Python keyword ‘def’ for use in module searches, while programmers who want
+to search for ‘class’ may pass in either ‘object’ or ‘class’ and this function will translate both of those into
+the Python keyword ‘class’ for use in module searches.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>codetype</strong> – {str} A codetype to search for.  Accepts ‘class’ or ‘object’ for instantiable declaration types,
+‘def’ or ‘function’ for callable declaration types.  May be None or may be abbreviated (cl or fu).
+Optional:  Default is ‘def’</li>
+<li><strong>robustconsumer</strong> – {bool} Indicates whether the consuming caller is robust - whether it can cope with execution
+errors or not.  If True, then any errors encountered will be converted into error-code return
+values.  If False, then any errors encountered cause script termination by raised exception.
+Optional:  Default is False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><dl class="docutils">
+<dt>{str} ‘class’ if the specified codetype matches a class alias, ‘def’ if the specified codetype matches a</dt>
+<dd><p class="first last">def alias.</p>
+</dd>
+</dl>
+<ul class="simple">
+<li>When robustconsumer is True:</li>
+<li>A return value of -1 means a codetype was specified and is a valid string but it is invalid codetype -
+not found in validFindTypes</li>
+<li>A return value of -2 means a codetype was specified but is not valid string.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-testbox.tekmunkey.devUtils.findCode">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-testbox.tekmunkey.devUtils.findCode" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Evennia Testbox</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Holland Wilson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/sr5/sphinx/testbox.tekmunkey.devUtils.findCode.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

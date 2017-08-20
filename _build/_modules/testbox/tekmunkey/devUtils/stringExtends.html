@@ -1,0 +1,851 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>testbox.tekmunkey.devUtils.stringExtends &#8212; Evennia Testbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for testbox.tekmunkey.devUtils.stringExtends</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span><span class="o">,</span> <span class="nn">re</span>
+
+<span class="c1">#</span>
+<span class="c1"># regexPattern_evenniaANSI seeks ANSI and XTERM color tags as used by evennia with a negative lookbehind assertion to ignore tags that are escaped by the use of double-piping</span>
+<span class="c1"># ie:  this matches |r but not ||r</span>
+<span class="c1">#</span>
+<span class="c1"># At one point Evennia may have used { instead of | for ANSI/XTERM tag starters.  These regex strings do not support that.</span>
+<span class="c1">#</span>
+<span class="n">regexPattern_evenniaANSI</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?&lt;!\|)(\|r|\|R|\|\[r|\|\[R|\|g|\|G|\|\[g|\|\[G|\|y|\|Y|\|\[y|\|\[Y|\|b|\|B|\|\[b|\|\[B|\|m|\|M|\|\[m|\|\[M|\|c|\|C|\|\[c|\|\[C|\|w|\|W|\|\[w|\|\[W|\|x|\|X|\|\[x|\|\[X|\|\/|\|-|\|_|\|\*|\|u|\|n|\|h|\|000|\|100|\|200|\|300|\|400|\|500|\|\[000|\|\[100|\|\[200|\|\[300|\|\[400|\|\[500|\|001|\|101|\|201|\|301|\|401|\|501|\|\[001|\|\[101|\|\[201|\|\[301|\|\[401|\|\[501|\|002|\|102|\|202|\|302|\|402|\|502|\|\[002|\|\[102|\|\[202|\|\[302|\|\[402|\|\[502|\|003|\|103|\|203|\|303|\|403|\|503|\|\[003|\|\[103|\|\[203|\|\[303|\|\[403|\|\[503|\|004|\|104|\|204|\|304|\|404|\|504|\|\[004|\|\[104|\|\[204|\|\[304|\|\[404|\|\[504|\|005|\|105|\|205|\|305|\|405|\|505|\|\[005|\|\[105|\|\[205|\|\[305|\|\[405|\|\[505|\|010|\|110|\|210|\|310|\|410|\|510|\|\[010|\|\[110|\|\[210|\|\[310|\|\[410|\|\[510|\|011|\|111|\|211|\|311|\|411|\|511|\|\[011|\|\[111|\|\[211|\|\[311|\|\[411|\|\[511|\|012|\|112|\|212|\|312|\|412|\|512|\|\[012|\|\[112|\|\[212|\|\[312|\|\[412|\|\[512|\|013|\|113|\|213|\|313|\|413|\|513|\|\[013|\|\[113|\|\[213|\|\[313|\|\[413|\|\[513|\|014|\|114|\|214|\|314|\|414|\|514|\|\[014|\|\[114|\|\[214|\|\[314|\|\[414|\|\[514|\|015|\|115|\|215|\|315|\|415|\|515|\|\[015|\|\[115|\|\[215|\|\[315|\|\[415|\|\[515|\|020|\|120|\|220|\|320|\|420|\|520|\|\[020|\|\[120|\|\[220|\|\[320|\|\[420|\|\[520|\|021|\|121|\|221|\|321|\|421|\|521|\|\[021|\|\[121|\|\[221|\|\[321|\|\[421|\|\[521|\|022|\|122|\|222|\|322|\|422|\|522|\|\[022|\|\[122|\|\[222|\|\[322|\|\[422|\|\[522|\|023|\|123|\|223|\|323|\|423|\|523|\|\[023|\|\[123|\|\[223|\|\[323|\|\[423|\|\[523|\|024|\|124|\|224|\|324|\|424|\|524|\|\[024|\|\[124|\|\[224|\|\[324|\|\[424|\|\[524|\|025|\|125|\|225|\|325|\|425|\|525|\|\[025|\|\[125|\|\[225|\|\[325|\|\[425|\|\[525|\|030|\|130|\|230|\|330|\|430|\|530|\|\[030|\|\[130|\|\[230|\|\[330|\|\[430|\|\[530|\|031|\|131|\|231|\|331|\|431|\|531|\|\[031|\|\[131|\|\[231|\|\[331|\|\[431|\|\[531|\|032|\|132|\|232|\|332|\|432|\|532|\|\[032|\|\[132|\|\[232|\|\[332|\|\[432|\|\[532|\|033|\|133|\|233|\|333|\|433|\|533|\|\[033|\|\[133|\|\[233|\|\[333|\|\[433|\|\[533|\|034|\|134|\|234|\|334|\|434|\|534|\|\[034|\|\[134|\|\[234|\|\[334|\|\[434|\|\[534|\|035|\|135|\|235|\|335|\|435|\|535|\|\[035|\|\[135|\|\[235|\|\[335|\|\[435|\|\[535|\|040|\|140|\|240|\|340|\|440|\|540|\|\[040|\|\[140|\|\[240|\|\[340|\|\[440|\|\[540|\|041|\|141|\|241|\|341|\|441|\|541|\|\[041|\|\[141|\|\[241|\|\[341|\|\[441|\|\[541|\|042|\|142|\|242|\|342|\|442|\|542|\|\[042|\|\[142|\|\[242|\|\[342|\|\[442|\|\[542|\|043|\|143|\|243|\|343|\|443|\|543|\|\[043|\|\[143|\|\[243|\|\[343|\|\[443|\|\[543|\|044|\|144|\|244|\|344|\|444|\|544|\|\[044|\|\[144|\|\[244|\|\[344|\|\[444|\|\[544|\|045|\|145|\|245|\|345|\|445|\|545|\|\[045|\|\[145|\|\[245|\|\[345|\|\[445|\|\[545|\|050|\|150|\|250|\|350|\|450|\|550|\|\[050|\|\[150|\|\[250|\|\[350|\|\[450|\|\[550|\|051|\|151|\|251|\|351|\|451|\|551|\|\[051|\|\[151|\|\[251|\|\[351|\|\[451|\|\[551|\|052|\|152|\|252|\|352|\|452|\|552|\|\[052|\|\[152|\|\[252|\|\[352|\|\[452|\|\[552|\|053|\|153|\|253|\|353|\|453|\|553|\|\[053|\|\[153|\|\[253|\|\[353|\|\[453|\|\[553|\|054|\|154|\|254|\|354|\|454|\|554|\|\[054|\|\[154|\|\[254|\|\[354|\|\[454|\|\[554|\|055|\|155|\|255|\|355|\|455|\|555|\|\[055|\|\[155|\|\[255|\|\[355|\|\[455|\|\[555|\|=a|\|=b|\|=c|\|=d|\|=e|\|=f|\|\[=a|\|\[=b|\|\[=c|\|\[=d|\|\[=e|\|\[=f|\|=g|\|=h|\|=i|\|=j|\|=k|\|=l|\|\[=g|\|\[=h|\|\[=i|\|\[=j|\|\[=k|\|\[=l|\|=m|\|=n|\|=o|\|=p|\|=q|\|=r|\|\[=m|\|\[=n|\|\[=o|\|\[=p|\|\[=q|\|\[=r|\|=s|\|=t|\|=u|\|=v|\|=w|\|=x|\|\[=s|\|\[=t|\|\[=u|\|\[=v|\|\[=w|\|\[=x|\|=y|\|=z|\|\[=y|\|\[=z)&quot;</span>
+<span class="c1">#</span>
+<span class="c1"># regexPattern_lonePipe seeks lone pipes with a negative lookahead assertion to ignore pipes that are used to define ANSI tags or as escape characters for other pipes.</span>
+<span class="c1">#</span>
+<span class="c1"># At one point Evennia may have used { instead of | for ANSI/XTERM tag starters.  These regex strings do not support that.</span>
+<span class="c1">#</span>
+<span class="n">regexPattern_lonePipe</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\|(?!\||r|R|\[r|\[R|g|G|\[g|\[G|y|Y|\[y|\[Y|b|B|\[b|\[B|m|M|\[m|\[M|c|C|\[c|\[C|w|W|\[w|\[W|x|X|\[x|\[X|\/|-|_|\*|u|n|h|000|100|200|300|400|500|\[000|\[100|\[200|\[300|\[400|\[500|001|101|201|301|401|501|\[001|\[101|\[201|\[301|\[401|\[501|002|102|202|302|402|502|\[002|\[102|\[202|\[302|\[402|\[502|003|103|203|303|403|503|\[003|\[103|\[203|\[303|\[403|\[503|004|104|204|304|404|504|\[004|\[104|\[204|\[304|\[404|\[504|005|105|205|305|405|505|\[005|\[105|\[205|\[305|\[405|\[505|010|110|210|310|410|510|\[010|\[110|\[210|\[310|\[410|\[510|011|111|211|311|411|511|\[011|\[111|\[211|\[311|\[411|\[511|012|112|212|312|412|512|\[012|\[112|\[212|\[312|\[412|\[512|013|113|213|313|413|513|\[013|\[113|\[213|\[313|\[413|\[513|014|114|214|314|414|514|\[014|\[114|\[214|\[314|\[414|\[514|015|115|215|315|415|515|\[015|\[115|\[215|\[315|\[415|\[515|020|120|220|320|420|520|\[020|\[120|\[220|\[320|\[420|\[520|021|121|221|321|421|521|\[021|\[121|\[221|\[321|\[421|\[521|022|122|222|322|422|522|\[022|\[122|\[222|\[322|\[422|\[522|023|123|223|323|423|523|\[023|\[123|\[223|\[323|\[423|\[523|024|124|224|324|424|524|\[024|\[124|\[224|\[324|\[424|\[524|025|125|225|325|425|525|\[025|\[125|\[225|\[325|\[425|\[525|030|130|230|330|430|530|\[030|\[130|\[230|\[330|\[430|\[530|031|131|231|331|431|531|\[031|\[131|\[231|\[331|\[431|\[531|032|132|232|332|432|532|\[032|\[132|\[232|\[332|\[432|\[532|033|133|233|333|433|533|\[033|\[133|\[233|\[333|\[433|\[533|034|134|234|334|434|534|\[034|\[134|\[234|\[334|\[434|\[534|035|135|235|335|435|535|\[035|\[135|\[235|\[335|\[435|\[535|040|140|240|340|440|540|\[040|\[140|\[240|\[340|\[440|\[540|041|141|241|341|441|541|\[041|\[141|\[241|\[341|\[441|\[541|042|142|242|342|442|542|\[042|\[142|\[242|\[342|\[442|\[542|043|143|243|343|443|543|\[043|\[143|\[243|\[343|\[443|\[543|044|144|244|344|444|544|\[044|\[144|\[244|\[344|\[444|\[544|045|145|245|345|445|545|\[045|\[145|\[245|\[345|\[445|\[545|050|150|250|350|450|550|\[050|\[150|\[250|\[350|\[450|\[550|051|151|251|351|451|551|\[051|\[151|\[251|\[351|\[451|\[551|052|152|252|352|452|552|\[052|\[152|\[252|\[352|\[452|\[552|053|153|253|353|453|553|\[053|\[153|\[253|\[353|\[453|\[553|054|154|254|354|454|554|\[054|\[154|\[254|\[354|\[454|\[554|055|155|255|355|455|555|\[055|\[155|\[255|\[355|\[455|\[555|=a|=b|=c|=d|=e|=f|\[=a|\[=b|\[=c|\[=d|\[=e|\[=f|=g|=h|=i|=j|=k|=l|\[=g|\[=h|\[=i|\[=j|\[=k|\[=l|=m|=n|=o|=p|=q|=r|\[=m|\[=n|\[=o|\[=p|\[=q|\[=r|=s|=t|=u|=v|=w|=x|\[=s|\[=t|\[=u|\[=v|\[=w|\[=x|=y|=z|\[=y|\[=z)&quot;</span>
+
+<span class="c1">#</span>
+<span class="c1"># bring in the regular regex options so consumers don&#39;t have to import regex just to use this file</span>
+<span class="c1">#</span>
+<span class="n">re_IGNORECASE</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">re_I</span> <span class="o">=</span> <span class="n">re_IGNORECASE</span>
+<span class="n">re_LOCALE</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">re_L</span> <span class="o">=</span> <span class="n">re_LOCALE</span>
+<span class="n">re_MULTILINE</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">re_M</span> <span class="o">=</span> <span class="n">re_MULTILINE</span>
+<span class="n">re_DOTALL</span><span class="o">=</span> <span class="mi">16</span>
+<span class="n">re_S</span> <span class="o">=</span> <span class="n">re_DOTALL</span>
+<span class="n">re_UNICODE</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">re_U</span> <span class="o">=</span> <span class="n">re_UNICODE</span>
+<span class="n">re_VERBOSE</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">re_V</span> <span class="o">=</span> <span class="n">re_VERBOSE</span>
+
+<span class="n">strRegExFlags</span> <span class="o">=</span> \
+    <span class="p">[</span>
+        <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;IGNORECASE&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;LOCALE&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;L&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;MULTILINE&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;M&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="s2">&quot;DOTALL&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="s2">&quot;UNICODE&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="s2">&quot;U&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;VERBOSE&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;V&quot;</span><span class="p">],</span>
+    <span class="p">]</span>
+
+<div class="viewcode-block" id="getRegExFlagsFromStr"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.getRegExFlagsFromStr">[docs]</a><span class="k">def</span> <span class="nf">getRegExFlagsFromStr</span><span class="p">(</span> <span class="n">strflags</span> <span class="o">=</span> <span class="kc">None</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a string representation of regular expression flags, for example IGNORECASE, LOCALE, re.IGNORECASE,</span>
+<span class="sd">    re_IGNORECASE, or any of these standard references to regular expression flags as defined by re. or defined in</span>
+<span class="sd">    this codefile as re_, or a string of these options or&#39;d together such as IGNORECASE|DOTALL, returns the appropriate</span>
+<span class="sd">    value.</span>
+
+<span class="sd">    :param strregexoptions: {str} A string representation of a regular expression option or options bitwise ORed</span>
+<span class="sd">                                  together, such as IGNORECASE, IGNORECASE|DOTALL, etc.  You can specify re.IGNORECASE</span>
+<span class="sd">                                  or re_IGNORECASE depending on which notation you&#39;re most accustomed to using in code.</span>
+<span class="sd">    :return: {int} The appropriate regular expression flags value translated from the string value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">str_regex</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">strflags</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">str_regex</span> <span class="o">=</span> <span class="n">strflags</span><span class="o">.</span><span class="n">split</span><span class="p">(</span> <span class="s2">&quot;|&quot;</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">re_flag</span> <span class="ow">in</span> <span class="n">strRegExFlags</span><span class="p">:</span>
+            <span class="n">re_flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">re_flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">usr_flag</span> <span class="ow">in</span> <span class="n">str_regex</span><span class="p">:</span>
+                <span class="n">usr_flag</span> <span class="o">=</span> <span class="n">usr_flag</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">usr_flag</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span> <span class="s1">&#39;re.&#39;</span> <span class="p">)</span> <span class="ow">or</span> <span class="n">usr_flag</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span> <span class="s1">&#39;re_&#39;</span> <span class="p">):</span>
+                    <span class="n">usr_flag</span> <span class="o">=</span> <span class="n">usr_flag</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+                <span class="k">if</span> <span class="n">usr_flag</span> <span class="o">==</span> <span class="n">re_flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">r</span> <span class="o">|=</span> <span class="n">re_flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="getIntFromStr"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.getIntFromStr">[docs]</a><span class="k">def</span> <span class="nf">getIntFromStr</span><span class="p">(</span> <span class="n">strint</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a string representation of an integer value, for example &#39;0&#39; or &#39;1&#39;, converts it to an int value.</span>
+
+<span class="sd">    :param strint: {str} The string representation of an int value.</span>
+<span class="sd">    :return: {int} The translated integer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">strint</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">strint</span><span class="p">,</span> <span class="nb">float</span> <span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">strint</span> <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">strint</span><span class="p">,</span> <span class="nb">int</span> <span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">strint</span>
+    <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="getBoolFromStr"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.getBoolFromStr">[docs]</a><span class="k">def</span> <span class="nf">getBoolFromStr</span><span class="p">(</span> <span class="n">strbool</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a string representation of a boolean value, for example &#39;true&#39; or &#39;false&#39;, converts it to a bool value.  The</span>
+<span class="sd">    string representation of the boolean is not case sensitive (ie it could be True or TRUE or FaLSe)</span>
+
+<span class="sd">    :param strBool: {str} The string representation of a boolean value.</span>
+<span class="sd">    :return: {bool} The translated boolean.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">strbool</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">strbool</span> <span class="o">=</span> <span class="n">strbool</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span> <span class="s1">&#39; &#39;</span> <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="n">strbool</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="setStringLength"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.setStringLength">[docs]</a><span class="k">def</span> <span class="nf">setStringLength</span><span class="p">(</span> <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">textlength</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">padcharacter</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">padside</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pads or slices the specified text to the specified textlength, if necessary.  If the specified text is already the</span>
+<span class="sd">    specified length, no change is made.</span>
+
+<span class="sd">    :param text: {str} The text to set to length.</span>
+<span class="sd">    :param textlength: {int} The length to set the text to.</span>
+<span class="sd">    :param padcharacter: {str} A value that will be used to pad the string if it must be padded.  Default is space.</span>
+<span class="sd">    :param padside: {str} A value indicating whether the string will be padded on the left &#39;l&#39; or the right &#39;r&#39;.</span>
+<span class="sd">                          Default is right &#39;r&#39;.</span>
+<span class="sd">    :return: {str} The original text padded to the specified minimum length.</span>
+
+<span class="sd">    This function will never raise exceptions or return an error and will always return some string value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="n">return_length</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">textlength</span><span class="p">,</span> <span class="nb">int</span> <span class="p">):</span>
+        <span class="n">return_length</span> <span class="o">=</span> <span class="n">textlength</span>
+
+    <span class="n">return_pad_string</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">padcharacter</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)</span> <span class="p">):</span>
+        <span class="n">return_pad_string</span> <span class="o">=</span> <span class="n">padcharacter</span>
+
+    <span class="n">return_pad_side</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">padside</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="s2">&quot;^\s*(r|l)\s*$&quot;</span><span class="p">,</span> <span class="n">padside</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">return_pad_side</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^\s*(r|l)\s*$&quot;</span><span class="p">,</span> <span class="n">padside</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span> <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="n">r</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="n">return_length</span><span class="p">:</span>
+        <span class="c1"># length of text is gtn desired length, so text must be truncated</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">return_length</span><span class="p">]</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">r</span> <span class="p">)</span> <span class="o">&lt;</span> <span class="n">return_length</span> <span class="p">):</span>
+        <span class="c1"># length of text is ltn desired length, so text must be padded</span>
+        <span class="c1"># number of padding characters needed = ( total line width - length of string )</span>
+        <span class="n">padcnt</span> <span class="o">=</span> <span class="p">(</span> <span class="n">return_length</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span> <span class="n">r</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="c1"># padpend contains the padding that will eventually be appended or prepended to r</span>
+        <span class="n">padpend</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="n">return_pad_string</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># number of times to repeat padcharacter = ( number of padding characters needed / length of padding string )</span>
+            <span class="n">padpend</span> <span class="o">=</span> <span class="p">(</span> <span class="n">return_pad_string</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span> <span class="n">padcnt</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span> <span class="n">return_pad_string</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">r</span> <span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span> <span class="n">padpend</span> <span class="p">)</span> <span class="p">)</span> <span class="o">&lt;</span> <span class="n">return_length</span><span class="p">:</span>
+                <span class="n">padpend</span> <span class="o">+=</span> <span class="n">return_pad_string</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">return_length</span> <span class="o">-</span> <span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">r</span> <span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span> <span class="n">padpend</span> <span class="p">)</span> <span class="p">)]</span>
+            <span class="k">if</span> <span class="n">return_pad_side</span> <span class="o">==</span> <span class="s1">&#39;r&#39;</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">+</span> <span class="n">padpend</span>
+            <span class="k">elif</span> <span class="n">return_pad_side</span> <span class="o">==</span> <span class="s1">&#39;l&#39;</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">padpend</span> <span class="o">+</span> <span class="n">r</span>
+
+    <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="strUnprefix"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.strUnprefix">[docs]</a><span class="k">def</span> <span class="nf">strUnprefix</span><span class="p">(</span> <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Removes the specified prefix from the specified string, if it exists.</span>
+
+<span class="sd">    :param text: {str} The text to remove a prefix from</span>
+<span class="sd">    :param prefix: {str} The prefix to remove</span>
+<span class="sd">    :return: {str} The original text with the prefix removed, if it was found.</span>
+
+<span class="sd">    This function will never raise exceptions or return an error and will always return some string value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">rpre</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">prefix</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">rpre</span> <span class="o">=</span> <span class="n">prefix</span>
+    <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">rpre</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">rpre</span><span class="p">):]</span>
+    <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="stringMatchClass"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass">[docs]</a><span class="k">class</span> <span class="nc">stringMatchClass</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class representing a string matchable against variable string data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># bring in the standard regex options so consumers don&#39;t have to import regex just to use this class</span>
+    <span class="c1">#</span>
+    <span class="n">re_IGNORECASE</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">re_I</span> <span class="o">=</span> <span class="n">re_IGNORECASE</span>
+    <span class="n">re_LOCALE</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">re_L</span> <span class="o">=</span> <span class="n">re_LOCALE</span>
+    <span class="n">re_MULTILINE</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">re_M</span> <span class="o">=</span> <span class="n">re_MULTILINE</span>
+    <span class="n">re_DOTALL</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">re_S</span> <span class="o">=</span> <span class="n">re_DOTALL</span>
+    <span class="n">re_UNICODE</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">re_U</span> <span class="o">=</span> <span class="n">re_UNICODE</span>
+    <span class="n">re_VERBOSE</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">re_V</span> <span class="o">=</span> <span class="n">re_VERBOSE</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># The string to match variable data against</span>
+    <span class="c1">#</span>
+    <span class="n">stringMatch</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#</span>
+    <span class="c1"># A value indicating whether the stringMatch value should be treated as a regularExpression</span>
+    <span class="c1">#</span>
+    <span class="n">isRegEx</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#</span>
+    <span class="c1"># A value to be used as RegEx Flags if isRegEx is true.  Ignored if isRegEx is False</span>
+    <span class="c1">#</span>
+    <span class="n">reFlags</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">matchvalue</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">useregex</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">regexflags</span> <span class="o">=</span> <span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the stringMatchClass.</span>
+
+<span class="sd">        :param matchvalue: The string to match variable data against</span>
+<span class="sd">        :param useregex: A boolean  value indicating whether the stringMatch value should be treated as a</span>
+<span class="sd">                         regularExpression</span>
+<span class="sd">        :param regexflags: An integer value to be used as RegEx flags if useRegEx is true.  Ignored if useRegEx is</span>
+<span class="sd">                           False.  This value can be built by ORing together values such as re.I, re.M, re.S, etc (the</span>
+<span class="sd">                           stringMatchClass also has re_I, re_M, and etc set as static constants on itself for your</span>
+<span class="sd">                           convenience).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">matchvalue</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stringMatch</span> <span class="o">=</span> <span class="n">matchvalue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stringMatch</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">isRegEx</span> <span class="o">=</span> <span class="n">useregex</span>
+        <span class="k">if</span> <span class="n">useregex</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">regexflags</span><span class="p">,</span> <span class="nb">int</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reFlags</span> <span class="o">=</span> <span class="n">regexflags</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reFlags</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="stringMatchClass.isRawMatch"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.isRawMatch">[docs]</a>    <span class="k">def</span> <span class="nf">isRawMatch</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">text</span> <span class="o">=</span> <span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests the supplied variable string text against the stringMatchClass instance&#39;s stringMatch value and</span>
+<span class="sd">        returns True if they match according to the instance&#39;s specified options.  Otherwise False.</span>
+
+<span class="sd">        :param text: A variable string to test for a match against the stringMatchClass instance.</span>
+<span class="sd">        :return: True if a match is made.  Otherwise False.</span>
+
+<span class="sd">        Calling this function may throw errors if the value of of the stringMatchClass instance&#39;s stringMatch is not</span>
+<span class="sd">        a valid regex pattern or if the reFlags are not valid regex flags.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isRegEx</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">stringMatch</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reFlags</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="p">(</span> <span class="n">text</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">stringMatch</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">r</span></div></div>
+
+<div class="viewcode-block" id="ansiTagClass"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiTagClass">[docs]</a><span class="k">class</span> <span class="nc">ansiTagClass</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A specialized class for handling ANSI/XTERM tags.  Stores the tag itself, its start offset and end offset in a</span>
+<span class="sd">    string, and contains a helper function that determines if a given offset into the string hits within the bounds of</span>
+<span class="sd">    the tag itself.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">ansitag</span><span class="p">,</span> <span class="n">stringstartoffset</span><span class="p">,</span> <span class="n">stringendoffset</span> <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">ansitag</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span><span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ansiTag</span> <span class="o">=</span> <span class="n">ansitag</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="s2">&quot;ansiTagClass.__init__ expects a unicode string parameter for ansitag&quot;</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">stringstartoffset</span><span class="p">,</span> <span class="nb">int</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stringStartOffset</span> <span class="o">=</span> <span class="n">stringstartoffset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="s2">&quot;ansiTagClass.__init__ expects an integer parameter for stringstartoffset&quot;</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">stringendoffset</span><span class="p">,</span> <span class="nb">int</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stringEndOffset</span> <span class="o">=</span> <span class="n">stringendoffset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="s2">&quot;ansiTagClass.__init__ expects an integer parameter for stringendoffset&quot;</span> <span class="p">)</span>
+
+<div class="viewcode-block" id="ansiTagClass.isOffsetInTag"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiTagClass.isOffsetInTag">[docs]</a>    <span class="k">def</span> <span class="nf">isOffsetInTag</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">offset</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a value indicating whether the specified offset occurs within the bounds of this particular ANSI/XTERM</span>
+<span class="sd">        tag&#39;s span of characters.</span>
+
+<span class="sd">        :param offset: {int} The offset in the string to test against.</span>
+<span class="sd">        :return: {bool}  True if the specified offset occurs within the bounds of this ANSI/XTERM tag.  Otherwise False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">offset</span><span class="p">,</span> <span class="p">(</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="p">(</span> <span class="n">offset</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stringStartOffset</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stringEndOffset</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span></div></div>
+
+<div class="viewcode-block" id="ansiStringClass"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass">[docs]</a><span class="k">class</span> <span class="nc">ansiStringClass</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A specialized class for handling strings with Evennia-style ANSI/XTERM color and formatting tags.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">text</span> <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Text</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="sa">r</span><span class="s2">&quot;ansiStringClass.__init__ expects the text parameter to be a string value.&quot;</span> <span class="p">)</span>
+
+<div class="viewcode-block" id="ansiStringClass.ansiTextFormat"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiTextFormat">[docs]</a>    <span class="k">def</span> <span class="nf">ansiTextFormat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        To be called any time any operations are performed against the internal text.  Converts formatting tags (not</span>
+<span class="sd">        ANSI/XTERM) to actual formatting.</span>
+
+<span class="sd">        :return: {str} The internal text with formatting tags converted to actual formatting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="c1"># replace |/ with \n</span>
+            <span class="c1"># replace |- (tabstop) with 4 spaces</span>
+            <span class="c1"># replace |_ with 1 space</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span> <span class="sa">r</span><span class="s2">&quot;|/&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span> <span class="sa">r</span><span class="s2">&quot;|-&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;    &quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span> <span class="sa">r</span><span class="s2">&quot;|_&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot; &quot;</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.rawTextFormat"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawTextFormat">[docs]</a>    <span class="k">def</span> <span class="nf">rawTextFormat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        To be called any time any operations are performed against the internal raw text.  Converts all formatting tags</span>
+<span class="sd">        (not ANSI/XTERM) to actual formatting and strips ANSI/XTERM tags as well.</span>
+
+<span class="sd">        :return: {str} The internal text with formatting tags converted to actual formatting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)):</span>
+            <span class="c1"># replace |/ with \n</span>
+            <span class="c1"># replace |- (tabstop) with 4 spaces</span>
+            <span class="c1"># replace |_ with 1 space</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">regexPattern_evenniaANSI</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.isTextDecorated"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.isTextDecorated">[docs]</a>    <span class="k">def</span> <span class="nf">isTextDecorated</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a value indicating whether the internal text contains ANSI tags or not.  Useful for quick-determinations</span>
+<span class="sd">        if processing time (or avoiding re-processing values) is an issue.</span>
+
+<span class="sd">        :return: {bool} True if the internal text contains ANSI/XTERM tags.  Otherwise False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># because inequality is always faster than equality tests</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rawTextFormat</span><span class="p">()</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.rawTextLen"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawTextLen">[docs]</a>    <span class="k">def</span> <span class="nf">rawTextLen</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the length of the internal text, excluding ANSI/XTERM tag characters.</span>
+
+<span class="sd">        :return: {int} The length of the internal text, excluding ANSI/XTERM tag characters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="c1"># strip other ANSI/XTERM tags from the user paragraph</span>
+            <span class="n">striptext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rawTextFormat</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">character</span> <span class="ow">in</span> <span class="n">striptext</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.ansiTextLen"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiTextLen">[docs]</a>    <span class="k">def</span> <span class="nf">ansiTextLen</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the length of the internal text, including ANSI/XTERM tag characters.</span>
+
+<span class="sd">        :return: {int} The length of the internal text, including ANSI/XTERM tag characters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="n">ansitext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">character</span> <span class="ow">in</span> <span class="n">ansitext</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.catalogAnsiTags"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.catalogAnsiTags">[docs]</a>    <span class="k">def</span> <span class="nf">catalogAnsiTags</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ansitext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span>
+        <span class="n">rx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span> <span class="n">pattern</span> <span class="o">=</span> <span class="n">regexPattern_evenniaANSI</span><span class="p">,</span> <span class="n">flags</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">rx</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span> <span class="n">ansitext</span> <span class="p">):</span>
+            <span class="c1">#</span>
+            <span class="c1"># r_ansitags is an array</span>
+            <span class="c1"># to that array we append an array containing the matchvalue (ie whatever ansi tag we found)</span>
+            <span class="c1"># following that we append the match object.span value, which is another array</span>
+            <span class="c1"># - at index 0 of the span value is the start in text index of the ansi tag, at index 1 is the end in text index of the ansi tag</span>
+            <span class="c1">#</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ansiTagClass</span><span class="p">(</span> <span class="n">ansitag</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span> <span class="mi">0</span> <span class="p">),</span> <span class="n">stringstartoffset</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">span</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">stringendoffset</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">span</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.ansiStringIndex"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiStringIndex">[docs]</a>    <span class="k">def</span> <span class="nf">ansiStringIndex</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">rawstringindex</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Look at the internal string as if it were a raw string, but the color codes were part of each character rather</span>
+<span class="sd">        than individual characters themselves.  This function translates a raw string index, ie an index into the string</span>
+<span class="sd">        without any ANSI/XTERM tags, into an index in the internal string with ANSI/XTERM tags in it, as if the</span>
+<span class="sd">        ANSI/XTERM tags weren&#39;t there.</span>
+
+<span class="sd">        :return:  {int} The string index representing a character position as if ANSI/XTERM tags didn&#39;t exist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r_rawstringindex</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">rawstringindex</span><span class="p">,</span> <span class="p">(</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="n">r_rawstringindex</span> <span class="o">=</span> <span class="n">rawstringindex</span>
+        <span class="n">ansitext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span>
+        <span class="n">ansitext_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiTextLen</span><span class="p">()</span>
+        <span class="c1"># current_text_cursor is a cursor into the internal text as we step through it</span>
+        <span class="n">current_text_cursor</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># counted_char_cursor is a cursor into the characters that we&#39;ve actually counted, excluding ANSI/XTERM tags</span>
+        <span class="n">counted_char_cursor</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ansi_catalog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">catalogAnsiTags</span><span class="p">()</span>
+        <span class="k">while</span> <span class="p">(</span> <span class="n">current_text_cursor</span> <span class="o">&lt;</span> <span class="n">ansitext_len</span> <span class="p">):</span>
+            <span class="n">isansi</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">character</span> <span class="o">=</span> <span class="n">ansitext</span><span class="p">[</span><span class="n">current_text_cursor</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">ansi_tag</span> <span class="ow">in</span> <span class="n">ansi_catalog</span><span class="p">:</span>
+                <span class="n">isansi</span> <span class="o">=</span> <span class="n">ansi_tag</span><span class="o">.</span><span class="n">isOffsetInTag</span><span class="p">(</span> <span class="n">current_text_cursor</span> <span class="p">)</span>
+                <span class="k">if</span> <span class="n">isansi</span><span class="p">:</span>
+                    <span class="n">current_text_cursor</span> <span class="o">=</span> <span class="n">ansi_tag</span><span class="o">.</span><span class="n">stringEndOffset</span>
+                    <span class="n">ansi_catalog</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span> <span class="n">ansi_tag</span> <span class="p">)</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isansi</span><span class="p">:</span>
+                <span class="n">counted_char_cursor</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="p">(</span> <span class="n">counted_char_cursor</span> <span class="o">&lt;=</span> <span class="n">rawstringindex</span> <span class="p">):</span>
+                    <span class="n">current_text_cursor</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">current_text_cursor</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.rawSlice"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawSlice">[docs]</a>    <span class="k">def</span> <span class="nf">rawSlice</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs a string slice operation on the internal string after stripping all ANSI/XTERM characters from it.</span>
+
+<span class="sd">        Formatting characters such as |/, |-, and |_ are parsed into their actual entities such as \n for |/, 4 spaces</span>
+<span class="sd">        for |- (tab), and single spaces for |_ so a slice operation that passes over a tab will want to consume 4</span>
+<span class="sd">        characters.</span>
+
+<span class="sd">        :param begin: {int} The index in the internal text to begin copying characters.</span>
+<span class="sd">        :param end: {int} The index in the internal text to end copying characters.</span>
+<span class="sd">        :return: {str} The portion of the string requested.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">r_begin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="n">r_begin</span> <span class="o">=</span> <span class="n">begin</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="sa">r</span><span class="s2">&quot;ansiStringClass.rawSlice expects begin parameter to be an integer value.&quot;</span> <span class="p">)</span>
+
+        <span class="n">r_end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="n">r_end</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="sa">r</span><span class="s2">&quot;ansiStringClass.rawSlice expects end parameter to be an integer value.&quot;</span> <span class="p">)</span>
+
+        <span class="n">striptext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rawTextFormat</span><span class="p">()</span>
+        <span class="n">striptext_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span>
+
+        <span class="c1"># normalize r_begin</span>
+        <span class="k">if</span> <span class="n">r_begin</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># r_begin is &lt; 0 so our start offset in the text is from the end of the internal text</span>
+            <span class="n">r_begin</span> <span class="o">=</span> <span class="n">striptext_length</span> <span class="o">+</span> <span class="n">r_begin</span>
+
+        <span class="c1"># normalize r_end</span>
+        <span class="k">if</span> <span class="n">r_end</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">r_end</span> <span class="o">=</span> <span class="n">striptext_length</span> <span class="o">+</span> <span class="n">r_end</span>
+        <span class="k">elif</span> <span class="n">r_end</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">r_end</span> <span class="o">=</span> <span class="n">striptext_length</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="n">striptext</span><span class="p">[</span><span class="n">r_begin</span><span class="p">:</span><span class="n">r_end</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.ansiSlice"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiSlice">[docs]</a>    <span class="k">def</span> <span class="nf">ansiSlice</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs a string slice operation on the internal string, but instead of treating the string as a raw</span>
+<span class="sd">        collection of characters it treats ANSI/XTERM characters as part and parcel of a character entity, so that</span>
+<span class="sd">        a character with an ANSI/XTERM tag before it is treated as a single character although the ANSI/XTERM tag may</span>
+<span class="sd">        in fact consume 2-3 (or more) characters in the string.</span>
+
+<span class="sd">        Formatting characters such as |/, |-, and |_ are parsed into their actual entities such as \n for |/, 4 spaces</span>
+<span class="sd">        for |- (tab), and single spaces for |_ so a slice operation that passes over a tab will want to consume 4</span>
+<span class="sd">        characters.</span>
+
+<span class="sd">        The consumer may want/need to add a |n to return to normal coloration after this slice, otherwise color tags</span>
+<span class="sd">        from this text may affect text appended to it.</span>
+
+<span class="sd">        :param begin: {int} The index in the internal text to begin copying characters.</span>
+<span class="sd">        :param end: {int} The index in the internal text to end copying characters.</span>
+<span class="sd">        :return: {str} The portion of the string requested.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">r_begin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="n">r_begin</span> <span class="o">=</span> <span class="n">begin</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;ansiStringClass.rawSlice expects begin parameter to be an integer value.&quot;</span><span class="p">)</span>
+
+        <span class="n">r_end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="n">r_end</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="sa">r</span><span class="s2">&quot;ansiStringClass.rawSlice expects end parameter to be an integer value.&quot;</span> <span class="p">)</span>
+
+        <span class="n">ansitext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span>
+        <span class="n">striptext_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span>
+
+        <span class="c1"># catalog the ansi tags in the internal text</span>
+        <span class="n">ansi_catalog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">catalogAnsiTags</span><span class="p">()</span>
+
+        <span class="c1"># normalize the begin and end values depending on ANSI/XTERM tag existence</span>
+
+        <span class="c1"># normalize r_begin</span>
+        <span class="k">if</span> <span class="n">r_begin</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># r_begin is &lt; 0 so our start offset in the text is from the end of the internal text</span>
+            <span class="c1"># r_begin represents the raw-string begin point requested by the caller</span>
+            <span class="n">r_begin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiStringIndex</span><span class="p">(</span> <span class="n">striptext_length</span> <span class="o">+</span> <span class="n">r_begin</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r_begin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiStringIndex</span><span class="p">(</span> <span class="n">r_begin</span> <span class="p">)</span>
+
+        <span class="c1"># normalize r_end</span>
+        <span class="k">if</span> <span class="n">r_end</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># r_end is &lt; 0 so our end offset in the text is from the end of the internal text</span>
+            <span class="c1"># r_end represents the raw-string end point requested by the caller</span>
+            <span class="n">r_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiStringIndex</span><span class="p">(</span> <span class="n">striptext_length</span> <span class="o">+</span> <span class="n">r_end</span> <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">r_end</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">r_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiTextLen</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiStringIndex</span><span class="p">(</span> <span class="n">r_end</span> <span class="p">)</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">ansi_tag</span> <span class="ow">in</span> <span class="n">ansi_catalog</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ansi_tag</span><span class="o">.</span><span class="n">stringStartOffset</span> <span class="o">&lt;</span> <span class="n">r_begin</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">+=</span> <span class="n">ansi_tag</span><span class="o">.</span><span class="n">ansiTag</span>
+        <span class="n">r</span> <span class="o">+=</span> <span class="n">ansitext</span><span class="p">[</span><span class="n">r_begin</span><span class="p">:</span><span class="n">r_end</span><span class="p">]</span>
+        <span class="c1"># the consumer may want/need to add a |n to return to normal coloration after this slice</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.rawRegexSearch"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawRegexSearch">[docs]</a>    <span class="k">def</span> <span class="nf">rawRegexSearch</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">regex_pattern</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex_flags</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs a standard re.search against the internal raw text (with the ANSI/XTERM tags stripped and formatting</span>
+<span class="sd">        tags converted to actual format characters) and returns the Match Object.  To work with the Match object</span>
+<span class="sd">        returned, consumers should import re</span>
+
+<span class="sd">        :param regex_pattern: {str} The regular expression pattern to use in the search operation.</span>
+<span class="sd">        :param regex_flags: {int} The regular expression flags to use in the search.  These may be any combination of</span>
+<span class="sd">                                  flag values ORed together from re.IGNORE and other standard flags.  Flags are also</span>
+<span class="sd">                                  included such as stringExtends.re_IGNORE or stringExtends.re_I for convenience.</span>
+<span class="sd">        :return: {MatchObject} A regular expression MatchObject instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">striptext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rawTextFormat</span><span class="p">()</span>
+        <span class="n">r_pattern</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">regex_pattern</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="n">r_pattern</span> <span class="o">=</span> <span class="n">regex_pattern</span>
+
+        <span class="n">r_flags</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">regex_flags</span><span class="p">,</span> <span class="p">(</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="n">r_flags</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">regex_flags</span> <span class="p">)</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span> <span class="n">r_pattern</span><span class="p">,</span> <span class="n">striptext</span><span class="p">,</span> <span class="n">r_flags</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.ansiRegexSearch"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiRegexSearch">[docs]</a>    <span class="k">def</span> <span class="nf">ansiRegexSearch</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">regex_pattern</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex_flags</span> <span class="o">=</span> <span class="mi">0</span>  <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs a standard re.search against the internal ansi text (with the ANSI/XTERM tags ignored and formatting</span>
+<span class="sd">        tags converted to actual format characters) and returns the Match Object.  To work with the Match object</span>
+<span class="sd">        returned, consumers should import re</span>
+
+<span class="sd">        :param regex_pattern: {str} The regular expression pattern to use in the search operation.</span>
+<span class="sd">        :param regex_flags: {int} The regular expression flags to use in the search.  These may be any combination of</span>
+<span class="sd">                                  flag values ORed together from re.IGNORE and other standard flags.  Flags are also</span>
+<span class="sd">                                  included such as stringExtends.re_IGNORE or stringExtends.re_I for convenience.</span>
+<span class="sd">        :return: {MatchObject} A regular expression MatchObject instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">raw_match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rawRegexSearch</span><span class="p">(</span> <span class="n">regex_pattern</span><span class="p">,</span> <span class="n">regex_flags</span> <span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.rawTextWrap"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawTextWrap">[docs]</a>    <span class="k">def</span> <span class="nf">rawTextWrap</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">linelength</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the internal raw text (with non-ANSI/XTERM formatting tags converted to actual formatting, and all</span>
+<span class="sd">        ANSI/XTERM tags removed) wrapped to the specified linelength, as an array of strings at the specified length.</span>
+
+<span class="sd">        By default this will respect user-defined \n marks in the original text, and also automatically breaks at spaces</span>
+<span class="sd">        or dashes.</span>
+
+<span class="sd">        Long words will ONLY be broken up if the word itself is actually longer than the specified linelength, for</span>
+<span class="sd">        example if the word is 12 characters and the line length is 10, the word will be broken.  Otherwise words</span>
+<span class="sd">        will never be broken.</span>
+
+<span class="sd">        :param linelength: {int} The length of an output line, in characters.</span>
+<span class="sd">        :return: {array} The lines of the original text, broken into sections linelength characters long.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">r_linelength</span> <span class="o">=</span> <span class="mi">78</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">linelength</span><span class="p">,</span> <span class="p">(</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="n">r_linelength</span> <span class="o">=</span> <span class="n">linelength</span>
+
+        <span class="n">striptext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rawTextFormat</span><span class="p">()</span>
+        <span class="n">striptext_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rawTextLen</span><span class="p">()</span>
+
+        <span class="c1"># last_line_ending tracks the index into striptext where we last wrapped the line</span>
+        <span class="c1"># this is our slice-start-index</span>
+        <span class="n">last_line_ending</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># current_text_cursor tracks the text cursor as we iterate through the characters in striptext</span>
+        <span class="c1"># this our slice-end-index</span>
+        <span class="n">current_text_cursor</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1">#current_line_length tracks the length of the current line as we iterate through the whole mess</span>
+        <span class="n">current_line_length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># last_break_poss tracks the last whitespace or - character located in the text, so if we don&#39;t find a break</span>
+        <span class="c1"># character exactly at linelength we can break cleanly at that point without having to backsearch</span>
+        <span class="n">last_break_poss</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">striptext_length</span> <span class="o">&gt;</span> <span class="n">r_linelength</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">current_text_cursor</span> <span class="o">&lt;</span> <span class="n">striptext_length</span><span class="p">:</span>
+                <span class="n">character</span> <span class="o">=</span> <span class="n">striptext</span><span class="p">[</span> <span class="n">current_text_cursor</span> <span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">):</span>
+                    <span class="c1"># character is a newline so we&#39;re going to respect user-defined paragraphs</span>
+                    <span class="c1"># we don&#39;t need to include the \n in the text itself</span>
+                    <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">striptext</span><span class="p">[</span><span class="n">last_line_ending</span><span class="p">:</span><span class="n">current_text_cursor</span><span class="p">])</span>
+                    <span class="n">last_line_ending</span> <span class="o">=</span> <span class="n">current_text_cursor</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">last_break_poss</span> <span class="o">=</span> <span class="n">last_line_ending</span>
+                    <span class="n">current_line_length</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="k">if</span> <span class="p">(</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="p">)</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">current_line_length</span> <span class="o">==</span> <span class="n">r_linelength</span> <span class="p">):</span>
+                    <span class="c1"># we are at a line ending character and a perfect line length</span>
+                    <span class="k">if</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+                        <span class="c1"># if character is a space we want to omit it from the line</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">striptext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">current_text_cursor</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># if character is a dash we want to include it in the line</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">striptext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">current_text_cursor</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="n">last_line_ending</span> <span class="o">=</span> <span class="n">current_text_cursor</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">last_break_poss</span> <span class="o">=</span> <span class="n">last_line_ending</span>
+                    <span class="n">current_line_length</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">elif</span> <span class="p">(</span> <span class="n">current_line_length</span> <span class="o">==</span> <span class="n">r_linelength</span> <span class="p">):</span>
+                    <span class="c1"># we are not at a line ending character but we&#39;ve reached the line length</span>
+                    <span class="k">if</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+                        <span class="c1"># if character is a space we want to omit it from the line</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">striptext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">last_break_poss</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># if character is a dash we want to include it in the line</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">striptext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">last_break_poss</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="n">last_line_ending</span> <span class="o">=</span> <span class="n">last_break_poss</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">last_break_poss</span> <span class="o">=</span> <span class="n">last_line_ending</span>
+                    <span class="n">current_text_cursor</span> <span class="o">=</span> <span class="n">last_line_ending</span>
+                    <span class="n">current_line_length</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">elif</span> <span class="p">(</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="p">)</span> <span class="p">):</span>
+                    <span class="c1"># we found a possible line ending but are not yet at the line length</span>
+                    <span class="n">last_break_poss</span> <span class="o">=</span> <span class="n">current_text_cursor</span>
+
+                <span class="n">current_text_cursor</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">current_line_length</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># append any remaining chars</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="n">current_text_cursor</span> <span class="o">-</span> <span class="n">last_line_ending</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># we iterated past the last line ending but didn&#39;t do any more appends, so there is string remaining</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">striptext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">current_text_cursor</span> <span class="p">]</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">striptext</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="ansiStringClass.ansiTextWrap"><a class="viewcode-back" href="../../../../sr5/sphinx/testbox.tekmunkey.devUtils.html#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiTextWrap">[docs]</a>    <span class="k">def</span> <span class="nf">ansiTextWrap</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">linelength</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the internal raw text (with non-ANSI/XTERM formatting tags converted to actual formatting, and all</span>
+<span class="sd">        ANSI/XTERM tags removed) wrapped to the specified linelength, as an array of strings at the specified length.</span>
+
+<span class="sd">        By default this will respect user-defined \n marks in the original text, and also automatically breaks at spaces</span>
+<span class="sd">        or dashes.</span>
+
+<span class="sd">        Long words will ONLY be broken up if the word itself is actually longer than the specified linelength, for</span>
+<span class="sd">        example if the word is 12 characters and the line length is 10, the word will be broken.  Otherwise words</span>
+<span class="sd">        will never be broken.</span>
+
+<span class="sd">        :param linelength: {int} The length of an output line, in characters.</span>
+<span class="sd">        :return: {array} The lines of the original text, broken into sections linelength characters long.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">r_linelength</span> <span class="o">=</span> <span class="mi">78</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">linelength</span><span class="p">,</span> <span class="p">(</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="n">r_linelength</span> <span class="o">=</span> <span class="n">linelength</span>
+
+        <span class="n">ansitext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiTextFormat</span><span class="p">()</span>
+        <span class="c1"># we&#39;re working against striptext length, not ansitext length</span>
+        <span class="n">ansitext_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ansiTextLen</span><span class="p">()</span>
+
+        <span class="c1"># last_line_ending tracks the index into ansitext where we last wrapped the line</span>
+        <span class="c1"># this is our slice-start-index</span>
+        <span class="n">last_line_ending</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># current_text_cursor tracks the text cursor as we iterate through the characters in ansitext</span>
+        <span class="c1"># this our slice-end-index</span>
+        <span class="n">current_text_cursor</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1">#current_line_length tracks the length of the current line as we iterate through the whole mess</span>
+        <span class="n">current_line_length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># last_break_poss tracks the last whitespace or - character located in the text, so if we don&#39;t find a break</span>
+        <span class="c1"># character exactly at linelength we can break cleanly at that point without having to backsearch</span>
+        <span class="n">last_break_poss</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">last_break_char</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">ansi_catalog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">catalogAnsiTags</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">ansitext_length</span> <span class="o">&gt;</span> <span class="n">r_linelength</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">current_text_cursor</span> <span class="o">&lt;</span> <span class="n">ansitext_length</span><span class="p">:</span>
+                <span class="n">character</span> <span class="o">=</span> <span class="n">ansitext</span><span class="p">[</span> <span class="n">current_text_cursor</span> <span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">):</span>
+                    <span class="c1"># character is a newline so we&#39;re going to respect user-defined paragraphs</span>
+                    <span class="c1"># we don&#39;t need to include the \n in the text itself</span>
+                    <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ansitext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">current_text_cursor</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="n">last_line_ending</span> <span class="o">=</span> <span class="n">current_text_cursor</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">last_break_poss</span> <span class="o">=</span> <span class="n">last_line_ending</span>
+                    <span class="n">current_line_length</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="k">if</span> <span class="p">(</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="p">)</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">current_line_length</span> <span class="o">==</span> <span class="n">r_linelength</span> <span class="p">):</span>
+                    <span class="c1"># we are at a line ending character and a perfect line length</span>
+                    <span class="k">if</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+                        <span class="c1"># if character is a space we want to omit it from the line</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ansitext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">current_text_cursor</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># if character is a dash we want to include it in the line</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ansitext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">current_text_cursor</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="n">last_line_ending</span> <span class="o">=</span> <span class="n">current_text_cursor</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">last_break_poss</span> <span class="o">=</span> <span class="n">last_line_ending</span>
+                    <span class="n">last_break_char</span> <span class="o">=</span> <span class="n">character</span>
+                    <span class="n">current_line_length</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">elif</span> <span class="p">(</span> <span class="n">current_line_length</span> <span class="o">==</span> <span class="n">r_linelength</span> <span class="p">):</span>
+                    <span class="c1"># we are not at a line ending character but we&#39;ve reached the line length</span>
+                    <span class="k">if</span> <span class="n">last_break_char</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+                        <span class="c1"># if character is a space we want to omit it from the line</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ansitext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">last_break_poss</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># if character is a dash we want to include it in the line</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ansitext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">last_break_poss</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="n">last_line_ending</span> <span class="o">=</span> <span class="n">last_break_poss</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">last_break_poss</span> <span class="o">=</span> <span class="n">last_line_ending</span>
+                    <span class="n">current_text_cursor</span> <span class="o">=</span> <span class="n">last_line_ending</span>
+                    <span class="n">current_line_length</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">elif</span> <span class="p">(</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="p">)</span> <span class="p">):</span>
+                    <span class="c1"># we found a possible line ending but are not yet at the line length</span>
+                    <span class="n">last_break_poss</span> <span class="o">=</span> <span class="n">current_text_cursor</span>
+                    <span class="n">last_break_char</span> <span class="o">=</span> <span class="n">character</span>
+                <span class="k">elif</span> <span class="p">(</span> <span class="n">character</span> <span class="o">==</span> <span class="sa">r</span><span class="s2">&quot;|&quot;</span> <span class="p">):</span>
+                    <span class="k">for</span> <span class="n">ansi_tag</span> <span class="ow">in</span> <span class="n">ansi_catalog</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">ansi_tag</span><span class="o">.</span><span class="n">stringStartOffset</span> <span class="o">==</span> <span class="n">current_text_cursor</span><span class="p">:</span>
+                            <span class="c1"># we found an ansi tag so we can skip over this item entirely</span>
+                            <span class="c1"># we DO NOT increment line length</span>
+                            <span class="c1"># we DO increment cursor position</span>
+                            <span class="c1"># subtract 1 from the span&#39;s value because we add 1 below, this places the cursor at the</span>
+                            <span class="c1"># end of the ANSI tag itself rather than at the beginning of the following character</span>
+                            <span class="n">current_text_cursor</span> <span class="o">=</span> <span class="n">ansi_tag</span><span class="o">.</span><span class="n">stringEndOffset</span> <span class="o">-</span> <span class="mi">1</span>
+                            <span class="c1"># remove the ansi tag from the collection so we don&#39;t iterate it again</span>
+                            <span class="n">ansi_catalog</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span> <span class="n">ansi_tag</span> <span class="p">)</span>
+                            <span class="k">break</span>
+                        <span class="k">elif</span> <span class="n">ansi_tag</span><span class="o">.</span><span class="n">stringStartOffset</span> <span class="o">&gt;</span> <span class="n">current_text_cursor</span><span class="p">:</span>
+                            <span class="c1"># the next ansi tag&#39;s start offset is past our current cursor location, so we can quit</span>
+                            <span class="c1"># looking</span>
+                            <span class="k">break</span>
+                <span class="n">current_text_cursor</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">current_line_length</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># append any remaining chars</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="n">current_text_cursor</span> <span class="o">-</span> <span class="n">last_line_ending</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># we iterated past the last line ending but didn&#39;t do any more appends, so there is string remaining</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ansitext</span><span class="p">[</span> <span class="n">last_line_ending</span><span class="p">:</span><span class="n">current_text_cursor</span> <span class="p">]</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ansitext</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">r</span></div></div>
+
+
+<span class="c1"># an in-game test string:</span>
+<span class="c1"># for irc</span>
+<span class="c1"># @py from tekmunkey.devUtils import stringExtends; ansistring = stringExtends.ansiStringClass(&quot;|h|rmy test|ying string|n&quot;);self.msg(ansistring.ansiSlice(3,10))</span>
+<span class="c1"># for evennia</span>
+<span class="c1"># @py from tekmunkey.devUtils import stringExtends; ansistring = stringExtends.ansiStringClass(&quot;||h||rmy test||ying string||n&quot;);self.msg(ansistring.ansiSlice(3,10))</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">Evennia Testbox</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Holland Wilson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

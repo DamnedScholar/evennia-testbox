@@ -1,0 +1,69 @@
+testbox\.web\.character package
+===============================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    testbox.web.character.migrations
+
+Submodules
+----------
+
+testbox\.web\.character\.admin module
+-------------------------------------
+
+.. automodule:: testbox.web.character.admin
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.web\.character\.apps module
+------------------------------------
+
+.. automodule:: testbox.web.character.apps
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.web\.character\.models module
+--------------------------------------
+
+.. automodule:: testbox.web.character.models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.web\.character\.tests module
+-------------------------------------
+
+.. automodule:: testbox.web.character.tests
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.web\.character\.urls module
+------------------------------------
+
+.. automodule:: testbox.web.character.urls
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.web\.character\.views module
+-------------------------------------
+
+.. automodule:: testbox.web.character.views
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.web.character
+    :members:
+    :undoc-members:
+    :show-inheritance:

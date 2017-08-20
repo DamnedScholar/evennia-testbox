@@ -1,0 +1,17 @@
+testbox\.tekmunkey\.baseOverrides package
+=========================================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    testbox.tekmunkey.baseOverrides.typeclasses
+
+Module contents
+---------------
+
+.. automodule:: testbox.tekmunkey.baseOverrides
+    :members:
+    :undoc-members:
+    :show-inheritance:

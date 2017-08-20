@@ -1,0 +1,70 @@
+testbox\.typeclasses package
+============================
+
+Submodules
+----------
+
+testbox\.typeclasses\.channels module
+-------------------------------------
+
+.. automodule:: testbox.typeclasses.channels
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.typeclasses\.characters module
+---------------------------------------
+
+.. automodule:: testbox.typeclasses.characters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.typeclasses\.exits module
+----------------------------------
+
+.. automodule:: testbox.typeclasses.exits
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.typeclasses\.objects module
+------------------------------------
+
+.. automodule:: testbox.typeclasses.objects
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.typeclasses\.players module
+------------------------------------
+
+.. automodule:: testbox.typeclasses.players
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.typeclasses\.rooms module
+----------------------------------
+
+.. automodule:: testbox.typeclasses.rooms
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.typeclasses\.scripts module
+------------------------------------
+
+.. automodule:: testbox.typeclasses.scripts
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.typeclasses
+    :members:
+    :undoc-members:
+    :show-inheritance:

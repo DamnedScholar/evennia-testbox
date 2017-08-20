@@ -1,0 +1,22 @@
+testbox\.sr5\.systemview\.templatetags package
+==============================================
+
+Submodules
+----------
+
+testbox\.sr5\.systemview\.templatetags\.lookup module
+-----------------------------------------------------
+
+.. automodule:: testbox.sr5.systemview.templatetags.lookup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.sr5.systemview.templatetags
+    :members:
+    :undoc-members:
+    :show-inheritance:

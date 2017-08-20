@@ -1,0 +1,54 @@
+sr5\.data package
+=================
+
+Submodules
+----------
+
+sr5\.data\.base\_stats module
+-----------------------------
+
+.. automodule:: sr5.data.base_stats
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.data\.metatypes module
+---------------------------
+
+.. automodule:: sr5.data.metatypes
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.data\.qualities module
+---------------------------
+
+.. automodule:: sr5.data.qualities
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.data\.skills module
+------------------------
+
+.. automodule:: sr5.data.skills
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.data\.ware module
+----------------------
+
+.. automodule:: sr5.data.ware
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: sr5.data
+    :members:
+    :undoc-members:
+    :show-inheritance:

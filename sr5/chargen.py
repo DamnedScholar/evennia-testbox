@@ -15,11 +15,12 @@ from evennia import DefaultRoom
 from evennia import DefaultScript
 from evennia.utils import evtable, spawner
 from evennia.utils.utils import lazy_property
+from sr5.msg_format import mf
 from sr5.data.metatypes import Metatypes
 from sr5.data.base_stats import Attr, SpecAttr
 from sr5.data.skills import Skills
 from sr5.data.ware import BuyableWare, Grades, Obvious, Synthetic
-from sr5.objects import Augment, Aug_Methods
+from sr5.objects import Augment
 from sr5.system import Stats
 from sr5.utils import a_n, itemize, flatten, SlotsHandler, validate, ureg
 
@@ -150,9 +151,11 @@ class ChargenScript(DefaultScript, Stats):
     def reset_skills(self):
         "Resets skills and specializations."
         self.db.active_skills = {}
-        self.db.specs = {}
+        self.db.active_specializations = {}
         self.db.knowledge_skills = {}
+        self.db.knowledge_specializations = {}
         self.db.languages = {}
+        self.db.language_specializations = {}
 
     def reset_resources(self):
         "Resets lifestyle and purchases."
@@ -206,6 +209,7 @@ class ChargenScript(DefaultScript, Stats):
             return skills
 
         if step in "priorities":
+            title = "Priorities"
             output = "You've set the following priorities:\n\n" \
                      "A: {a}\nB: {b}\nC: {c}\nD: {d}\nE: {e}".format(
                         a=self.db.priorities["a"].title(),
@@ -216,6 +220,7 @@ class ChargenScript(DefaultScript, Stats):
                       )
         elif step in "metatypes":
             # Metatype View
+            title = "Metatype"
             options, names = Metatypes.priorities[priority], []
             for option in options:
                 names += [option[0]]
@@ -240,6 +245,7 @@ class ChargenScript(DefaultScript, Stats):
             # If there's a valid metatype, give options to set
             # special attributes.
             else:
+                title = "Metatype -> Special Attributes"
                 i = names.index(self.db.metatype)
                 current = self.db.spec_attr
                 total = sum(current.values())
@@ -263,8 +269,9 @@ class ChargenScript(DefaultScript, Stats):
                     align="l"
                 )
                 output += str(table)
-        elif step in "attributes attrs":
+        elif step in "attr":
             # Attributes View
+            title = "Attributes"
             current = self.db.attr
             points, total = Attr.priorities[priority], sum(current.values())
 
@@ -312,16 +319,18 @@ class ChargenScript(DefaultScript, Stats):
             )
 
             output += str(table)
-        elif step in "magic resonance":
+        elif step in "magres":
             # Magres View
+            title = "Magic/Resonance"
             output = "You have arrived at the CG step for Magic/Resonance. " \
                      "Well, let me tell you, that shit is a pain in the " \
                      "ass. The Magic/Resonance step will be implemented " \
                      "after literally everything else. In the mean time, " \
                      "set the priority to E, because you can't use this " \
                      "step right now."
-        elif step in "quality qualities":
+        elif step in "qualities":
             # Qualities View
+            title = "Qualities"
             positive = self.get_qualities("positive")
             negative = self.get_qualities("negative")
             pos, neg = 0, 0
@@ -360,17 +369,22 @@ class ChargenScript(DefaultScript, Stats):
             output += unicode(table)
         elif step in "skills":
             # Skills View
+            title = "Skills"
             active = self.get_skills("active")
+            active_specs = self.db.active_specializations
             group = self.get_skills("group")
             knowledge = self.get_skills("knowledge")
+            knowledge_specs = self.db.knowledge_specializations
             language = self.get_skills("language")
+            language_specs = self.db.language_specializations
             points, group_points = Skills.priorities[priority]
-            know_points = self.get_attr("int") + self.get_attr("log")
+            know_points = self.get_attr("int") + self.get_attr("log") * 2
             # Knowledge and language points come from the same pool, but we're
             # keeping the totals separate.
-            act_total, group_total = sum(active.values()), sum(group.values())
-            know_total = sum(knowledge.values())
-            lang_total = sum(language.values())
+            act_total =  sum(active.values()) + len(active_specs)
+            group_total = sum(group.values())
+            know_total = sum(knowledge.values()) + len(knowledge_specs)
+            lang_total = sum(language.values()) + len(language_specs)
 
             output = "At priority {}, you begin with {} points to spend on " \
                      "active skills and {} to spend on active skill groups. " \
@@ -397,19 +411,21 @@ class ChargenScript(DefaultScript, Stats):
             output += unicode(table) + "\n\n"
             table = evtable.EvTable("Knowledge: " + str(know_total),
                                     border="header", width=70)
-            table.add_row(itemize(flatten(spec(knowledge)), case="title"))
+            table.add_row(itemize(flatten(spec(knowledge))))
             output += unicode(table) + "\n\n"
             table = evtable.EvTable("Language: " + str(lang_total),
                                     border="header", width=70)
-            table.add_row(itemize(flatten(language), case="title"))
+            table.add_row(itemize(flatten(language)))
             output += unicode(table)
         elif step in "lifestyle resources":
             # Lifestyle and Resources View
+            title = "Lifestyle and Resources"
             pass
         else:
+            title = "OMG what"
             output = "We're not finding that step."
 
-        return output
+        return "{}\n\n{}\n{}".format(mf.header(title), output, mf.header())
 
     # Stats are validated through a series of if and for statements passed in
     # a dict. They can be passed two statements deep (this could be expanded
@@ -485,9 +501,8 @@ class CmdCGStart(default_cmds.MuxCommand):
     help_category = "Chargen"
 
     def func(self):
-        tag = "|Rsr5 > |n"
 
-        self.caller.msg(tag + "You have entered character creation.")
+        self.caller.msg(mf.tag + "You have entered character creation.")
         self.caller.scripts.delete(key="chargen")
         self.caller.scripts.add("sr5.chargen.ChargenScript")
 
@@ -521,8 +536,6 @@ class CmdSetPriority(default_cmds.MuxCommand):
         caller = self.caller
         cg = caller.cg
 
-        tag = "|Rsr5 > |n"
-
         # Break apart self.args and return errors if things aren't what they're supposed to be.
         self.priority = self.args[0].lower()
         self.category = self.args[1].lower()
@@ -530,11 +543,11 @@ class CmdSetPriority(default_cmds.MuxCommand):
             self.category = ""
         match, occupied, success = '', '', False
         if self.priority not in "abcde" or not self.priority:
-            caller.msg(tag + "Please enter 'a', 'b', 'c', 'd', or 'e'.")
+            caller.msg(mf.tag + "Please enter 'a', 'b', 'c', 'd', or 'e'.")
             return False
 
         if self.category and self.category in "unset":
-            caller.msg(tag + "Priority {} unset.".format(self.priority.title()))
+            caller.msg(mf.tag + "Priority {} unset.".format(self.priority.title()))
             cg.db.priorities[self.priority] = ""
             return False
 
@@ -543,7 +556,7 @@ class CmdSetPriority(default_cmds.MuxCommand):
             match = True
             self.category = cg.categories[i]
         if not match:
-            caller.msg(tag + 'Please enter a valid category. Valid choices ' \
+            caller.msg(mf.tag + 'Please enter a valid category. Valid choices ' \
                        'are "Metatype", "Attributes", "Magic", "Resonance", ' \
                        '"Skills", and "Resources".')
             return False
@@ -566,9 +579,9 @@ class CmdSetPriority(default_cmds.MuxCommand):
             cg.db.priorities[self.priority] = self.category
         # Display a message according to the operation.
         if self.operation == "add":
-            caller.msg(tag + 'Category "' + self.category.title() + '" set as priority ' + self.priority.title() + occupied + '.')
+            caller.msg(mf.tag + 'Category "' + self.category.title() + '" set as priority ' + self.priority.title() + occupied + '.')
         elif self.operation == "replace":
-            caller.msg(tag + 'Category "' + self.category.title() + '" changed to priority ' + self.priority.title() + occupied + '.')
+            caller.msg(mf.tag + 'Category "' + self.category.title() + '" changed to priority ' + self.priority.title() + occupied + '.')
 
 
 class CmdCGRoom(default_cmds.MuxCommand):
@@ -592,8 +605,6 @@ class CmdCGRoom(default_cmds.MuxCommand):
         caller = self.caller
         cg = caller.cg
 
-        tag = "|Rsr5 > |n"
-
         step, match, priority = '', False, ''
 
         # Check if the args match a CG step.
@@ -603,7 +614,7 @@ class CmdCGRoom(default_cmds.MuxCommand):
                 step = cg.cg_steps[i]
 
         if not match:
-            caller.msg(tag + "Please select a valid step of CG.")
+            caller.msg(mf.tag + "Please select a valid step of CG.")
             return False
 
         # Check if a priority has been set for that CG step.
@@ -617,13 +628,15 @@ class CmdCGRoom(default_cmds.MuxCommand):
             priority = "a"
             step = "qualities"
         elif not priority:
-            caller.msg(tag + "You have to set a priority for it first.")
+            caller.msg(mf.tag + "You have to set a priority for it first.")
             return False
 
         if step in "attributes attrs":
             step = "attr"
         elif step in "magic resonance":
             step = "magres"
+        elif step in "quality":
+            step = "qualities"
 
         caller.msg(cg.cgview(step, priority))
 
@@ -646,40 +659,38 @@ class CmdCGReset(default_cmds.MuxCommand):
         caller = self.caller
         cg = caller.cg
 
-        tag = "|Rsr5 > |n"
-
         # TODO: This could probably be abstracted like with the validator.
 
         if self.args and self.args in "metatype":
             cg.reset_metatype()
-            caller.msg(tag + "Metatype and special attributes are reset.")
+            caller.msg(mf.tag + "Metatype and special attributes are reset.")
         elif self.args and self.args in "attributes":
             cg.reset_attr()
-            caller.msg(tag + "Attributes are reset.")
+            caller.msg(mf.tag + "Attributes are reset.")
         elif self.args and self.args in "magic" or self.args and self.args in "resonance":
             cg.reset_magres()
-            caller.msg(tag + "Magic and Resonance choices are reset.")
+            caller.msg(mf.tag + "Magic and Resonance choices are reset.")
         elif self.args and self.args in "skills":
             cg.reset_attr()
-            caller.msg(tag + "Skills are reset.")
+            caller.msg(mf.tag + "Skills are reset.")
         elif self.args and self.args in "resources":
             cg.reset_attr()
-            caller.msg(tag + "Resources, gear, and lifestyle choices are reset.")
+            caller.msg(mf.tag + "Resources, gear, and lifestyle choices are reset.")
         elif self.args and self.args in "qualities":
             cg.reset_attr()
-            caller.msg(tag + "Qualities are reset.")
+            caller.msg(mf.tag + "Qualities are reset.")
         elif self.args and self.args in "background":
             cg.reset_attr()
-            caller.msg(tag + "Background cleared.")
+            caller.msg(mf.tag + "Background cleared.")
         elif self.args and self.args in "vitals":
             cg.reset_attr()
-            caller.msg(tag + "Vitals cleared.")
+            caller.msg(mf.tag + "Vitals cleared.")
         elif self.args and self.args:
-            caller.msg(tag + 'Please input a stage of chargen. Valid choices are "Metatype", "Attributes", "Magic", "Resonance", "Skills", "Resources", "Qualities", "Background", and "Vitals". If you want to restart chargen, type "reset" by itself.')
+            caller.msg(mf.tag + 'Please input a stage of chargen. Valid choices are "Metatype", "Attributes", "Magic", "Resonance", "Skills", "Resources", "Qualities", "Background", and "Vitals". If you want to restart chargen, type "reset" by itself.')
         else:
             # TODO: Ask for confirmation? Can I use EvMenu for a one-off prompt?
             cg.reset_all()
-            caller.msg(tag + "The chargen process has been reset.")
+            caller.msg(mf.tag + "The chargen process has been reset.")
 
 
 class CmdSetMetatype(default_cmds.MuxCommand):
@@ -701,8 +712,6 @@ class CmdSetMetatype(default_cmds.MuxCommand):
         caller = self.caller
         cg = caller.cg
 
-        tag = "|Rsr5 > |n"
-
         # Find out which priority this category is.
         priority = cg.priority("metatype")
 
@@ -710,7 +719,7 @@ class CmdSetMetatype(default_cmds.MuxCommand):
             if self.args in metatype[0]:
                 cg.set_metatype(metatype[0])
 
-                caller.msg(tag + "Your metatype has been set to {mt}, at " \
+                caller.msg(mf.tag + "Your metatype has been set to {mt}, at " \
                            "a cost of {ka} karma. You now have {sa} points " \
                            "to distribute among special attributes.".format(
                            mt=metatype[0], sa=metatype[1], ka=metatype[2]))
@@ -735,8 +744,6 @@ class CmdSetSpecAttr(default_cmds.MuxCommand):
         caller = self.caller
         cg = caller.cg
 
-        tag = "|Rsr5 > |n"
-
         caller.msg("This command isn't in place yet.")
 
 
@@ -755,7 +762,8 @@ class CmdSetAttr(default_cmds.MuxCommand):
     help_category = "Chargen"
 
     def parse(self):
-        # Take a command with two arguments and optional spaces and equals signs and render it down into two arguments.
+        # Take a command with two arguments and optional spaces and equals
+        # signs and render it down into two arguments.
         self.args = self.args.strip()
         self.args = self.args.replace('=', ' ')
         self.dump = self.args.split(' ')
@@ -766,15 +774,19 @@ class CmdSetAttr(default_cmds.MuxCommand):
         caller = self.caller
         cg = caller.cg
 
-        tag = "|Rsr5 > |n"
-
         # Find out which priority this category is.
-        priority = cg.priority("attributes")
+        for pri, cat in cg.db.priorities.items():
+            if "attr" in cat:
+                priority = pri
+
+        if not priority:
+            caller.msg(mf.tag + "You must set a priority first.")
+            return False
 
         try:
             rating = int(self.args[1])
         except ValueError:
-            caller.msg(tag + "You must enter a number.")
+            caller.msg(mf.tag + "You must enter a number.")
             return False
 
         for stat in Attr.names:
@@ -786,15 +798,177 @@ class CmdSetAttr(default_cmds.MuxCommand):
                 if remainder >= 0:
                     attempt = cg.set_attr(stat, rating)
                 else:
-                    caller.msg(tag + "You have insufficient points left.")
+                    caller.msg(mf.tag + "You have insufficient points left.")
                     return False
 
-                if attempt[0] is False:
-                    caller.msg(tag + attempt[1])
+                if attempt[0] == False:
+                    caller.msg(mf.tag + str(attempt))
                 else:
-                    caller.msg(tag + "{} has been set to {}. You have {} "
+                    caller.msg(mf.tag + "{} has been set to {}. You have {} "
                                "points left.".format(stat.title(),
                                                      self.args[1], remainder))
+
+
+class CmdSetSkill(default_cmds.MuxCommand):
+    """
+    Sets your skills. The skill field will match partials. You must set a priority before using this command.
+
+    Usage:
+    > skill archery = 3
+    > sk archery 3
+    """
+
+    key = "skill"
+    aliases = ["sk"]
+    lock = "cmd:perm(unapproved)"
+    help_category = "Chargen"
+
+    def parse(self):
+        # Take a command with two arguments and optional spaces and equals
+        # signs and render it down into two arguments.
+        self.args = self.args.strip()
+        self.args = self.args.replace('=', ' ')
+        self.dump = self.args.split(' ')
+        self.args = [self.dump[0], self.dump[len(self.dump) - 1]]
+
+    def func(self):
+        "Active function."
+        caller = self.caller
+        cg = caller.cg
+
+        # Find out which priority this category is.
+        for pri, cat in cg.db.priorities.items():
+            if "skill" in cat:
+                priority = pri
+
+        if not priority:
+            caller.msg(mf.tag + "You must set a priority first.")
+            return False
+
+        try:
+            rating = int(self.args[1])
+        except ValueError:
+            caller.msg(mf.tag + "You must enter a number.")
+            return False
+
+        lists = cg.available_skills()
+
+        for cat, l in lists.items():
+            for s in l:
+                if self.args[0] in s:
+                    name = s
+                    if cat == "active":
+                        points = Skills.priorities[priority][0]
+                        specs = len(cg.db.active_specializations)
+                        spent = sum(cg.get_skills("active").values()) + specs
+                    elif cat == "groups":
+                        name = "group " + s
+                        points = Skills.priorities[priority][1]
+                        spent = sum(cg.get_skills("group").values())
+                    elif cat in ["knowledge", "language"]:
+                        know = cg.get_skills("knowledge").values()
+                        lang = cg.get_skills("language").values()
+                        lang = lang.remove(lang.index("N"))
+                        specs = len(cg.db.knowledge_specializations) + len(cg.db.language_specializations)
+                        points = cg.get_attr("int") + cg.get_attr("log")
+                        spent = sum(know + lang) + specs
+                    if spent > points:
+                        caller.msg(mf.tag + "You have spent {} out of {} "
+                                   "points on {} skills.".format(
+                                        spent, points, cat))
+                        return False
+                    attempt = cg.set_skill(s, rating)
+
+                    caller.msg(mf.tag + "Skill {} set to {}.".format(
+                        name, rating))
+
+                    return True
+
+
+class CmdSetSpecialization(default_cmds.MuxCommand):
+    """
+    Sets your specializations. The specialization field will match partials. You must set a priority before using this command.
+
+    Usage:
+    > specialize archery = horseback
+    > spec archery horseback
+    > spec archery.horseback
+    """
+
+    key = "specialize"
+    aliases = ["spec"]
+    lock = "cmd:perm(unapproved)"
+    help_category = "Chargen"
+
+    def parse(self):
+        # Take a command with two arguments and optional spaces and equals
+        # signs and render it down into two arguments.
+        self.args = self.args.strip()
+        self.args = self.args.replace('=', ' ')
+        self.args = self.args.replace('.', ' ')
+        self.dump = self.args.split(' ')
+        self.args = [self.dump[0], self.dump[len(self.dump) - 1]]
+
+    def func(self):
+        "Active function."
+        caller = self.caller
+        cg = caller.cg
+
+        # Find out which priority this category is.
+        for pri, cat in cg.db.priorities.items():
+            if "skill" in cat:
+                priority = pri
+
+        if not priority:
+            caller.msg(mf.tag + "You must set a priority first.")
+            return False
+
+        if not self.args[1] or self.args[1] == "unset":
+            mode = "unset"
+        else:
+            mode = "set"
+
+        lists = cg.available_skills()
+
+        for cat, l in lists.items():
+            for s in l:
+                if self.args[0] in s:
+                    name = s
+                    if cat == "active":
+                        points = Skills.priorities[priority][0]
+                        specs = len(cg.db.active_specializations)
+                        spent = sum(cg.get_skills("active").values()) + specs
+                    elif cat == "groups":
+                        name = "group " + s
+                        caller.msg(mf.tag + "You can't set a specialization "
+                                   "for a group.")
+                        return False
+                    elif cat in ["knowledge", "language"]:
+                        know = cg.get_skills("knowledge").values()
+                        lang = cg.get_skills("language").values()
+                        lang = lang.remove(lang.index("N"))
+                        specs = len(cg.db.knowledge_specializations) + len(cg.db.language_specializations)
+                        points = cg.get_attr("int") + cg.get_attr("log")
+                        spent = sum(know + lang) + specs
+                    if mode == "set":
+                        if spent > points:
+                            caller.msg(mf.tag + "You have spent {} out of {} "
+                                       "points on {} skills.".format(
+                                            spent, points, cat))
+                            return False
+                        attempt = cg.set_specialization(s, self.args[1])
+
+                        caller.msg(mf.tag + "Spec {} added to {}.".format(
+                            self.args[1], name))
+
+                        return True
+                    elif mode =="unset":
+                        attempt = cg.unset_specialization(s)
+
+                        caller.msg(mf.tag + "Spec {} removed from {}.".format(
+                            self.args[1], name))
+
+                        return True
 
 
 class CmdSetMagicType(default_cmds.MuxCommand):
@@ -815,8 +989,6 @@ class CmdSetMagicType(default_cmds.MuxCommand):
         "Active function."
         caller = self.caller
         cg = caller.cg
-
-        tag = "|Rsr5 > |n"
 
         caller.msg("This command isn't in place yet.")
 
@@ -840,8 +1012,6 @@ class CmdBuySpell(default_cmds.MuxCommand):
         caller = self.caller
         cg = caller.cg
 
-        tag = "|Rsr5 > |n"
-
         caller.msg("This command isn't in place yet.")
 
 
@@ -864,8 +1034,6 @@ class CmdBuyPower(default_cmds.MuxCommand):
         caller = self.caller
         cg = caller.cg
 
-        tag = "|Rsr5 > |n"
-
         caller.msg("This command isn't in place yet.")
 
 
@@ -886,59 +1054,6 @@ class CmdBuyForm(default_cmds.MuxCommand):
         "Active function."
         caller = self.caller
         cg = caller.cg
-
-        tag = "|Rsr5 > |n"
-
-        caller.msg("This command isn't in place yet.")
-
-
-class CmdSetSkill(default_cmds.MuxCommand):
-    """
-    Sets your skills. The skill field will match partials. You must set a priority before using this command.
-
-    Usage:
-    > skill archery = 3
-    > sk archery 3
-    """
-
-    key = "skill"
-    aliases = ["sk"]
-    lock = "cmd:perm(unapproved)"
-    help_category = "Chargen"
-
-    def func(self):
-        "Active function."
-        caller = self.caller
-        cg = caller.cg
-
-        tag = "|Rsr5 > |n"
-
-        caller.msg("This command isn't in place yet.")
-        # TODO: For knowledge skills, it shouldn't matter if the player types
-        # "Gangs (Street)" or "Street (Gangs)"
-
-
-class CmdSetSpecialization(default_cmds.MuxCommand):
-    """
-    Sets your specializations. The specialization field will match partials. You must set a priority before using this command.
-
-    Usage:
-    > specialize archery = horseback
-    > spec archery horseback
-    > spec archery.horseback
-    """
-
-    key = "specialize"
-    aliases = ["spec"]
-    lock = "cmd:perm(unapproved)"
-    help_category = "Chargen"
-
-    def func(self):
-        "Active function."
-        caller = self.caller
-        cg = caller.cg
-
-        tag = "|Rsr5 > |n"
 
         caller.msg("This command isn't in place yet.")
 
@@ -961,8 +1076,6 @@ class CmdSetLifestyle(default_cmds.MuxCommand):
         "Active function."
         caller = self.caller
         cg = caller.cg
-
-        tag = "|Rsr5 > |n"
 
         caller.msg("This command isn't in place yet.")
 
@@ -1026,8 +1139,6 @@ class CmdBuyAugment(default_cmds.MuxCommand):
         caller = self.caller
         cg = caller.cg
 
-        tag = "|Rsr5 > |n"
-
         # Break up the second argument into keywords.
         if len(self.args) == 2:
             options = self.args[1].split('/')
@@ -1066,7 +1177,7 @@ class CmdBuyAugment(default_cmds.MuxCommand):
 
         # Special category-based rules. For items that don't have special
         # properties, refer to the `else` at the end of this chain.
-        # TODO: All of this could be moved to the Aug_Methods() class.
+        # TODO: All of this could be moved to the Augment() class.
         if umbrella in ["cyberlimbs", "cyberlimb", "cyberarm", "cyberleg",
                         "cyberhead", "cyberskull", "cybertorso", "cyberhand",
                         "cyberfoot"]:
@@ -1091,12 +1202,12 @@ class CmdBuyAugment(default_cmds.MuxCommand):
 
             s = cg.db.qualities_positive.get("exceptional attribute (strength)", 0)
             if strength + 3 > cg.db.meta_attr["strength"][1] + s:
-                caller.msg(tag + "You can't have a cyberlimb built with higher"
+                caller.msg(mf.tag + "You can't have a cyberlimb built with higher"
                            " strength than your natural maximum.")
                 return False
             a = cg.db.qualities_positive.get("exceptional attribute (agility)", 0)
             if agility + 3 > cg.db.meta_attr["agility"][1] + a:
-                caller.msg(tag + "You can't have a cyberlimb built with higher"
+                caller.msg(mf.tag + "You can't have a cyberlimb built with higher"
                            " agility than your natural maximum.")
                 return False
 
@@ -1105,9 +1216,8 @@ class CmdBuyAugment(default_cmds.MuxCommand):
             # replace it with this one.
 
             # Calculate costs.
-            cost = Aug_Methods.apply_costs_and_capacity(
-                Aug_Methods(), [target[1].lower()], synthetic
-            )[0]
+            cost = Augment.apply_costs_and_capacity(
+                [target[1].lower()], synthetic)[0]
             cost = cost + (strength + agility) * 5000
 
             if cost > cg.db.nuyen.value:
@@ -1131,7 +1241,7 @@ class CmdBuyAugment(default_cmds.MuxCommand):
 
                 if attach[0] is False:
                     purchased.delete()
-                    caller.msg(tag + attach[1])
+                    caller.msg(mf.tag + attach[1])
                     return False
 
                 if synthetic:
@@ -1145,7 +1255,7 @@ class CmdBuyAugment(default_cmds.MuxCommand):
                     0 - purchased.db.essence, target[0].capitalize()
                 )
 
-            caller.msg(tag + "You have placed an order for a {} with strength "
+            caller.msg(mf.tag + "You have placed an order for a {} with strength "
                        "+{} and agility +{} at a cost of {} nuyen and "
                        "{} essence. {}".format(target[0], strength, agility,
                                                cost, purchased.db.essence,
@@ -1155,11 +1265,11 @@ class CmdBuyAugment(default_cmds.MuxCommand):
         elif umbrella == "sell":
             subject = caller.search(target[0])
             if isinstance(subject, list):
-                caller.msg(tag + "You seem to have multiple items that fit the description given. You should use more specific language.")
+                caller.msg(mf.tag + "You seem to have multiple items that fit the description given. You should use more specific language.")
 
                 return False
             elif not isinstance(subject, Augment):
-                caller.msg(tag + "That doesn't appear to be an augment.")
+                caller.msg(mf.tag + "That doesn't appear to be an augment.")
 
                 return False
             else:
@@ -1174,7 +1284,7 @@ class CmdBuyAugment(default_cmds.MuxCommand):
                 cg.db.nuyen.value += nuyen
                 cg.db.essence.value += essence
 
-                caller.msg(tag + "The {} was returned to the store and {} nuyen and {} essence were refunded.".format(subject, nuyen, essence))
+                caller.msg(mf.tag + "The {} was returned to the store and {} nuyen and {} essence were refunded.".format(subject, nuyen, essence))
         else:
             # This is for items that don't have special creation rules.
             pass
@@ -1201,8 +1311,6 @@ class CmdSetQualities(default_cmds.MuxCommand):
         "Active function."
         caller = self.caller
         cg = caller.cg
-
-        tag = "|Rsr5 > |n"
 
         caller.msg("This command isn't in place yet.")
 

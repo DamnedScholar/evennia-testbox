@@ -1,0 +1,24 @@
+testbox package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    testbox.commands
+    testbox.paxboards
+    testbox.server
+    testbox.sr5
+    testbox.tekmunkey
+    testbox.typeclasses
+    testbox.web
+    testbox.world
+
+Module contents
+---------------
+
+.. automodule:: testbox
+    :members:
+    :undoc-members:
+    :show-inheritance:

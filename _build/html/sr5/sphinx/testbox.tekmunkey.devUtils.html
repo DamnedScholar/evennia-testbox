@@ -1,0 +1,621 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>testbox.tekmunkey.devUtils package &#8212; Evennia Testbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="testbox-tekmunkey-devutils-package">
+<h1>testbox.tekmunkey.devUtils package<a class="headerlink" href="#testbox-tekmunkey-devutils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="testbox.tekmunkey.devUtils.findCode.html">testbox.tekmunkey.devUtils.findCode package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testbox.tekmunkey.devUtils.findCode.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testbox.tekmunkey.devUtils.findCode.html#testbox-tekmunkey-devutils-findcode-findcodecommands-module">testbox.tekmunkey.devUtils.findCode.findCodeCommands module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testbox.tekmunkey.devUtils.findCode.html#module-testbox.tekmunkey.devUtils.findCode.findCodeFunctions">testbox.tekmunkey.devUtils.findCode.findCodeFunctions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testbox.tekmunkey.devUtils.findCode.html#module-testbox.tekmunkey.devUtils.findCode">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="testbox-tekmunkey-devutils-devutilscommandsets-module">
+<h2>testbox.tekmunkey.devUtils.devUtilsCommandSets module<a class="headerlink" href="#testbox-tekmunkey-devutils-devutilscommandsets-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-testbox.tekmunkey.devUtils.stringExtends">
+<span id="testbox-tekmunkey-devutils-stringextends-module"></span><h2>testbox.tekmunkey.devUtils.stringExtends module<a class="headerlink" href="#module-testbox.tekmunkey.devUtils.stringExtends" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass">
+<em class="property">class </em><code class="descclassname">testbox.tekmunkey.devUtils.stringExtends.</code><code class="descname">ansiStringClass</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>A specialized class for handling strings with Evennia-style ANSI/XTERM color and formatting tags.</p>
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiRegexSearch">
+<code class="descname">ansiRegexSearch</code><span class="sig-paren">(</span><em>regex_pattern=''</em>, <em>regex_flags=0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.ansiRegexSearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiRegexSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a standard re.search against the internal ansi text (with the ANSI/XTERM tags ignored and formatting
+tags converted to actual format characters) and returns the Match Object.  To work with the Match object
+returned, consumers should import re</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>regex_pattern</strong> – {str} The regular expression pattern to use in the search operation.</li>
+<li><strong>regex_flags</strong> – {int} The regular expression flags to use in the search.  These may be any combination of
+flag values ORed together from re.IGNORE and other standard flags.  Flags are also
+included such as stringExtends.re_IGNORE or stringExtends.re_I for convenience.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{MatchObject} A regular expression MatchObject instance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiSlice">
+<code class="descname">ansiSlice</code><span class="sig-paren">(</span><em>begin</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.ansiSlice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiSlice" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Performs a string slice operation on the internal string, but instead of treating the string as a raw
+collection of characters it treats ANSI/XTERM characters as part and parcel of a character entity, so that
+a character with an ANSI/XTERM tag before it is treated as a single character although the ANSI/XTERM tag may
+in fact consume 2-3 (or more) characters in the string.</p>
+<p>Formatting characters such as <a href="#id1"><span class="problematic" id="id2">|</span></a>/, <a href="#id3"><span class="problematic" id="id4">|</span></a>-, and <a href="#id5"><span class="problematic" id="id6">|</span></a>_ are parsed into their actual entities such as</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>for <a href="#id7"><span class="problematic" id="id8">|</span></a>/, 4 spaces</dt>
+<dd><p class="first">for <a href="#id9"><span class="problematic" id="id10">|</span></a>- (tab), and single spaces for <a href="#id11"><span class="problematic" id="id12">|</span></a>_ so a slice operation that passes over a tab will want to consume 4
+characters.</p>
+<p>The consumer may want/need to add a <a href="#id13"><span class="problematic" id="id14">|</span></a>n to return to normal coloration after this slice, otherwise color tags
+from this text may affect text appended to it.</p>
+<table class="last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param begin:</th><td class="field-body">{int} The index in the internal text to begin copying characters.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param end:</th><td class="field-body">{int} The index in the internal text to end copying characters.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">return:</th><td class="field-body">{str} The portion of the string requested.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiStringIndex">
+<code class="descname">ansiStringIndex</code><span class="sig-paren">(</span><em>rawstringindex</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.ansiStringIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiStringIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look at the internal string as if it were a raw string, but the color codes were part of each character rather
+than individual characters themselves.  This function translates a raw string index, ie an index into the string
+without any ANSI/XTERM tags, into an index in the internal string with ANSI/XTERM tags in it, as if the
+ANSI/XTERM tags weren’t there.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{int} The string index representing a character position as if ANSI/XTERM tags didn’t exist.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiTextFormat">
+<code class="descname">ansiTextFormat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.ansiTextFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiTextFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be called any time any operations are performed against the internal text.  Converts formatting tags (not
+ANSI/XTERM) to actual formatting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{str} The internal text with formatting tags converted to actual formatting.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiTextLen">
+<code class="descname">ansiTextLen</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.ansiTextLen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiTextLen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the length of the internal text, including ANSI/XTERM tag characters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{int} The length of the internal text, including ANSI/XTERM tag characters.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiTextWrap">
+<code class="descname">ansiTextWrap</code><span class="sig-paren">(</span><em>linelength</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.ansiTextWrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.ansiTextWrap" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Gets the internal raw text (with non-ANSI/XTERM formatting tags converted to actual formatting, and all
+ANSI/XTERM tags removed) wrapped to the specified linelength, as an array of strings at the specified length.</p>
+<p>By default this will respect user-defined</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>marks in the original text, and also automatically breaks at spaces</dt>
+<dd><p class="first">or dashes.</p>
+<p>Long words will ONLY be broken up if the word itself is actually longer than the specified linelength, for
+example if the word is 12 characters and the line length is 10, the word will be broken.  Otherwise words
+will never be broken.</p>
+<table class="last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">param linelength:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">{int} The length of an output line, in characters.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">return:</th><td class="field-body">{array} The lines of the original text, broken into sections linelength characters long.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.catalogAnsiTags">
+<code class="descname">catalogAnsiTags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.catalogAnsiTags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.catalogAnsiTags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.isTextDecorated">
+<code class="descname">isTextDecorated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.isTextDecorated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.isTextDecorated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a value indicating whether the internal text contains ANSI tags or not.  Useful for quick-determinations
+if processing time (or avoiding re-processing values) is an issue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{bool} True if the internal text contains ANSI/XTERM tags.  Otherwise False.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawRegexSearch">
+<code class="descname">rawRegexSearch</code><span class="sig-paren">(</span><em>regex_pattern=''</em>, <em>regex_flags=0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.rawRegexSearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawRegexSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a standard re.search against the internal raw text (with the ANSI/XTERM tags stripped and formatting
+tags converted to actual format characters) and returns the Match Object.  To work with the Match object
+returned, consumers should import re</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>regex_pattern</strong> – {str} The regular expression pattern to use in the search operation.</li>
+<li><strong>regex_flags</strong> – {int} The regular expression flags to use in the search.  These may be any combination of
+flag values ORed together from re.IGNORE and other standard flags.  Flags are also
+included such as stringExtends.re_IGNORE or stringExtends.re_I for convenience.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{MatchObject} A regular expression MatchObject instance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawSlice">
+<code class="descname">rawSlice</code><span class="sig-paren">(</span><em>begin</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.rawSlice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawSlice" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Performs a string slice operation on the internal string after stripping all ANSI/XTERM characters from it.</p>
+<p>Formatting characters such as <a href="#id15"><span class="problematic" id="id16">|</span></a>/, <a href="#id17"><span class="problematic" id="id18">|</span></a>-, and <a href="#id19"><span class="problematic" id="id20">|</span></a>_ are parsed into their actual entities such as</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>for <a href="#id21"><span class="problematic" id="id22">|</span></a>/, 4 spaces</dt>
+<dd><p class="first">for <a href="#id23"><span class="problematic" id="id24">|</span></a>- (tab), and single spaces for <a href="#id25"><span class="problematic" id="id26">|</span></a>_ so a slice operation that passes over a tab will want to consume 4
+characters.</p>
+<table class="last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param begin:</th><td class="field-body">{int} The index in the internal text to begin copying characters.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param end:</th><td class="field-body">{int} The index in the internal text to end copying characters.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">return:</th><td class="field-body">{str} The portion of the string requested.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawTextFormat">
+<code class="descname">rawTextFormat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.rawTextFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawTextFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be called any time any operations are performed against the internal raw text.  Converts all formatting tags
+(not ANSI/XTERM) to actual formatting and strips ANSI/XTERM tags as well.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{str} The internal text with formatting tags converted to actual formatting.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawTextLen">
+<code class="descname">rawTextLen</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.rawTextLen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawTextLen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the length of the internal text, excluding ANSI/XTERM tag characters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{int} The length of the internal text, excluding ANSI/XTERM tag characters.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawTextWrap">
+<code class="descname">rawTextWrap</code><span class="sig-paren">(</span><em>linelength</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiStringClass.rawTextWrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiStringClass.rawTextWrap" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Gets the internal raw text (with non-ANSI/XTERM formatting tags converted to actual formatting, and all
+ANSI/XTERM tags removed) wrapped to the specified linelength, as an array of strings at the specified length.</p>
+<p>By default this will respect user-defined</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>marks in the original text, and also automatically breaks at spaces</dt>
+<dd><p class="first">or dashes.</p>
+<p>Long words will ONLY be broken up if the word itself is actually longer than the specified linelength, for
+example if the word is 12 characters and the line length is 10, the word will be broken.  Otherwise words
+will never be broken.</p>
+<table class="last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">param linelength:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">{int} The length of an output line, in characters.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">return:</th><td class="field-body">{array} The lines of the original text, broken into sections linelength characters long.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiTagClass">
+<em class="property">class </em><code class="descclassname">testbox.tekmunkey.devUtils.stringExtends.</code><code class="descname">ansiTagClass</code><span class="sig-paren">(</span><em>ansitag</em>, <em>stringstartoffset</em>, <em>stringendoffset</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiTagClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiTagClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>A specialized class for handling ANSI/XTERM tags.  Stores the tag itself, its start offset and end offset in a
+string, and contains a helper function that determines if a given offset into the string hits within the bounds of
+the tag itself.</p>
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.ansiTagClass.isOffsetInTag">
+<code class="descname">isOffsetInTag</code><span class="sig-paren">(</span><em>offset</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#ansiTagClass.isOffsetInTag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.ansiTagClass.isOffsetInTag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a value indicating whether the specified offset occurs within the bounds of this particular ANSI/XTERM
+tag’s span of characters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>offset</strong> – {int} The offset in the string to test against.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{bool}  True if the specified offset occurs within the bounds of this ANSI/XTERM tag.  Otherwise False.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.getBoolFromStr">
+<code class="descclassname">testbox.tekmunkey.devUtils.stringExtends.</code><code class="descname">getBoolFromStr</code><span class="sig-paren">(</span><em>strbool=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#getBoolFromStr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.getBoolFromStr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a string representation of a boolean value, for example ‘true’ or ‘false’, converts it to a bool value.  The
+string representation of the boolean is not case sensitive (ie it could be True or TRUE or FaLSe)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strBool</strong> – {str} The string representation of a boolean value.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{bool} The translated boolean.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.getIntFromStr">
+<code class="descclassname">testbox.tekmunkey.devUtils.stringExtends.</code><code class="descname">getIntFromStr</code><span class="sig-paren">(</span><em>strint=0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#getIntFromStr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.getIntFromStr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a string representation of an integer value, for example ‘0’ or ‘1’, converts it to an int value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strint</strong> – {str} The string representation of an int value.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{int} The translated integer</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.getRegExFlagsFromStr">
+<code class="descclassname">testbox.tekmunkey.devUtils.stringExtends.</code><code class="descname">getRegExFlagsFromStr</code><span class="sig-paren">(</span><em>strflags=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#getRegExFlagsFromStr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.getRegExFlagsFromStr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a string representation of regular expression flags, for example IGNORECASE, LOCALE, re.IGNORECASE,
+re_IGNORECASE, or any of these standard references to regular expression flags as defined by re. or defined in
+this codefile as <a href="#id27"><span class="problematic" id="id28">re_</span></a>, or a string of these options or’d together such as IGNORECASE|DOTALL, returns the appropriate
+value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strregexoptions</strong> – {str} A string representation of a regular expression option or options bitwise ORed
+together, such as IGNORECASE, IGNORECASE|DOTALL, etc.  You can specify re.IGNORECASE
+or re_IGNORECASE depending on which notation you’re most accustomed to using in code.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{int} The appropriate regular expression flags value translated from the string value.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.setStringLength">
+<code class="descclassname">testbox.tekmunkey.devUtils.stringExtends.</code><code class="descname">setStringLength</code><span class="sig-paren">(</span><em>text=''</em>, <em>textlength=1</em>, <em>padcharacter=' '</em>, <em>padside='r'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#setStringLength"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.setStringLength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pads or slices the specified text to the specified textlength, if necessary.  If the specified text is already the
+specified length, no change is made.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – {str} The text to set to length.</li>
+<li><strong>textlength</strong> – {int} The length to set the text to.</li>
+<li><strong>padcharacter</strong> – {str} A value that will be used to pad the string if it must be padded.  Default is space.</li>
+<li><strong>padside</strong> – {str} A value indicating whether the string will be padded on the left ‘l’ or the right ‘r’.
+Default is right ‘r’.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The original text padded to the specified minimum length.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This function will never raise exceptions or return an error and will always return some string value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.strUnprefix">
+<code class="descclassname">testbox.tekmunkey.devUtils.stringExtends.</code><code class="descname">strUnprefix</code><span class="sig-paren">(</span><em>text=''</em>, <em>prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#strUnprefix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.strUnprefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the specified prefix from the specified string, if it exists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> – {str} The text to remove a prefix from</li>
+<li><strong>prefix</strong> – {str} The prefix to remove</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">{str} The original text with the prefix removed, if it was found.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This function will never raise exceptions or return an error and will always return some string value.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass">
+<em class="property">class </em><code class="descclassname">testbox.tekmunkey.devUtils.stringExtends.</code><code class="descname">stringMatchClass</code><span class="sig-paren">(</span><em>matchvalue=None</em>, <em>useregex=False</em>, <em>regexflags=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#stringMatchClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class representing a string matchable against variable string data</p>
+<dl class="method">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.isRawMatch">
+<code class="descname">isRawMatch</code><span class="sig-paren">(</span><em>text=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/testbox/tekmunkey/devUtils/stringExtends.html#stringMatchClass.isRawMatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.isRawMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests the supplied variable string text against the stringMatchClass instance’s stringMatch value and
+returns True if they match according to the instance’s specified options.  Otherwise False.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> – A variable string to test for a match against the stringMatchClass instance.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if a match is made.  Otherwise False.</td>
+</tr>
+</tbody>
+</table>
+<p>Calling this function may throw errors if the value of of the stringMatchClass instance’s stringMatch is not
+a valid regex pattern or if the reFlags are not valid regex flags.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.isRegEx">
+<code class="descname">isRegEx</code><em class="property"> = None</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.isRegEx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.reFlags">
+<code class="descname">reFlags</code><em class="property"> = None</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.reFlags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_DOTALL">
+<code class="descname">re_DOTALL</code><em class="property"> = 16</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_DOTALL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_I">
+<code class="descname">re_I</code><em class="property"> = 2</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_I" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_IGNORECASE">
+<code class="descname">re_IGNORECASE</code><em class="property"> = 2</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_IGNORECASE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_L">
+<code class="descname">re_L</code><em class="property"> = 4</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_L" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_LOCALE">
+<code class="descname">re_LOCALE</code><em class="property"> = 4</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_LOCALE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_M">
+<code class="descname">re_M</code><em class="property"> = 8</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_M" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_MULTILINE">
+<code class="descname">re_MULTILINE</code><em class="property"> = 8</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_MULTILINE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_S">
+<code class="descname">re_S</code><em class="property"> = 16</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_S" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_U">
+<code class="descname">re_U</code><em class="property"> = 32</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_U" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_UNICODE">
+<code class="descname">re_UNICODE</code><em class="property"> = 32</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_UNICODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_V">
+<code class="descname">re_V</code><em class="property"> = 64</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_V" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_VERBOSE">
+<code class="descname">re_VERBOSE</code><em class="property"> = 64</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.re_VERBOSE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.stringMatch">
+<code class="descname">stringMatch</code><em class="property"> = None</em><a class="headerlink" href="#testbox.tekmunkey.devUtils.stringExtends.stringMatchClass.stringMatch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-testbox.tekmunkey.devUtils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-testbox.tekmunkey.devUtils" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Evennia Testbox</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Holland Wilson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/sr5/sphinx/testbox.tekmunkey.devUtils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

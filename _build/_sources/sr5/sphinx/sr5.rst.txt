@@ -1,0 +1,95 @@
+sr5 package
+===========
+
+Subpackages
+-----------
+
+.. toctree::
+
+    sr5.data
+    sr5.migrations
+    sr5.systemview
+
+Submodules
+----------
+
+sr5\.character module
+---------------------
+
+.. automodule:: sr5.character
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.chargen module
+-------------------
+
+.. automodule:: sr5.chargen
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.command module
+-------------------
+
+.. automodule:: sr5.command
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.models module
+------------------
+
+.. automodule:: sr5.models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.msg\_format module
+-----------------------
+
+.. automodule:: sr5.msg_format
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.objects module
+-------------------
+
+.. automodule:: sr5.objects
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.system module
+------------------
+
+.. automodule:: sr5.system
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.test\_utils module
+-----------------------
+
+.. automodule:: sr5.test_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+sr5\.utils module
+-----------------
+
+.. automodule:: sr5.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: sr5
+    :members:
+    :undoc-members:
+    :show-inheritance:

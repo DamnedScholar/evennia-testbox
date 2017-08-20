@@ -1,0 +1,37 @@
+testbox\.tekmunkey\.devUtils package
+====================================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    testbox.tekmunkey.devUtils.findCode
+
+Submodules
+----------
+
+testbox\.tekmunkey\.devUtils\.devUtilsCommandSets module
+--------------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.devUtils.devUtilsCommandSets
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+testbox\.tekmunkey\.devUtils\.stringExtends module
+--------------------------------------------------
+
+.. automodule:: testbox.tekmunkey.devUtils.stringExtends
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: testbox.tekmunkey.devUtils
+    :members:
+    :undoc-members:
+    :show-inheritance:

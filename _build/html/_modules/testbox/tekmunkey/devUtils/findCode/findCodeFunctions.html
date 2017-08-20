@@ -1,0 +1,1166 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>testbox.tekmunkey.devUtils.findCode.findCodeFunctions &#8212; Evennia Testbox 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for testbox.tekmunkey.devUtils.findCode.findCodeFunctions</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">tekmunkey.devUtils</span> <span class="k">import</span> <span class="n">stringExtends</span>
+
+<span class="c1">#</span>
+<span class="c1"># Catches class or function declarations only at the topmost, unindented level</span>
+<span class="c1">#   \1 is any spacing or indentation at the front of the line</span>
+<span class="c1">#   \2 is class or def (identifying class or function declaration)</span>
+<span class="c1">#   \3 is class or function name</span>
+<span class="c1">#   \4 is anything inside parentheses, including parentheses, if they exist</span>
+<span class="c1">#   ie:  class MyClass(baseClass):</span>
+<span class="c1">#   \1 = &quot;  &quot;</span>
+<span class="c1">#   \2 = class</span>
+<span class="c1">#   \3 = MyClass</span>
+<span class="c1">#   \4 = (baseClass)</span>
+<span class="c1">#</span>
+<span class="n">regExPattern_CodeDeclaration</span> <span class="o">=</span> <span class="s2">&quot;^(\s*)(class|def)+\s+([A-Z|a-z|0-9|_]+)?.*$&quot;</span>
+
+<span class="c1">#</span>
+<span class="c1"># If you&#39;re developing/debugging on Windows but hosting your development environment on Linux, this value MUST be True.</span>
+<span class="c1"># Otherwise the \ (Windows path separator) will be passed to Linux, which expects / for path seps, so nothing will work.</span>
+<span class="c1">#</span>
+<span class="c1"># You MUST remember to set this to False no matter what your hosting environment is for Production, and you can set this</span>
+<span class="c1"># to False if you&#39;re developing/debugging and hosting on the same platform, regardless of what that platform is, too.</span>
+<span class="c1">#</span>
+<span class="n">forceLinuxPathSeparators</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="getPathSep"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.getPathSep">[docs]</a><span class="k">def</span> <span class="nf">getPathSep</span><span class="p">(</span> <span class="n">forceLinuxPathSep</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Anyone developing/debugging on Windows but hosting on Linux must pass forceLinuxPathSep as True or else Windows</span>
+<span class="sd">    path separators (the \ char) will be passed along into the Linux environment at debug time and nothing will work,</span>
+<span class="sd">    since Linux expects the / char.</span>
+
+<span class="sd">    Anyone developing/debugging on the same platform they&#39;re hosting on (doesn&#39;t matter if it&#39;s Linux or Windows) can</span>
+<span class="sd">    call this without arguments or call with forcelinuxpathsep = False.</span>
+
+<span class="sd">    :param forcePinuxPathSep: {bool} Indicates whether / should be returned regardless of runtime environment.</span>
+<span class="sd">    :return: {str} A path separator.  Returns os.pathsep unless forceLinuxPathSep is True, then returns / always.</span>
+
+<span class="sd">    This function will never raise exceptions or return an error and will always return some string value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">forceLinuxPathSep</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span>
+    <span class="k">return</span> <span class="n">r</span></div>
+
+
+
+<div class="viewcode-block" id="isValidCodeType"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.isValidCodeType">[docs]</a><span class="k">def</span> <span class="nf">isValidCodeType</span><span class="p">(</span> <span class="n">codetype</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">robustconsumer</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a codetype representing a type of code declaration (class or object, function or def), validates whether that</span>
+<span class="sd">    is a valid codetype as supported by scripts found alongside the isValidCodeType function.</span>
+
+<span class="sd">    More importantly, this function translates different types of programming experience and concepts into python</span>
+<span class="sd">    concepts.  For example programmers who want to search for &#39;def&#39; may pass in either &#39;function&#39; or &#39;def&#39; and this</span>
+<span class="sd">    function will translate both into the Python keyword &#39;def&#39; for use in module searches, while programmers who want</span>
+<span class="sd">    to search for &#39;class&#39; may pass in either &#39;object&#39; or &#39;class&#39; and this function will translate both of those into</span>
+<span class="sd">    the Python keyword &#39;class&#39; for use in module searches.</span>
+
+<span class="sd">    :param codetype: {str} A codetype to search for.  Accepts &#39;class&#39; or &#39;object&#39; for instantiable declaration types,</span>
+<span class="sd">                     &#39;def&#39; or &#39;function&#39; for callable declaration types.  May be None or may be abbreviated (cl or fu).</span>
+<span class="sd">                     Optional:  Default is &#39;def&#39;</span>
+<span class="sd">    :param robustconsumer: {bool} Indicates whether the consuming caller is robust - whether it can cope with execution</span>
+<span class="sd">                           errors or not.  If True, then any errors encountered will be converted into error-code return</span>
+<span class="sd">                           values.  If False, then any errors encountered cause script termination by raised exception.</span>
+<span class="sd">                           Optional:  Default is False.</span>
+<span class="sd">    :return: {str} &#39;class&#39; if the specified codetype matches a class alias, &#39;def&#39; if the specified codetype matches a</span>
+<span class="sd">                   def alias.</span>
+
+<span class="sd">             * When robustconsumer is True:</span>
+<span class="sd">             * A return value of -1 means a codetype was specified and is a valid string but it is invalid codetype -</span>
+<span class="sd">               not found in validFindTypes</span>
+<span class="sd">             * A return value of -2 means a codetype was specified but is not valid string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Add new codetype aliases by adding new array entries to the array below.  Each element is an array.</span>
+    <span class="c1"># element[0] = declarationType</span>
+    <span class="c1"># element[1] = declarationAlias</span>
+    <span class="c1">#  Where declarationType is what will actually be found in .py code files</span>
+    <span class="c1">#  Where declarationAlias is input that will be accepted by this function in the codetype parameter</span>
+    <span class="c1">#</span>
+    <span class="c1"># Absolutely nothing else needs to be done to add new codetype aliases.  All the work is done in the function body.</span>
+    <span class="c1">#</span>
+    <span class="n">validcodetypes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">validcodetypes</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;class&#39;</span><span class="p">,</span><span class="s1">&#39;class&#39;</span><span class="p">])</span>
+    <span class="n">validcodetypes</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;class&#39;</span><span class="p">,</span><span class="s1">&#39;object&#39;</span><span class="p">])</span>
+    <span class="n">validcodetypes</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;def&#39;</span><span class="p">,</span><span class="s1">&#39;def&#39;</span><span class="p">])</span>
+    <span class="n">validcodetypes</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;def&#39;</span><span class="p">,</span><span class="s1">&#39;function&#39;</span><span class="p">])</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">codetype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">codetype</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">codetype</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">):</span>
+        <span class="c1">#</span>
+        <span class="c1"># Set r to the regex matched valid codetype</span>
+        <span class="c1">#</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">vt</span> <span class="ow">in</span> <span class="n">validcodetypes</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^\s*&quot;</span> <span class="o">+</span> <span class="n">codetype</span> <span class="o">+</span> <span class="s2">&quot;.*\s*$&quot;</span><span class="p">,</span> <span class="n">vt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">vt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#</span>
+            <span class="c1"># A codetype was specified and is a valid string but it is invalid codetype - not found in validcodetypes</span>
+            <span class="c1">#</span>
+            <span class="k">if</span> <span class="n">robustconsumer</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Parameter &#39;codetype&#39; to isValidcodeType( codetype ) ( &quot;</span> <span class="o">+</span> <span class="n">codetype</span> <span class="o">+</span> <span class="s2">&quot; ) is not a valid find codetype&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span> <span class="n">codetype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">codetype</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="c1">#</span>
+        <span class="c1"># A codetype was specified but is not valid string</span>
+        <span class="c1">#</span>
+        <span class="k">if</span> <span class="n">robustconsumer</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="s2">&quot;Parameter &#39;codetype&#39; to isValidcodeType( codetype ) must be a </span><span class="si">{str}</span><span class="s2"> value.  Value supplied is &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span> <span class="nb">type</span><span class="p">(</span> <span class="n">codetype</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">codetype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">codetype</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">codetype</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">):</span>
+        <span class="c1">#</span>
+        <span class="c1"># r defaults to function where codetype is None or empty string</span>
+        <span class="c1">#</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="s1">&#39;def&#39;</span>
+
+    <span class="k">return</span> <span class="n">r</span></div>
+
+
+
+<div class="viewcode-block" id="codeLineClass"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass">[docs]</a><span class="k">class</span> <span class="nc">codeLineClass</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The codeLineClass represents a single line of Python code and provides functions for pulling metadata pertaining to</span>
+<span class="sd">    that line of code.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lineNumber</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    lineNumber contains the line number, in the original file, that the code which a given codeLineClass instance </span>
+<span class="sd">    represents was found on.  </span>
+<span class="sd">        </span>
+<span class="sd">    This value is found on all individual instances as well but is set in here as a placemarker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">codeString</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    codeString contains the actual code, from the original file, which a given codeLineClass instance represents.  </span>
+
+<span class="sd">    This value is found on all individual instances as well but is set in here as a placemarker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">code</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the codeLineClass instance.</span>
+
+<span class="sd">        :param line: The line number in the file that the code appears on.</span>
+<span class="sd">        :param code: The code itself.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineNumber</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span> <span class="o">=</span> <span class="n">code</span>
+
+<div class="viewcode-block" id="codeLineClass.getIndent"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getIndent">[docs]</a>    <span class="k">def</span> <span class="nf">getIndent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the indentation, if any, preceding the code that this codeLineClass instance represents.  This returns the</span>
+<span class="sd">        actual indentation, ie the space(s) or tabstop(s) themselve(s).  To get a count of the whitespace, use</span>
+<span class="sd">        getIndent_Len()</span>
+
+<span class="sd">        :return: {str} The indentation, if any, preceding the code that this codeLineClass instance represents.  This</span>
+<span class="sd">                       returns the actual indentation, ie the space(s) or tabstop(s) themselve(s).  To get a count of</span>
+<span class="sd">                       the whitespace, use getIndent_Len()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">regExPattern_CodeDeclaration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeLineClass.getIndent_Len"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getIndent_Len">[docs]</a>    <span class="k">def</span> <span class="nf">getIndent_Len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the length of the indendation, if any, preceding the code that this codeLineClass instance represents.</span>
+<span class="sd">        This returns a count of the number of space(s) or tabstop(s) found.  To get the actual whitespace, use</span>
+<span class="sd">        getIndent()</span>
+
+<span class="sd">        :return: {int}  The length of the indendation, if any, preceding the code that this codeLineClass instance</span>
+<span class="sd">                        represents.  This returns a count of the number of space(s) or tabstop(s) found.  To get the</span>
+<span class="sd">                        actual whitespace, use getIndent()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">rval</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="n">regExPattern_CodeDeclaration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">):</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeLineClass.getCodeType"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getCodeType">[docs]</a>    <span class="k">def</span> <span class="nf">getCodeType</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the type of code declaration that this codeLineClass instance rapresents.  This will always return &#39;class&#39;</span>
+<span class="sd">        or &#39;def&#39;</span>
+
+<span class="sd">        :return: {str} The type of code declaration that this codeLineClass instance rapresents.  This will always</span>
+<span class="sd">                       return &#39;class&#39; or &#39;def&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">regExPattern_CodeDeclaration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeLineClass.getCodeName"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getCodeName">[docs]</a>    <span class="k">def</span> <span class="nf">getCodeName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the name of the code declaration that this codeLineClass instance represents.</span>
+<span class="sd">        ie:  def myFunc():</span>
+<span class="sd">        Returns myFunc</span>
+
+<span class="sd">        :return: {str} The name of the code declaration that this codeLineClass instance represents.</span>
+<span class="sd">                       ie:  def myFunc():</span>
+<span class="sd">                       Returns myFunc</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">regExPattern_CodeDeclaration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeLineClass.getString"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeLineClass.getString">[docs]</a>    <span class="k">def</span> <span class="nf">getString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a formatted string that represents this codeLineClass instance in a meaningful way.</span>
+<span class="sd">        ie:  Line 120      : def myFunc():</span>
+
+<span class="sd">        :return: {str} Gets a formatted string that represents this codeLineClass instance in a meaningful way.</span>
+<span class="sd">                       ie:  Line 120      : def myFunc():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="s1">&#39;  Line &#39;</span> <span class="o">+</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">setStringLength</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineNumber</span> <span class="p">),</span> <span class="mi">8</span> <span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; : &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span>
+        <span class="k">return</span> <span class="n">r</span></div></div>
+
+<div class="viewcode-block" id="codeBlockClass"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass">[docs]</a><span class="k">class</span> <span class="nc">codeBlockClass</span><span class="p">(</span><span class="n">codeLineClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The codeBlockClass represents a block of code, which is a line of code that begins a collection of codelines which</span>
+<span class="sd">    may contain additional code blocks as well as additional code lines.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">codeBlocks</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    codeBlocks is an array of codeBlockClass instances representing code blocks that are contained by or subordinate to </span>
+<span class="sd">    this one (ie class or function declarations at deeper indentation levels in the codefile where they were found).  </span>
+<span class="sd">    </span>
+<span class="sd">    This value is found on all individual instances as well but is set in here as a placemarker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">code</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the codeBlockClass instance.</span>
+
+<span class="sd">        :param line: The line number in the file that the code block is declared on.</span>
+<span class="sd">        :param code: The code block declaration itself.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineNumber</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">codeString</span> <span class="o">=</span> <span class="n">code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="codeBlockClass.getStrings"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.getStrings">[docs]</a>    <span class="k">def</span> <span class="nf">getStrings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a formatted string that represents this codeLineClass instance in a meaningful way, by calling its base</span>
+<span class="sd">        codeLineClass.getString() first and then calling codeBlockClass.getStrings() on each member found in its</span>
+<span class="sd">        codeBlocks[] array.</span>
+<span class="sd">        ie:  Line 120      : class myClass():</span>
+<span class="sd">             Line 125      :     class mySubClass():</span>
+<span class="sd">             Line 126      :         def __init__( self ):</span>
+
+<span class="sd">        :return: {str} A formatted string that represents this codeLineClass instance in a meaningful way, by calling</span>
+<span class="sd">        its base codeLineClass.getString() first and then calling codeBlockClass.getStrings() on each child found in</span>
+<span class="sd">        its codeBlocks[] array.</span>
+<span class="sd">        ie:  Line 120      : class myClass():</span>
+<span class="sd">             Line 125      :     class mySubClass():</span>
+<span class="sd">             Line 126      :         def __init__( self ):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getString</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">+=</span> <span class="n">cb</span><span class="o">.</span><span class="n">getStrings</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeBlockClass.clearEmptyBlocks"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.clearEmptyBlocks">[docs]</a>    <span class="k">def</span> <span class="nf">clearEmptyBlocks</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterates through each member of this codeBlockClass instance&#39;s codeBlocks[] array, calling its</span>
+<span class="sd">        codeBlockClass.clearEmptyBlocks() function, then removing any members whose codeType is &#39;class&#39; and whose</span>
+<span class="sd">        codeBlocks[] array contain no members themselves.  This iteratively removes empty blocks through the child</span>
+<span class="sd">        chain, ultimately leaving this block empty itself if none of its children contain function definitions.</span>
+
+<span class="sd">        This function is most useful when searching for a specific function name, since the codeFileClass will populate</span>
+<span class="sd">        codeBlockClass instances regardless and we don&#39;t want to output a long list of irrelevant class definitions.</span>
+
+<span class="sd">        :return: No return value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#</span>
+        <span class="c1"># Python appears to translate &#39;forward by reference&#39; into &#39;forward by index&#39; by some means in the engine</span>
+        <span class="c1"># So can&#39;t use &#39;for cb in self.codeBlocks&#39; and remove( cb ) at the end</span>
+        <span class="c1">#</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">cb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">getCodeType</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">getCodeType</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;class&#39;</span><span class="p">):</span>
+                    <span class="n">cb</span><span class="o">.</span><span class="n">clearEmptyBlocks</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="codeBlockClass.countCodeBlocks"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.countCodeBlocks">[docs]</a>    <span class="k">def</span> <span class="nf">countCodeBlocks</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a count of the codeblocks contained in this codeBlockClass instance, including their children, and their</span>
+<span class="sd">        children, and their...</span>
+
+<span class="sd">        :return: {int} The total number of codeblocks subordinate to this codeBlockClass instance, including itself.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">+=</span> <span class="n">cb</span><span class="o">.</span><span class="n">countCodeBlocks</span><span class="p">()</span>
+        <span class="n">r</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeBlockClass.getClassOwningIndent"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.getClassOwningIndent">[docs]</a>    <span class="k">def</span> <span class="nf">getClassOwningIndent</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given an indentation level, rewinds through the members of its codeBlocks[] array (including itself) and</span>
+<span class="sd">        returns the first one (or the last one, if you prefer, since it starts at the end and works toward the</span>
+<span class="sd">        beginning) whose indentation level is LESS THAN the indent specified, or returns itself, or returns None if the</span>
+<span class="sd">        indent specified is less than the indent level of itself and all of its child blocks.</span>
+
+<span class="sd">        The return value will therefore be the codeBlockClass instance that owns the specified indentation level, not</span>
+<span class="sd">        the codeBlockClass instance at the specified indentation level, or None.</span>
+
+<span class="sd">        :param indent: {int} The number of whitespace characters representing the indent level to search for.</span>
+<span class="sd">        :return: {codeBlockClass} The first codeBlockClass instance in the backward chain that matches the specified</span>
+<span class="sd">                                  indent level.</span>
+
+<span class="sd">                                  The return value will therefore be the codeBlockClass instance that owns the</span>
+<span class="sd">                                  specified indentation level, not the codeBlockClass instance at the specified</span>
+<span class="sd">                                  indentation level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">indent</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">():</span>
+            <span class="c1">#</span>
+            <span class="c1"># If indent specified is less than this codeBlockClass instance&#39;s own indent level then it will surely be</span>
+            <span class="c1"># less than any of its children - absolutely no need to iterate through them all!</span>
+            <span class="c1">#</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">indent</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1">#</span>
+            <span class="c1"># We have to work backward, never ever forward, with self as the last possible option (since it&#39;s the first)</span>
+            <span class="c1">#</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span> <span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="p">):</span>
+                    <span class="n">testclass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">getClassOwningIndent</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span> <span class="n">testclass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">testclass</span><span class="o">.</span><span class="n">getCodeType</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;class&quot;</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">testclass</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">indent</span> <span class="p">):</span>
+                        <span class="c1">#</span>
+                        <span class="c1"># since testclass is less indented than current test case, it must be the owner</span>
+                        <span class="c1">#</span>
+                        <span class="n">r</span> <span class="o">=</span> <span class="n">testclass</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1">#</span>
+                        <span class="c1"># If testclass is &gt;= indentation of the current test case, it must not be the owner</span>
+                        <span class="c1"># leave this in for future development</span>
+                        <span class="c1">#</span>
+                        <span class="k">pass</span>
+                    <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">break</span>
+            <span class="c1">#</span>
+            <span class="c1"># If we reached the end of all the contained classes and found no owner, then perhaps self is the owner...</span>
+            <span class="c1">#</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">indent</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#</span>
+            <span class="c1"># defaulted to none - leave this in for future development</span>
+            <span class="c1">#</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeBlockClass.getNamedBlock"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeBlockClass.getNamedBlock">[docs]</a>    <span class="k">def</span> <span class="nf">getNamedBlock</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">namematch</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">blocktype</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">skipvaluechecking</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the named, and optionally typed, block from the members of its codeBlocks[] array (including itself), or</span>
+<span class="sd">        returns None if no match is found.</span>
+
+<span class="sd">        :param namematch: {str} or {stringExtends.stringMatchClass}</span>
+<span class="sd">                          A string instance representing the exact, case-sensitive name of</span>
+<span class="sd">                          the block to search for or else a stringMatchClass instance</span>
+<span class="sd">                          representing the matching algorithm used to match the name of the</span>
+<span class="sd">                          block to search for.</span>
+<span class="sd">        :param blocktype: {str}</span>
+<span class="sd">                          The type of the block to search for.  This may be any type recognized by the</span>
+<span class="sd">                          isValidCodeCodeType() function, including abbreviations.  If omitted or None, default</span>
+<span class="sd">                          is &#39;def&#39; or &#39;function&#39;</span>
+<span class="sd">        :param skipvaluechecking: {bool}</span>
+<span class="sd">                                  A shortcut we can use to enhance performance if we already know parameter</span>
+<span class="sd">                                  values are good.  FOR USE ONLY AFTER AT LEAST THE FIRST PASS OF VALIDATION!</span>
+<span class="sd">        :return: {codeBlockClass} The codeBlockClass instance whose getCodeType() and getCodeName() values match the</span>
+<span class="sd">                                  specified blockname and blocktype values, or None if no match was found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">r_namematch</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">r_blocktype</span> <span class="o">=</span> <span class="s2">&quot;def&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">skipvaluechecking</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">namematch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="s1">&#39;namematch parameter to codeBlockClass.getNamedBlock must not be None.&#39;</span> <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">namematch</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># namematch is a string, so make a stringExtends.stringMatchClass out of it</span>
+                    <span class="c1">#</span>
+                    <span class="n">r_namematch</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">stringMatchClass</span><span class="p">(</span> <span class="n">matchvalue</span> <span class="o">=</span><span class="n">namematch</span><span class="p">,</span> <span class="n">useregex</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">regexflags</span> <span class="o">=</span><span class="kc">None</span> <span class="p">)</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span> <span class="n">namematch</span><span class="p">,</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">stringMatchClass</span> <span class="p">)):</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># namematch is already a stringMatchClass</span>
+                    <span class="c1">#</span>
+                    <span class="n">r_namematch</span> <span class="o">=</span> <span class="n">namematch</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">blocktype</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+                <span class="c1">#</span>
+                <span class="c1"># blocktype is declared and is a valid string - test if it&#39;s a valid blocktype.</span>
+                <span class="c1"># if consumers don&#39;t want to get exceptions, they can call isValidCodeType themselves before passing</span>
+                <span class="c1"># the blocktype value</span>
+                <span class="c1">#</span>
+                <span class="n">r_blocktype</span> <span class="o">=</span> <span class="n">isValidCodeType</span><span class="p">(</span> <span class="n">codetype</span> <span class="o">=</span> <span class="n">blocktype</span><span class="p">,</span> <span class="n">robustconsumer</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r_namematch</span> <span class="o">=</span> <span class="n">namematch</span>
+            <span class="n">r_blocktype</span> <span class="o">=</span> <span class="n">blocktype</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Now perform the meat and potatoes</span>
+        <span class="c1">#</span>
+        <span class="k">if</span> <span class="n">r_namematch</span><span class="o">.</span><span class="n">isRawMatch</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">getCodeName</span><span class="p">(</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">:</span>
+                <span class="c1"># we can skip value checking</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">cb</span><span class="o">.</span><span class="n">getNamedBlock</span><span class="p">(</span> <span class="n">namematch</span> <span class="o">=</span> <span class="n">r_namematch</span><span class="p">,</span> <span class="n">blocktype</span> <span class="o">=</span> <span class="n">r_blocktype</span><span class="p">,</span> <span class="n">skipvaluechecking</span> <span class="o">=</span> <span class="kc">True</span> <span class="p">)</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">r</span></div></div>
+
+<div class="viewcode-block" id="codeFileClass"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass">[docs]</a><span class="k">class</span> <span class="nc">codeFileClass</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The codeFileClass represents a code file which contains a collection of code lines and/or code blocks in a</span>
+<span class="sd">    filesystem.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fileName</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    fileName represents the Fully Qualified Path (FQP) or the Relative Path (RP) or simply the File Name (FN), </span>
+<span class="sd">    depending on how you, the consumer of the codeFileClass, choose to pass the value in at runtime.  Since this value </span>
+<span class="sd">    is used as a default filepath in File IO and also output in reports, it is highly recommended that you use some </span>
+<span class="sd">    manner of path, either FQP in the filesystem or RP to the calling script.</span>
+<span class="sd">    </span>
+<span class="sd">    This value is found on all individual instances as well but is set in here as a placemarker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">codeBlocks</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    codeBlocks is an array of codeBlockClass instances representing code blocks that are contained by or subordinate to </span>
+<span class="sd">    this codeFileClass instance (ie class or function declarations in the codefile).  </span>
+
+<span class="sd">    This value is found on all individual instances as well but is set in here as a placemarker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">classNameFilter</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    classNameFilter is a stringExtends.stringMatchClass instance representing a filter that will be applied to classes located when </span>
+<span class="sd">    cataloguing operations are performed by this codeFileClass instance.</span>
+<span class="sd">    </span>
+<span class="sd">    Any time a class definition is found during a cataloguing operation, it will only be catalogued (added to the </span>
+<span class="sd">    codeFileClass instance&#39;s codeBlocks array) if the classNameFilter.isRawMatch( codeBlock.getCodeName() ) operation </span>
+<span class="sd">    returns True.</span>
+<span class="sd">    </span>
+<span class="sd">    * If a classNameFilter is in place, then only functions found in classes matching the classNameFilter will be </span>
+<span class="sd">      catalogued whether a defNameFilter is in place or not.</span>
+<span class="sd">    </span>
+<span class="sd">    * If both a classNameFilter and a defNameFilter are in place, then functions matching the defNameFilter may be </span>
+<span class="sd">      omitted if they do not appear in classes which no not pass the classNameFilter.</span>
+<span class="sd">    </span>
+<span class="sd">    This value is found on all individual instances as well but is set in here as a placemarker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">defNameFilter</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    defNameFilter is a stringExtends.stringMatchClass instance representing a filter that will be applied to functions located when </span>
+<span class="sd">    cataloguing operations are performed by this codeFileClass instance.</span>
+<span class="sd">    </span>
+<span class="sd">    Any time a function definition is found during a cataloguing operation, it will only be catalogued (added to the </span>
+<span class="sd">    codeFileClass instance&#39;s codeBlocks array) if the defNameFilter.isRawMatch( codeBlock.getCodeName() ) operation </span>
+<span class="sd">    returns True.</span>
+
+<span class="sd">    * See starred notes under classNameFilter</span>
+
+<span class="sd">    * If no classNameFilter is in place, then defNameFilter is applied both to functions at the top level in the code </span>
+<span class="sd">      file and to functions found in class definitions.</span>
+
+<span class="sd">    This value is found on all individual instances as well but is set in here as a placemarker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the codeFileClass instance.</span>
+
+<span class="sd">        :param name: {string} The filename of the codefile under examination.  Since this value is used as a default</span>
+<span class="sd">                              filepath in File IO and also output in reports, it is highly recommended that you use</span>
+<span class="sd">                              some manner of path, either Fully Qualified Path (FQP) in the filesystem or the Relative</span>
+<span class="sd">                              Path (RP) to the calling script.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defNameFilter</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="codeFileClass.getString"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.getString">[docs]</a>    <span class="k">def</span> <span class="nf">getString</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_unprefix</span> <span class="o">=</span> <span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a formatted string that represents this codeFileClass instance in a meaningful way, by prepending its</span>
+<span class="sd">        fileName value before calling codeBlockClass.getStrings() on each member found in its codeBlocks[] array.</span>
+<span class="sd">        ie:  myDirectory/someCodeFile.py</span>
+<span class="sd">               Line 120      : class myClass():</span>
+<span class="sd">               Line 125      :     class mySubClass():</span>
+<span class="sd">               Line 126      :         def __init__( self ):</span>
+
+<span class="sd">        :return: {str} A formatted string that represents this codeFileClass instance in a meaningful way, by</span>
+<span class="sd">                       prepending its fileName value before calling codeBlockClass.getStrings() on each member found in</span>
+<span class="sd">                       its codeBlocks[] array.</span>
+<span class="sd">                       ie:  myDirectory/someCodeFile.py</span>
+<span class="sd">                              Line 120      : class myClass():</span>
+<span class="sd">                              Line 125      :     class mySubClass():</span>
+<span class="sd">                              Line 126      :         def __init__( self ):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">strUnprefix</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="p">,</span> <span class="s2">&quot;../&quot;</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">custom_unprefix</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">strUnprefix</span><span class="p">(</span> <span class="n">r</span><span class="p">,</span> <span class="n">custom_unprefix</span> <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">custom_unprefix</span><span class="p">,</span> <span class="p">(</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span> <span class="p">)</span> <span class="p">):</span>
+            <span class="k">for</span> <span class="n">unpre</span> <span class="ow">in</span> <span class="n">custom_unprefix</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">unpre</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+                    <span class="n">r</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">strUnprefix</span><span class="p">(</span> <span class="n">r</span><span class="p">,</span> <span class="n">unpre</span> <span class="p">)</span>
+        <span class="n">r</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">+=</span> <span class="n">s</span><span class="o">.</span><span class="n">getStrings</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeFileClass.clearCatalog"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.clearCatalog">[docs]</a>    <span class="k">def</span> <span class="nf">clearCatalog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Simply sets the codeFileClass instance&#39;s catalog to None and then redeclares it as an empty array.  Returns</span>
+<span class="sd">        nothing.</span>
+
+<span class="sd">        :return: Returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="codeFileClass.clearEmptyBlocks"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.clearEmptyBlocks">[docs]</a>    <span class="k">def</span> <span class="nf">clearEmptyBlocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterates through each member of this codeFileClass instance&#39;s codeBlocks[] array, calling its</span>
+<span class="sd">        codeBlockClass.clearEmptyBlocks() function, then removing any members whose codeType is &#39;class&#39; and whose</span>
+<span class="sd">        codeBlocks[] array contain no members themselves.  If the resulting codeBlock is itself empty at that point, it</span>
+<span class="sd">        is then removed from the codeFileClass instance&#39;s codeBlocks[] array.</span>
+
+<span class="sd">        This function is most useful when searching for a specific function name, since the codeFileClass will populate</span>
+<span class="sd">        codeBlockClass instances regardless and we don&#39;t want to output a long list of irrelevant class definitions.</span>
+
+<span class="sd">        :return: No return value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Python appears to translate &#39;forward by reference&#39; into &#39;forward by index&#39; by some means in the engine</span>
+        <span class="c1"># So can&#39;t use &#39;for cb in self.codeBlocks&#39; and remove( cb ) at the end</span>
+        <span class="c1">#</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">cb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">getCodeType</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">getCodeType</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;class&#39;</span><span class="p">):</span>
+                    <span class="n">cb</span><span class="o">.</span><span class="n">clearEmptyBlocks</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="codeFileClass.countCodeBlocks"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.countCodeBlocks">[docs]</a>    <span class="k">def</span> <span class="nf">countCodeBlocks</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a count of the codeblocks contained in this codeFileClass instance, including their children, and their</span>
+<span class="sd">        children, and their...</span>
+
+<span class="sd">        :return: {int} The total number of codeblocks subordinate to this codeFileClass instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">+=</span> <span class="n">cb</span><span class="o">.</span><span class="n">countCodeBlocks</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeFileClass.getClassOwningIndent"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.getClassOwningIndent">[docs]</a>    <span class="k">def</span> <span class="nf">getClassOwningIndent</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given an indentation level, rewinds through the members of its codeBlocks[] array and returns the first one (or</span>
+<span class="sd">        the last one, if you prefer, since it starts at the end and works toward the beginning) whose indentation level</span>
+<span class="sd">        is LESS THAN the indent specified, or returns itself, or returns None if the indent specified is less than the</span>
+<span class="sd">        indent level of all of its child blocks.</span>
+
+<span class="sd">        The return value will therefore be the codeBlockClass instance that owns the specified indentation level, not</span>
+<span class="sd">        the codeBlockClass instance at the specified indentation level, or None.</span>
+
+<span class="sd">        :param indent: {int} The number of whitespace characters representing the indent level to search for.</span>
+<span class="sd">        :return: {codeBlockClass} The first codeBlockClass instance in the backward chain that matches the specified</span>
+<span class="sd">                                  indent level.</span>
+
+<span class="sd">                                  The return value will therefore be the codeBlockClass instance that owns the</span>
+<span class="sd">                                  specified indentation level, not the codeBlockClass instance at the specified</span>
+<span class="sd">                                  indentation level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">indent</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">):</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span> <span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">getClassOwningIndent</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1">#</span>
+                        <span class="c1"># we can keep iterating until we run out of classes to test or we hit a break</span>
+                        <span class="c1">#</span>
+                        <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#</span>
+            <span class="c1"># defaulted to None for use in iteration above - leave this in for future development</span>
+            <span class="c1">#</span>
+            <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1">#</span>
+            <span class="c1"># if r is none after all of the above, then the owner must be self</span>
+            <span class="c1">#</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span>
+
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeFileClass.getNamedBlock"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.getNamedBlock">[docs]</a>    <span class="k">def</span> <span class="nf">getNamedBlock</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">namematch</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">blocktype</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">skipvaluechecking</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the named, and optionally typed, block from the members of its codeBlocks[] array, or returns None if no</span>
+<span class="sd">        match is found.</span>
+
+<span class="sd">        :param namematch: {str} or {stringExtends.stringMatchClass} A string instance representing the exact, case-sensitive name of</span>
+<span class="sd">                                                      the block to search for or else a stringMatchClass instance</span>
+<span class="sd">                                                      representing the matching algorithm used to match the name of the</span>
+<span class="sd">                                                      block to search for.</span>
+<span class="sd">        :param blocktype: {str} The type of the block to search for.  This may be any type recognized by the</span>
+<span class="sd">                                isValidCodeCodeType() function, including abbreviations.  If omitted or None, default</span>
+<span class="sd">                                is &#39;def&#39; or &#39;function&#39;</span>
+<span class="sd">        :param skipvaluechecking: {bool} A shortcut we can use to enhance performance if we already know parameter</span>
+<span class="sd">                                         values are good.  FOR USE ONLY AFTER AT LEAST THE FIRST PASS OF VALIDATION!</span>
+<span class="sd">        :return: {codeBlockClass} The codeBlockClass instance whose getCodeType() and getCodeName() values match the</span>
+<span class="sd">                                  specified blockname and blocktype values, or None if no match was found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">r_namematch</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">r_blocktype</span> <span class="o">=</span> <span class="s2">&quot;def&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">skipvaluechecking</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">namematch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="s1">&#39;namematch parameter to codeFileClass.getNamedBlock must not be None.&#39;</span> <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">namematch</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># namematch is a string, so make a stringExtends.stringMatchClass out of it</span>
+                    <span class="c1">#</span>
+                    <span class="n">r_namematch</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">stringMatchClass</span><span class="p">(</span> <span class="n">matchvalue</span> <span class="o">=</span><span class="n">namematch</span><span class="p">,</span> <span class="n">useregex</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">regexflags</span> <span class="o">=</span><span class="kc">None</span> <span class="p">)</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span> <span class="n">namematch</span><span class="p">,</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">stringMatchClass</span> <span class="p">)):</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># namematch is already a stringExtends.stringMatchClass</span>
+                    <span class="c1">#</span>
+                    <span class="n">r_namematch</span> <span class="o">=</span> <span class="n">namematch</span>
+
+            <span class="k">if</span> <span class="p">(</span> <span class="n">blocktype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">blocktype</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)</span> <span class="p">)</span> <span class="p">):</span>
+                <span class="c1">#</span>
+                <span class="c1"># blocktype is declared and is a valid string - test if it&#39;s a valid blocktype.</span>
+                <span class="c1"># if consumers don&#39;t want to get exceptions, they can call isValidCodeType themselves before passing</span>
+                <span class="c1"># the blocktype value</span>
+                <span class="c1">#</span>
+                <span class="n">r_blocktype</span> <span class="o">=</span> <span class="n">isValidCodeType</span><span class="p">(</span> <span class="n">codetype</span> <span class="o">=</span> <span class="n">blocktype</span><span class="p">,</span> <span class="n">robustconsumer</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r_namematch</span> <span class="o">=</span> <span class="n">namematch</span>
+            <span class="n">r_blocktype</span> <span class="o">=</span> <span class="n">blocktype</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Now perform the meat and potatoes</span>
+        <span class="c1">#</span>
+        <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="p">:</span>
+            <span class="c1"># we can skip value checking</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">cb</span><span class="o">.</span><span class="n">getNamedBlock</span><span class="p">(</span><span class="n">namematch</span><span class="o">=</span><span class="n">r_namematch</span><span class="p">,</span> <span class="n">blocktype</span><span class="o">=</span><span class="n">r_blocktype</span><span class="p">,</span> <span class="n">skipvaluechecking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="codeFileClass.catalogBlockAtLine"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.catalogBlockAtLine">[docs]</a>    <span class="k">def</span> <span class="nf">catalogBlockAtLine</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">linenumber</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">appendcatalog</span> <span class="o">=</span> <span class="kc">True</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a line number and a filename, if it locates any definition (class or function) at that line number,</span>
+<span class="sd">        produces a catalog of that definition.  If a class is found, it catalogs subclasses and functions.  If a</span>
+<span class="sd">        function is found, it catalogs only that function.</span>
+
+<span class="sd">        If no filename is provided, filename defaults to self.fileName.</span>
+
+<span class="sd">        If no linenumber is provided, linenumber defaults to 0.</span>
+
+<span class="sd">        :param filename: {string} A Fully Qualified Path (FQP) or Relative Path (RP) to the file to be catalogued.</span>
+<span class="sd">                                  If no filename is provided, filename defaults to self.fileName.</span>
+<span class="sd">        :param linenumber: {int} A line number into the file where cataloguing should begin.</span>
+<span class="sd">                                 If no linenumber is provided, linenumber defaults to 0.</span>
+<span class="sd">        :param appendcatalog: {bool} If True, appends the new data to the existing catalog.  If False, clears the</span>
+<span class="sd">                                     existing catalog before performing the new cataloguing operation.  Default is</span>
+<span class="sd">                                     True.</span>
+<span class="sd">        :return: Returns nothing.  Populates its own codeBlocks[] array instead.  Use instance.getString() to retrieve</span>
+<span class="sd">                 the report.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">appendcatalog</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clearCatalog</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span> <span class="n">filename</span> <span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">line_num</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">org_indent_len</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">cur_indent_len</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">curClass</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">line_num</span> <span class="o">&lt;</span> <span class="n">linenumber</span><span class="p">:</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># we haven&#39;t yet reached the starting line number</span>
+                    <span class="c1">#</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># we are past the starting line number</span>
+                    <span class="c1">#</span>
+                    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="n">regExPattern_CodeDeclaration</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                        <span class="n">cur_indent_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+                        <span class="c1">#</span>
+                        <span class="c1"># we have matched a class or def declaration</span>
+                        <span class="c1">#</span>
+                        <span class="k">if</span> <span class="n">org_indent_len</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="c1">#</span>
+                            <span class="c1"># original indent has never been established - set it now</span>
+                            <span class="c1">#</span>
+                            <span class="n">org_indent_len</span> <span class="o">=</span> <span class="n">cur_indent_len</span>
+                        <span class="c1">#</span>
+                        <span class="c1"># We need a brand new if right here or we always miss the first item found</span>
+                        <span class="c1">#</span>
+                        <span class="k">if</span> <span class="n">cur_indent_len</span> <span class="o">&lt;</span> <span class="n">org_indent_len</span><span class="p">:</span>
+                            <span class="c1">#</span>
+                            <span class="c1"># current indent is less than original indent - WE ARE DONE!</span>
+                            <span class="c1">#</span>
+                            <span class="k">break</span>
+                        <span class="k">elif</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;class&quot;</span> <span class="ow">and</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">((</span> <span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span><span class="o">.</span><span class="n">isRawMatch</span><span class="p">(</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span> <span class="mi">3</span> <span class="p">)</span> <span class="p">))):</span>
+                            <span class="n">codeblock</span> <span class="o">=</span> <span class="n">codeBlockClass</span><span class="p">(</span> <span class="n">line</span><span class="o">=</span><span class="n">line_num</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="n">line</span> <span class="p">)</span>
+                            <span class="k">if</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span> <span class="n">curClass</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># indent level is 0 or curClass is None so we can safely create and add a brand new class</span>
+                                <span class="c1"># to the file toplevel</span>
+                                <span class="c1">#</span>
+                                <span class="n">curClass</span> <span class="o">=</span> <span class="n">codeblock</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeblock</span> <span class="p">)</span>
+                            <span class="k">elif</span> <span class="p">(</span> <span class="n">curClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">&gt;</span> <span class="n">curClass</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">()</span> <span class="p">):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># curClass is not None and current indentation is deeper than curClass, so we can safely</span>
+                                <span class="c1"># create a new class and add it to curClass</span>
+                                <span class="c1">#</span>
+                                <span class="n">curClass</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeblock</span> <span class="p">)</span>
+                                <span class="n">codeblock</span><span class="o">.</span><span class="n">ownerClass</span> <span class="o">=</span> <span class="n">curClass</span><span class="o">.</span><span class="n">getCodeName</span><span class="p">()</span>
+                                <span class="n">curClass</span> <span class="o">=</span> <span class="n">codeblock</span>
+                            <span class="k">elif</span> <span class="p">(</span> <span class="n">curClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">&lt;</span> <span class="n">curClass</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">()</span> <span class="p">):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># curClass is not None but current indentation is shallower than curClass, so we must</span>
+                                <span class="c1"># rewind into the codeBlocks until we find the one at the appropriate indentation level</span>
+                                <span class="c1">#</span>
+                                <span class="n">curClass</span> <span class="o">=</span> <span class="n">codeblock</span>
+                                <span class="n">classatindent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getClassOwningIndent</span><span class="p">(</span><span class="n">cur_indent_len</span><span class="p">)</span>
+                                <span class="n">curClass</span><span class="o">.</span><span class="n">ownerClass</span> <span class="o">=</span> <span class="n">classatindent</span><span class="o">.</span><span class="n">getCodeName</span><span class="p">()</span>
+                                <span class="n">classatindent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeblock</span> <span class="p">)</span>
+                                <span class="c1"># either</span>
+                        <span class="k">elif</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;def&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">curClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">defNameFilter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">((</span> <span class="bp">self</span><span class="o">.</span><span class="n">defNameFilter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">defNameFilter</span><span class="o">.</span><span class="n">isRawMatch</span><span class="p">(</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span> <span class="mi">3</span> <span class="p">)</span> <span class="p">))):</span>
+                            <span class="n">codeline</span> <span class="o">=</span> <span class="n">codeBlockClass</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="n">line_num</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="n">line</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="p">(</span> <span class="n">curClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">&gt;</span> <span class="n">curClass</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">()</span> <span class="p">):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># curClass is not None as current indentation is gtn curClass indent - add this codeline to</span>
+                                <span class="c1"># curClass</span>
+                                <span class="c1">#</span>
+                                <span class="n">curClass</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">codeline</span><span class="p">)</span>
+                                <span class="n">codeline</span><span class="o">.</span><span class="n">ownerClass</span> <span class="o">=</span> <span class="n">curClass</span><span class="o">.</span><span class="n">getCodeName</span><span class="p">()</span>
+                            <span class="k">elif</span> <span class="p">(</span> <span class="n">curClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                                <span class="n">cur_indent_len</span> <span class="o">&lt;</span> <span class="n">curClass</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">()):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># curClass is not None and current indentation is gtn 0 but ltn curClass indent, so we must</span>
+                                <span class="c1"># rewind into the codeBlocks until we find the one at the appropriate indentation level</span>
+                                <span class="c1">#</span>
+                                <span class="n">classatindent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getClassOwningIndent</span><span class="p">(</span> <span class="n">cur_indent_len</span> <span class="p">)</span>
+                                <span class="n">curClass</span> <span class="o">=</span> <span class="n">classatindent</span>
+                                <span class="n">codeline</span><span class="o">.</span><span class="n">ownerClass</span> <span class="o">=</span> <span class="n">classatindent</span><span class="o">.</span><span class="n">getCodeName</span><span class="p">()</span>
+                                <span class="n">curClass</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeline</span> <span class="p">)</span>
+                            <span class="k">elif</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># current indentation length is 0 so curClass is exited no matter what!</span>
+                                <span class="c1">#</span>
+                                <span class="n">curClass</span> <span class="o">=</span> <span class="kc">None</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeline</span> <span class="p">)</span>
+                            <span class="k">elif</span> <span class="p">(</span> <span class="n">curClass</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># curClass is None so we can safely create a new codeLine and add it to the file toplevel</span>
+                                <span class="c1">#</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeline</span> <span class="p">)</span>
+                            <span class="c1">#</span>
+                            <span class="c1"># If this was a function and we are == specified line number, we&#39;re done!</span>
+                            <span class="c1">#</span>
+                            <span class="k">if</span> <span class="n">line_num</span> <span class="o">==</span> <span class="n">linenumber</span><span class="p">:</span>
+                                <span class="k">break</span></div>
+
+<div class="viewcode-block" id="codeFileClass.catalogTopLevelBlockContainingLine"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.catalogTopLevelBlockContainingLine">[docs]</a>    <span class="k">def</span> <span class="nf">catalogTopLevelBlockContainingLine</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">linenumber</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">appendcatalog</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a line number and a filename, locates the first toplevel (unindented) block above that line number and</span>
+<span class="sd">        produces a catalog of that declaration.</span>
+
+<span class="sd">        If no filename is provided, filename defaults to self.fileName.</span>
+
+<span class="sd">        If no linenumber is provided, linenumber defaults to 0.</span>
+
+<span class="sd">        :param filename: {string} A Fully Qualified Path (FQP) or Relative Path (RP) to the file to be catalogued.</span>
+<span class="sd">                                  If no filename is provided, filename defaults to self.fileName.</span>
+<span class="sd">        :param linenumber: {int} A line number into the file where cataloguing should begin.</span>
+<span class="sd">                                 If no linenumber is provided, linenumber defaults to 0.</span>
+<span class="sd">        :param appendcatalog: {bool} If True, appends the new data to the existing catalog.  If False, clears the</span>
+<span class="sd">                                     existing catalog before performing the new cataloguing operation.  Default is</span>
+<span class="sd">                                     True.</span>
+<span class="sd">        :return: Returns nothing.  Populates its own codeBlocks[] array instead.  Use instance.getString() to retrieve</span>
+<span class="sd">                 the report.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">if</span> <span class="n">linenumber</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">last_top_level</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">line_num</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+                    <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="n">regExPattern_CodeDeclaration</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)):</span>
+                        <span class="n">last_top_level</span> <span class="o">=</span> <span class="n">line_num</span>
+                    <span class="k">if</span> <span class="n">line_num</span> <span class="o">==</span> <span class="n">linenumber</span><span class="p">:</span>
+                        <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">catalogBlockAtLine</span><span class="p">(</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="p">,</span> <span class="n">linenumber</span> <span class="o">=</span> <span class="n">last_top_level</span><span class="p">,</span> <span class="n">appendcatalog</span> <span class="o">=</span> <span class="n">appendcatalog</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#</span>
+            <span class="c1"># if linenumber not &gt; 0 then we&#39;re done XD</span>
+            <span class="c1">#</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="codeFileClass.catalogFile"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.codeFileClass.catalogFile">[docs]</a>    <span class="k">def</span> <span class="nf">catalogFile</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">appendcatalog</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a filename, catalogs every block declaration in that file matching the instance&#39;s classNameFilter and</span>
+<span class="sd">        defNameFilter.</span>
+
+<span class="sd">        If no filename is provided, filename defaults to self.fileName.</span>
+
+<span class="sd">        :param filename: {string} A Fully Qualified Path (FQP) or Relative Path (RP) to the file to be catalogued.</span>
+<span class="sd">                                  If no filename is provided, filename defaults to self.fileName.</span>
+<span class="sd">        :param appendcatalog: {bool} If True, appends the new data to the existing catalog.  If False, clears the</span>
+<span class="sd">                                     existing catalog before performing the new cataloguing operation.  Default is</span>
+<span class="sd">                                     False.</span>
+<span class="sd">        :return: Returns nothing.  Populates its own codeBlocks[] array instead.  Use instance.getString() to retrieve</span>
+<span class="sd">                 the report.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">appendcatalog</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clearCatalog</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">line_num</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">cur_indent_len</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">curClass</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="n">regExPattern_CodeDeclaration</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">cur_indent_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">cur_indent_len</span> <span class="o">=</span> <span class="mi">0</span>
+
+                    <span class="n">codeblock</span> <span class="o">=</span> <span class="n">codeBlockClass</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="n">line_num</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="n">line</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="p">(</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;class&quot;</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">((</span> <span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">((</span> <span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span><span class="o">.</span><span class="n">isRawMatch</span><span class="p">(</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span> <span class="mi">3</span> <span class="p">)</span> <span class="p">))):</span>
+                        <span class="k">if</span> <span class="p">(</span> <span class="n">curClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">):</span>
+                            <span class="k">if</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">&gt;</span> <span class="n">curClass</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">()</span> <span class="p">):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># curClass is not None and current indentation is deeper than curClass, so we can safely</span>
+                                <span class="c1"># create a new class and add it to curClass</span>
+                                <span class="c1">#</span>
+                                <span class="n">curClass</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeblock</span> <span class="p">)</span>
+                                <span class="n">curClass</span> <span class="o">=</span> <span class="n">codeblock</span>
+                            <span class="k">elif</span> <span class="p">(</span><span class="n">cur_indent_len</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">&lt;</span> <span class="n">curClass</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">()</span> <span class="p">):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># curClass is not None but current indentation is shallower than curClass, so we must</span>
+                                <span class="c1"># rewind into the codeBlocks until we find the one at the appropriate indentation level</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># There is no reason to think that the last-used curClass is necessarily the correct</span>
+                                <span class="c1"># indentation level</span>
+                                <span class="c1">#</span>
+                                <span class="n">curClass</span> <span class="o">=</span> <span class="n">codeblock</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">getClassOwningIndent</span><span class="p">(</span> <span class="n">cur_indent_len</span> <span class="p">)</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeblock</span> <span class="p">)</span>
+                            <span class="k">elif</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">):</span>
+                                <span class="n">curClass</span> <span class="o">=</span> <span class="n">codeblock</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeblock</span> <span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1">#</span>
+                            <span class="c1"># curClass is None so we can safely create and add a brand new class to the file toplevel</span>
+                            <span class="c1">#</span>
+                            <span class="n">curClass</span> <span class="o">=</span> <span class="n">codeblock</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeblock</span> <span class="p">)</span>
+                    <span class="k">elif</span> <span class="p">(</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;def&quot;</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">classNameFilter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">curClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">((</span> <span class="bp">self</span><span class="o">.</span><span class="n">defNameFilter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">or</span> <span class="p">((</span> <span class="bp">self</span><span class="o">.</span><span class="n">defNameFilter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">defNameFilter</span><span class="o">.</span><span class="n">isRawMatch</span><span class="p">(</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span> <span class="mi">3</span> <span class="p">)</span> <span class="p">))):</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">curClass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">cur_indent_len</span> <span class="o">&gt;</span> <span class="n">curClass</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">()):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># curClass is not None as current indentation is gtn curClass indent - add this codeblock to</span>
+                                <span class="c1"># curClass</span>
+                                <span class="c1">#</span>
+                                <span class="n">curClass</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">codeblock</span><span class="p">)</span>
+                            <span class="k">elif</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">cur_indent_len</span> <span class="o">&lt;</span> <span class="n">curClass</span><span class="o">.</span><span class="n">getIndent_Len</span><span class="p">()):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># curClass is not None and current indentation is gtn 0 but ltn curClass indent, so we must</span>
+                                <span class="c1"># rewind into the codeBlocks until we find the one at the appropriate indentation level</span>
+                                <span class="c1">#</span>
+                                <span class="n">curClass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getClassOwningIndent</span><span class="p">(</span><span class="n">cur_indent_len</span><span class="p">)</span>
+                                <span class="n">curClass</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">codeblock</span><span class="p">)</span>
+                            <span class="k">elif</span> <span class="p">(</span><span class="n">cur_indent_len</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                                <span class="c1">#</span>
+                                <span class="c1"># current indentation length is 0 so curClass is exited no matter what!</span>
+                                <span class="c1">#</span>
+                                <span class="n">curClass</span> <span class="o">=</span> <span class="kc">None</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeblock</span> <span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1">#</span>
+                            <span class="c1"># curClass is None so we can safely create a new codeLine and add it to the file toplevel</span>
+                            <span class="c1">#</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">codeBlocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">codeblock</span> <span class="p">)</span></div></div>
+
+<span class="c1">#</span>
+<span class="c1"># findCode( codetype, name, listfuncs )</span>
+<span class="c1">#   {str} codetype - Optional:  The codetype of code declaration to search for (class or function).  May be abbreviated.</span>
+<span class="c1">#                Default is None.</span>
+<span class="c1">#   {str} name - Optional:  The name of a code declaration to search for (default: None).   May be abbreviated.</span>
+<span class="c1">#                Default is None.</span>
+<span class="c1">#   {bool} listfuncs - Optional:  Whether to list functions defined in classes found.  Default depends on other</span>
+<span class="c1">#                      parameters.</span>
+<span class="c1">#   Returns {str} - a string listing path-to-filenames of all .py files in all subdirectories containing code</span>
+<span class="c1">#                   definitions matching &#39;name&#39; (or all definitions if &#39;name&#39; is None or if &#39;name&#39; is an empty string).</span>
+<span class="c1">#</span>
+<span class="c1">#   If &#39;codetype&#39; is None and &#39;name&#39; is None then &#39;listfuncs&#39; is True and all code definitions are listed (same as if</span>
+<span class="c1">#   &#39;codetype&#39; is Function and &#39;name&#39; is None or an empty string).</span>
+<span class="c1">#</span>
+<span class="c1">#   If &#39;codetype&#39; is Class and and &#39;listfuncs&#39; is unspecified then its default is False.</span>
+<span class="c1">#</span>
+<span class="c1">#   If &#39;codetype&#39; is Function and &#39;listfuncs&#39; is unspecified then its default is True (obviously).</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<div class="viewcode-block" id="findCode"><a class="viewcode-back" href="../../../../../sr5/sphinx/testbox.tekmunkey.devUtils.findCode.html#testbox.tekmunkey.devUtils.findCode.findCodeFunctions.findCode">[docs]</a><span class="k">def</span> <span class="nf">findCode</span><span class="p">(</span> <span class="n">topdir</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">subdirs</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">matchinclassname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">isclassmatchregex</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">matchindefname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">isdefmatchregex</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">clearemptyblocks</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Finds a specific code declaration given a specific toplevel directory, optionally iterating through subdirectories,</span>
+<span class="sd">    optionally filtering by a specific filename, optionally filtering by a specific class name,</span>
+
+<span class="sd">    :param topdir:</span>
+<span class="sd">    :param subdirs:</span>
+<span class="sd">    :param filename:</span>
+<span class="sd">    :param matchinclassname:</span>
+<span class="sd">    :param isclassmatchregex:</span>
+<span class="sd">    :param matchindefname:</span>
+<span class="sd">    :param isdefmatchregex:</span>
+<span class="sd">    :param clearemptyblocks:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="n">find_in_dir</span> <span class="o">=</span> <span class="s1">&#39;..&#39;</span> <span class="o">+</span> <span class="n">getPathSep</span><span class="p">(</span> <span class="n">forceLinuxPathSeparators</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">topdir</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)</span> <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span> <span class="n">topdir</span> <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="s1">&#39;topdir parameter to findCode() must be a valid directory.&#39;</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">find_in_dir</span> <span class="o">=</span> <span class="n">topdir</span>
+
+    <span class="n">find_in_subdirs</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">subdirs</span><span class="p">,</span> <span class="nb">bool</span> <span class="p">):</span>
+        <span class="n">find_in_subdirs</span> <span class="o">=</span> <span class="n">subdirs</span>
+
+    <span class="n">find_in_filename</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">filename</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span> <span class="p">)):</span>
+        <span class="n">find_in_filename</span> <span class="o">=</span> <span class="n">filename</span>
+
+    <span class="n">is_class_match_regex</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">isclassmatchregex</span><span class="p">,</span> <span class="nb">bool</span> <span class="p">):</span>
+        <span class="n">is_class_match_regex</span> <span class="o">=</span> <span class="n">isclassmatchregex</span>
+
+    <span class="n">match_in_class_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">matchinclassname</span><span class="p">,</span> <span class="p">(</span> <span class="nb">str</span><span class="p">,</span><span class="n">unicode</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="n">match_in_class_name</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">stringMatchClass</span><span class="p">(</span> <span class="n">matchinclassname</span><span class="p">,</span> <span class="n">is_class_match_regex</span> <span class="p">)</span>
+
+    <span class="n">is_def_match_regex</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">isdefmatchregex</span><span class="p">,</span> <span class="nb">bool</span> <span class="p">):</span>
+        <span class="n">is_def_match_regex</span> <span class="o">=</span> <span class="n">isdefmatchregex</span>
+
+    <span class="n">match_in_def_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">matchindefname</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)):</span>
+        <span class="n">match_in_def_name</span> <span class="o">=</span> <span class="n">stringExtends</span><span class="o">.</span><span class="n">stringMatchClass</span><span class="p">(</span> <span class="n">matchindefname</span><span class="p">,</span> <span class="n">is_def_match_regex</span> <span class="p">)</span>
+
+    <span class="n">clear_empty_blocks</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">clearemptyblocks</span><span class="p">,</span> <span class="nb">bool</span> <span class="p">):</span>
+        <span class="n">clear_empty_blocks</span> <span class="o">=</span> <span class="n">clearemptyblocks</span>
+
+    <span class="n">dirs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">find_in_dir</span> <span class="p">)</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span> <span class="n">dirs</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">thisdir</span> <span class="o">=</span> <span class="n">dirs</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">fsobj</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span> <span class="n">thisdir</span> <span class="p">):</span>
+            <span class="n">b_anyfile</span> <span class="o">=</span> <span class="p">(</span> <span class="p">(</span> <span class="n">find_in_filename</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">fsobj</span> <span class="o">!=</span> <span class="s1">&#39;__init__.py&#39;</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span> <span class="n">fsobj</span> <span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;.py&#39;</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="n">b_spcfile</span> <span class="o">=</span> <span class="p">(</span> <span class="p">(</span> <span class="n">find_in_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">fsobj</span> <span class="o">==</span> <span class="n">find_in_filename</span> <span class="p">)</span> <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">thisdir</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span> <span class="n">getPathSep</span><span class="p">(</span> <span class="n">forceLinuxPathSeparators</span> <span class="p">)</span> <span class="p">):</span>
+                <span class="n">thisdir</span> <span class="o">+=</span> <span class="n">getPathSep</span><span class="p">(</span> <span class="n">forceLinuxPathSeparators</span> <span class="p">)</span>
+            <span class="n">fspath</span> <span class="o">=</span> <span class="n">thisdir</span> <span class="o">+</span> <span class="n">fsobj</span>
+
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span> <span class="n">fspath</span> <span class="p">)</span> <span class="ow">and</span> <span class="n">find_in_subdirs</span><span class="p">:</span>
+                <span class="n">dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">fspath</span> <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span> <span class="n">fspath</span> <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">b_anyfile</span> <span class="ow">or</span> <span class="n">b_spcfile</span> <span class="p">):</span>
+                <span class="n">filereport</span> <span class="o">=</span> <span class="n">codeFileClass</span><span class="p">(</span> <span class="n">name</span> <span class="o">=</span> <span class="n">fspath</span> <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">match_in_class_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">filereport</span><span class="o">.</span><span class="n">classNameFilter</span> <span class="o">=</span> <span class="n">match_in_class_name</span>
+
+                <span class="k">if</span> <span class="n">match_in_def_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">filereport</span><span class="o">.</span><span class="n">defNameFilter</span> <span class="o">=</span> <span class="n">match_in_def_name</span>
+
+                <span class="n">filereport</span><span class="o">.</span><span class="n">catalogFile</span><span class="p">(</span> <span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span> <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">clear_empty_blocks</span><span class="p">:</span>
+                    <span class="n">filereport</span><span class="o">.</span><span class="n">clearEmptyBlocks</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="n">filereport</span><span class="o">.</span><span class="n">codeBlocks</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">r</span> <span class="o">+=</span> <span class="n">filereport</span><span class="o">.</span><span class="n">getString</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+
+    <span class="k">return</span> <span class="n">r</span></div>
+
+<span class="c1">#dir_path = r&quot;X:\MUSH\pyenv&quot; # my particular virtual environment path for Python 2.7</span>
+<span class="c1">#dir_path = r&quot;X:\MUSH\evennia&quot; # my particular virtual environment path for evennia package</span>
+<span class="c1">#dir_path = r&quot;X:\MUSH\evennia\evennia\objects&quot;</span>
+<span class="c1">#with open(r&quot;X:\MUSH\findCode_outfile.txt&quot;, r&quot;w+&quot;) as outfile:</span>
+<span class="c1">#    rep = findCode( topdir = dir_path, subdirs = True, matchinclassname = r&quot;MatchObject&quot;, matchindefname = None, clearemptyblocks = True )</span>
+<span class="c1">#    rep = findCode( topdir = dir_path, subdirs = True, matchinclassname = None, matchindefname = r&quot;search&quot;, clearemptyblocks = True )</span>
+<span class="c1">#    rep = findCode( topdir = dir_path, subdirs=True, clearemptyblocks = False )</span>
+<span class="c1">#    outfile.write(rep)</span>
+
+<span class="c1"># the next line is only there to set a breakpoint in PyCharm</span>
+<span class="c1"># breakpoint_here = None</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">Evennia Testbox</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Holland Wilson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
