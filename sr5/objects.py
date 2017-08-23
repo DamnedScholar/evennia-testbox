@@ -59,8 +59,8 @@ class Extra(DefaultObject):
         arg = args[0]
 
         # TODO: Remove these. They're only for testing.
-        self.location.msg("lookup: " + str(lookup))
-        self.location.msg("entry: " + str(entry))
+        # self.location.msg("lookup: " + str(lookup))
+        # self.location.msg("entry: " + str(entry))
 
         # Store the current value.
         err_no_nest = "You seem to be trying to add a nested value to"\
@@ -154,8 +154,61 @@ class Extra(DefaultObject):
 
         return "Attribute " + stat + " set to " + str(result) + "."
 
-        # XXX: It is frustrating and infuriating that I can't use setattr()
-        # to set things inside dicts. There has to be a way that I'm missing.
+    @classmethod
+    def buy(self, caller, item, **options):
+        """
+        Buy this object! This method orchestrates pre- and post-purchase hooks
+        and spawns the object. It should not be overridden.
+        """
+
+        c = self.at_pre_purchase(options)
+        if not c:
+            return False
+
+        # TODO: Need to be able to easily access /all/ of the ledgers
+        # affected and iterate over them.
+
+
+        # if cost > cg.db.nuyen.value:
+        #     result = "You cannot afford that."
+        #
+        #     if synthetic:
+        #         target[0] = "synthetic {}".format(target[0])
+        # else:
+        #     result = "Enjoy your shiny new " + target[0] + "."
+        #     purchased = spawner.spawn({
+        #         "prototype": target[1],
+        #         "location": caller,
+        #         "custom_str": strength,
+        #         "custom_agi": agility,
+        #         "synthetic": synthetic,
+        #         "grade": grade
+        #     })[0]
+        #
+        #     # Try to attach the new cyberlimb in its slots.
+        #     attach = cg.slots.attach(purchased)
+        #
+        #     if attach[0] is False:
+        #         purchased.delete()
+        #         caller.msg(mf.tag + attach[1])
+        #         return False
+        #
+        #     if synthetic:
+        #         target[0] = "synthetic {}".format(target[0])
+        #     target[0] += " ({})".format(grade)
+        #
+        #     # Record expenditures and store the AccountingIcetray entries
+        #     # on the purchased object for easy reference later on.
+        #     purchased.db.nuyen_logs = cg.db.nuyen.record(0 - cost, "Purchased " + target[0])
+        #     purchased.db.essence_logs = cg.db.essence.record(
+        #         0 - purchased.db.essence, target[0].capitalize()
+        #     )
+        #
+        # caller.msg(mf.tag + "You have placed an order for a {} with strength "
+        #            "+{} and agility +{} at a cost of {} nuyen and "
+        #            "{} essence. {}".format(target[0], strength, agility,
+        #                                    cost, purchased.db.essence,
+        #                                    result))
 
 
 class Augment(Extra):

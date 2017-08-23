@@ -212,10 +212,10 @@ class Stats:
         if not isinstance(rating, int):
             return StatMsg(False, "Skill ratings must be whole numbers.")
         as_entered = skill
+        name, subtype = parse_subtype(skill)
+        name = name.split("(")[0].strip()
         skill = skill.lower()
         lists = self.available_skills()
-
-        self.obj.msg("Setting {} to {}".format(skill, rating))
 
         # The max for each skill is 6 in chargen or 12 otherwise.
         if self.typeclass_path == "sr5.chargen.ChargenScript":
@@ -237,7 +237,7 @@ class Stats:
                 return StatMsg(False, cap_msg)
 
             group = Skills.groups[skill]
-            nums = [0,0,0]
+            nums = [0, 0, 0]
             for s in range(0, len(group)):
                 nums[s] = self.get_skill(group[s])
                 spec = self.get_specialization(group[s])
@@ -256,8 +256,15 @@ class Stats:
 
                 return StatMsg(True, "Skill group {} set at {}".format(
                     skill, rating))
-        elif skill in lists["active"]:
-            # TODO: Figure out exotic skills.
+        elif [s.startswith(name) for s in lists["active"]].count(True):
+            match = lists["active"][
+                [s.startswith(name) for s in lists["active"]].index(True)
+            ]
+            # TODO: Gotta add a special check for the three exotic skills.
+            # Need to make it generic, so that it can be used for other
+            # systems. This could be a list on Skills of skills with open
+            # fields, potentially expansible to skills with limited subtype
+            # lists?
             # Check for Aptitude
             if self.get_quality("aptitude ({})".format(skill)):
                 skill_cap += 1
@@ -278,7 +285,9 @@ class Stats:
 
             skills.update({as_entered: rating})
         elif [bool(s.lower().count(skill)) for s in lists["language"]].count(True):
-            i = [bool(s.lower().count(skill)) for s in lists["language"]].index(True)
+            match = lists["language"][
+                [s.startswith(skill) for s in lists["language"]].index(True)
+            ]
             # Check for Aptitude
             if self.get_quality("aptitude ({})".format(skill)):
                 skill_cap += 1
@@ -287,11 +296,12 @@ class Stats:
 
             skills = self.attributes.get("languages")
 
-            cur = skills.get(lists['language'][i], False)
+            cur = skills.get(match, False)
             if cur == "N":
-                return StatMsg(False, "You can't raise a native language.")
+                if self.typeclass_path != "sr5.chargen.ChargenScript":
+                    return StatMsg(False, "You can't raise a native language.")
 
-            skills.update({lists['language'][i]: rating})
+            skills.update({match: rating})
         else:
             return StatMsg(False, "Skill {} not found.".format(skill.title()))
 
@@ -351,10 +361,10 @@ class Stats:
         skill = skill.lower()
 
         for k in self.db.active_specializations.keys():
-            if skill in k:
+            if skill in k.lower():
                 return self.db.active_specializations[k]
         for k in self.db.knowledge_specializations.keys():
-            if skill in k:
+            if skill in k.lower():
                 return self.db.knowledge_specializations[k]
         return ""
 
@@ -369,15 +379,15 @@ class Stats:
 
         for item in lists["active"]:
             # TODO: Figure out exotic skills.
-            if skill in item:
+            if skill in item.lower():
                 stat = self.attributes.get("active_skills")
                 return stat.get(item, None)
         for item in lists["groups"]:
-            if skill in item:
+            if skill in item.lower():
                 stat = self.get_skills("group")
                 return stat.get(item, None)
         for item in lists["knowledge"]:
-            if skill in item:
+            if skill in item.lower():
                 stat = self.attributes.get("knowledge_skills")
                 return stat.get(item, None)
 
@@ -453,10 +463,11 @@ class Stats:
                 return {}
             # Search in stat for all instances in raw.
             for k in sorted(stat.keys()):
+                k = k.lower()
                 for r in raw:
-                    if k.lower().startswith(
-                        "{}".format(r)) or k.lower().endswith(
-                        "({})".format(r)
+                    r = r.lower()
+                    if k.startswith(
+                        "{}".format(r)) or k.endswith("({})".format(r)
                     ):
                         output.update({k: stat[k]})
 
@@ -474,46 +485,85 @@ class Stats:
                                  + ")")
         parser = name + pyparsing.ZeroOrMore(arg) + pyparsing.ZeroOrMore(hole)
 
-        query = parser.parseString(quality)
-        query = [q.strip() for q in query]
+        query = parse_subtype(quality)
+        search = query[0]
+        subtype = query[1][0]
+        grab = {}
 
-        search = [query[0] + " ([])", query[0] + " ()", query[0]]
-        if len(query) > 1:
-            search[0:0] = ["{} ({})".format(query[0], query[1]),
-                           "{} ({}, [])".format(query[0], query[1])]
-        if len(query) > 2:
-            q1 = "{} ({}".format(query[0], query[1])
-            for i in range(2, len(query)):
-                q2 = "{}, []".format(q1)
-                q1 = "{}, {}".format(q1, query[i])
-
-                search[0:0] = [q1 + ")", q2 + ")"]
-        for name in PositiveQualities.names:
-            if name in search:
-                cats = {"general": PositiveQualities.general,
-                        "metagenic": PositiveQualities.metagenic}
-                for cat, items in cats.items():
-                    for s in search:
-                        if s in items:
-                            grab = items[s]
-                            grab.update(
-                                {"name": name, "type": "positive",
-                                 "category": cat}
-                            )
-                            return grab
-        for name in NegativeQualities.names:
-            if name in search:
-                cats = {"general": NegativeQualities.general,
-                        "metagenic": NegativeQualities.metagenic}
-                for cat, items in cats.items():
-                    for s in search:
-                        if s in items:
-                            grab = items[s]
-                            grab.update(
-                                {"name": name, "type": "negative",
-                                 "category": cat}
-                            )
-                            return grab
+        # TODO: I could abstract this out into a utils function that takes a
+        # list of names to search, a dict of categories to look in, and a dict
+        # of info to attach to the end of the returned query. This would
+        # require a systematic way to figure out which fields to append for
+        # subtype entries and which to replace (which could be hardcoded as
+        # `description`, but probably shouldn't be.)
+        pos = [parse_subtype(n)[0] for n in PositiveQualities.names
+               if n.lower().startswith(search)]
+        if pos:
+            cats = {"General": PositiveQualities.general,
+                    "Metagenic": PositiveQualities.metagenic}
+            for cat, items in cats.items():
+                for entry in pos:
+                    # Reverse sort will place the primary entries before the
+                    # subtype entries.
+                    for k in sorted(items.keys(), reverse=True):
+                        if entry.lower() in k.lower():
+                            if k.endswith("([])"):
+                                grab.update(items[k])
+                                grab.update(
+                                    {"name": k, "type": "positive",
+                                     "category": cat}
+                                )
+                            elif k.lower().endswith("({})".format(subtype)):
+                                # If there's a previously matched open entry,
+                                # we want to replace certain entries and append
+                                # to others.
+                                if grab:
+                                    desc = "{}\n\n{}".format(
+                                        grab["description"],
+                                        items[k]["description"])
+                                else:
+                                    desc = items[k]["description"]
+                                grab.update(items[k])
+                                grab.update(
+                                    {"name": k, "type": "positive",
+                                     "category": cat, "description": desc}
+                                )
+        if grab:
+            return grab
+        neg = [parse_subtype(n)[0] for n in NegativeQualities.names
+               if n.lower().startswith(search)]
+        if neg:
+            cats = {"General": NegativeQualities.general,
+                    "Metagenic": NegativeQualities.metagenic}
+            for cat, items in cats.items():
+                for entry in neg:
+                    # Reverse sort will place the primary entries before the
+                    # subtype entries.
+                    for k in sorted(items.keys(), reverse=True):
+                        if entry.lower() in k.lower():
+                            if k.endswith("([])"):
+                                grab.update(items[k])
+                                grab.update(
+                                    {"name": k, "type": "negative",
+                                     "category": cat}
+                                 )
+                            elif k.lower().endswith("({})".format(subtype)):
+                                # If there's a previously matched open entry,
+                                # we want to replace certain entries and append
+                                # to others.
+                                if grab:
+                                    desc = "{}\n\n{}".format(
+                                        grab["description"],
+                                        items[k]["description"])
+                                else:
+                                    desc = items[k]["description"]
+                                grab.update(items[k])
+                                grab.update(
+                                    {"name": k, "type": "negative",
+                                     "category": cat, "description": desc}
+                                 )
+        if grab:
+            return grab
 
     def set_quality(self, quality, rating):
         "Attempt to set a quality and return True or False."
@@ -533,7 +583,7 @@ class Stats:
             if not sub:
                 return StatMsg(False, "The subtype you entered doesn't match.")
         stats = self.attributes.get("qualities_" + query["type"])
-        stats.update({quality: rating})
+        stats.update({query["name"]: rating})
         # Purge any empty values.
         purge_empty_values(stats)
 
@@ -548,6 +598,7 @@ class Stats:
             quality (str, optional): A quality name to look for.
         """
         output = {}
+        quality = quality.lower()
         query = self.query_qualities(quality)
         if not query:
             return None
@@ -557,6 +608,7 @@ class Stats:
         stats = self.attributes.get("qualities_" + query["type"])
 
         for s, v in stats.items():
+            s = s.lower()
             if quality in s or name[0:len(name) - 3] in s:
                 output.update({s: v})
 
@@ -579,7 +631,7 @@ class Stats:
             raw = NegativeQualities.__dict__
         if raw:
             for c in raw['categories']:
-                sel += raw[c].keys()
+                sel += raw[c.lower()].keys()
 
             for s in sel:
                 get = self.get_quality(s)

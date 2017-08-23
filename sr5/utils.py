@@ -81,9 +81,9 @@ def flatten(d):
     return output
 
 
-def parse_subtype(quality):
+def parse_subtype(stat):
     "Takes a stat and returns a tuple `(name, subtype)`."
-    quality = quality.lower()
+    stat = stat.lower()
 
     name = pyparsing.Word(pyparsing.alphanums + " .-_/,")
     arg = pyparsing.Suppress("(") + name + pyparsing.ZeroOrMore(
@@ -95,13 +95,12 @@ def parse_subtype(quality):
                              + ")")
     parser = name + pyparsing.ZeroOrMore(arg) + pyparsing.ZeroOrMore(hole)
 
-    query = parser.parseString(quality)
+    query = parser.parseString(stat)
     query = [q.strip() for q in query]
 
     subtype = [""]
 
     if len(query) > 1:
-        query[0] += " ()"
         if str(query[1]) != '()':
             subtype = query[1:len(query)]
 

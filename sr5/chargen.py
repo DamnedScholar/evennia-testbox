@@ -57,11 +57,6 @@ class ChargenScript(DefaultScript, Stats):
     resonance = {"a": {"resonance": 6, "skills": (2, 5), "forms": 5},
                  "b": {"resonance": 4, "skills": (2, 4), "forms": 2},
                  "c": {"resonance": 3, "skills": (0, 0), "forms": 1}}
-    skills = {"a": (46, 10),
-              "b": (36, 5),
-              "c": (28, 2),
-              "d": (22, 0),
-              "e": (18, 0)}
     resources = {"a": {"street": 75000, "experienced": 450000, "prime": 500000},
                  "b": {"street": 50000, "experienced": 275000, "prime": 325000},
                  "c": {"street": 25000, "experienced": 140000, "prime": 210000},
@@ -378,7 +373,7 @@ class ChargenScript(DefaultScript, Stats):
             language = self.get_skills("language")
             language_specs = self.db.language_specializations
             points, group_points = Skills.priorities[priority]
-            know_points = self.get_attr("int") + self.get_attr("log") * 2
+            know_points = (self.get_attr("int") + self.get_attr("log")) * 2
             # Knowledge and language points come from the same pool, but we're
             # keeping the totals separate.
             act_total =  sum(active.values()) + len(active_specs)
@@ -739,12 +734,55 @@ class CmdSetSpecAttr(default_cmds.MuxCommand):
     lock = "cmd:perm(unapproved) and attr(cg.db.metatype)"
     help_category = "Chargen"
 
+    def parse(self):
+        # Take a command with two arguments and optional spaces and equals
+        # signs and render it down into two arguments.
+        self.args = self.args.strip()
+        self.args = self.args.replace('=', ' ')
+        self.dump = self.args.split(' ')
+        self.args = [self.dump[0], self.dump[len(self.dump) - 1]]
+
     def func(self):
         "Active function."
         caller = self.caller
         cg = caller.cg
 
-        caller.msg("This command isn't in place yet.")
+        priority = ""
+
+        # Find out which priority this category is.
+        for pri, cat in cg.db.priorities.items():
+            if "metatype" in cat:
+                priority = pri
+
+        if not priority:
+            caller.msg(mf.tag + "You must set a priority first.")
+            return False
+
+        try:
+            rating = int(self.args[1])
+        except ValueError:
+            caller.msg(mf.tag + "You must enter a number.")
+            return False
+
+        for stat in SpecAttr.names:
+            if self.args[0] in stat or self.args[0] in SpecAttr.names[stat]:
+                diff = rating - cg.get_attr(stat)
+                total = sum(cg.db.spec_attr.values()) + diff
+                # remainder = Metatypes.priorities[priority][0] - total
+                remainder = 6
+
+                if remainder >= 0:
+                    attempt = cg.set_attr(stat, rating)
+                else:
+                    caller.msg(mf.tag + "You have insufficient points left.")
+                    return False
+
+                if attempt[0] == False:
+                    caller.msg(mf.tag + str(attempt))
+                else:
+                    caller.msg(mf.tag + "{} has been set to {}. You have {} "
+                               "points left.".format(stat.title(),
+                                                     self.args[1], remainder))
 
 
 class CmdSetAttr(default_cmds.MuxCommand):
@@ -773,6 +811,8 @@ class CmdSetAttr(default_cmds.MuxCommand):
         "Active function."
         caller = self.caller
         cg = caller.cg
+
+        priority = ""
 
         # Find out which priority this category is.
         for pri, cat in cg.db.priorities.items():
@@ -835,6 +875,8 @@ class CmdSetSkill(default_cmds.MuxCommand):
         "Active function."
         caller = self.caller
         cg = caller.cg
+
+        priority = ""
 
         # Find out which priority this category is.
         for pri, cat in cg.db.priorities.items():
@@ -913,6 +955,8 @@ class CmdSetSpecialization(default_cmds.MuxCommand):
         "Active function."
         caller = self.caller
         cg = caller.cg
+
+        priority = ""
 
         # Find out which priority this category is.
         for pri, cat in cg.db.priorities.items():

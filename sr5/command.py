@@ -210,11 +210,13 @@ class CmdSheet(default_cmds.MuxCommand):
                 target.db.knowledge_specializations = {}
                 target.db.language_skills = {}
                 target.db.language_specializations = {}
-                # Don't store the Karma value of qualities. Store the level and calculate the Karma points based on the lookup table.
+                # Don't store the Karma value of qualities. Store the level
+                # and calculate the Karma points based on the lookup table.
                 target.db.qualities_positive = {}
-                target.db.qualities_negative={}
+                target.db.qualities_negative = {}
             else:
-                return caller.msg("That sheet is locked. A member of staff will have to unlock it.")
+                return caller.msg("That sheet is locked. A member of staff "
+                                  "will have to unlock it.")
         elif "prove" in self.switches or "show" in self.switches:
             # Show your sheet to someone else or the room.
             caller.msg("Prove command coming soon.")
