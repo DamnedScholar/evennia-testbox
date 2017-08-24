@@ -83,8 +83,6 @@ def flatten(d):
 
 def parse_subtype(stat):
     "Takes a stat and returns a tuple `(name, subtype)`."
-    stat = stat.lower()
-
     name = pyparsing.Word(pyparsing.alphanums + " .-_/,")
     arg = pyparsing.Suppress("(") + name + pyparsing.ZeroOrMore(
             pyparsing.Suppress(",") + name

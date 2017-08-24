@@ -12,6 +12,7 @@ import pyparsing
 from collections import OrderedDict
 from dateutil import parser
 from evennia import DefaultObject
+from fuzzywuzzy import process
 from sr5.utils import parse_subtype, purge_empty_values, StatMsg, ureg
 from sr5.data.metatypes import Metatypes
 from sr5.data.base_stats import Attr, SpecAttr
@@ -467,14 +468,12 @@ class Stats:
                 for r in raw:
                     r = r.lower()
                     if k.startswith(
-                        "{}".format(r)) or k.endswith("({})".format(r)
-                    ):
+                     "{}".format(r)) or k.endswith("({})".format(r)):
                         output.update({k: stat[k]})
 
         return output
 
     def query_qualities(self, quality):
-        quality = quality.lower()
         name = pyparsing.Word(pyparsing.alphanums + " .-_/,")
         arg = pyparsing.Suppress("(") + name + pyparsing.ZeroOrMore(
                 pyparsing.Suppress(",") + name
@@ -496,73 +495,111 @@ class Stats:
         # require a systematic way to figure out which fields to append for
         # subtype entries and which to replace (which could be hardcoded as
         # `description`, but probably shouldn't be.)
-        pos = [parse_subtype(n)[0] for n in PositiveQualities.names
-               if n.lower().startswith(search)]
+
+        # TODO: Need to make it sufficiently generic to go in a contrib.
+        q_names = [n.lower() for n in PositiveQualities.names]
+        pos = sorted([
+            parse_subtype(n[0])[0] for n in process.extract(search, q_names)
+            if n[1] > 80
+        ], reverse=True)
         if pos:
-            cats = {"General": PositiveQualities.general,
-                    "Metagenic": PositiveQualities.metagenic}
-            for cat, items in cats.items():
+            # TODO: When making this a function, we should probably preserve
+            # the category order so that more popular categories are searched
+            # first.
+            cats = [("General", PositiveQualities.general),
+                    ("Metagenic", PositiveQualities.metagenic)]
+            for cat, items in cats:
                 for entry in pos:
                     # Reverse sort will place the primary entries before the
                     # subtype entries.
-                    for k in sorted(items.keys(), reverse=True):
-                        if entry.lower() in k.lower():
-                            if k.endswith("([])"):
-                                grab.update(items[k])
-                                grab.update(
-                                    {"name": k, "type": "positive",
-                                     "category": cat}
-                                )
-                            elif k.lower().endswith("({})".format(subtype)):
-                                # If there's a previously matched open entry,
-                                # we want to replace certain entries and append
-                                # to others.
-                                if grab:
-                                    desc = "{}\n\n{}".format(
-                                        grab["description"],
-                                        items[k]["description"])
-                                else:
-                                    desc = items[k]["description"]
-                                grab.update(items[k])
-                                grab.update(
-                                    {"name": k, "type": "positive",
-                                     "category": cat, "description": desc}
-                                )
+                    fuzz = sorted([
+                        n[0] for n in process.extract(entry, items.keys(),
+                                                      limit=2) if n[1] > 80
+                    ], reverse=True)
+                    for k in fuzz:
+                        if k.endswith("([])"):
+                            grab.update(items[k])
+                            grab.update(
+                                {"name": k, "type": "Positive",
+                                 "category": cat}
+                            )
+                        elif k.lower().endswith("({})".format(subtype.lower())):
+                            # If there's a previously matched open entry,
+                            # we want to replace certain entries and append
+                            # to others.
+                            if grab:
+                                desc = "{}\n\n{}".format(
+                                    grab["description"],
+                                    items[k]["description"])
+                            else:
+                                desc = items[k]["description"]
+                            grab.update(items[k])
+                            grab.update(
+                                {"name": k, "type": "Positive",
+                                 "category": cat, "description": desc}
+                            )
+                        else:
+                            grab.update(items[k])
+                            grab.update(
+                                {"name": k, "type": "Positive",
+                                 "category": cat}
+                            )
+                            return grab
         if grab:
+            if grab["name"].endswith("([])"):
+                name = grab["name"][0:-4].strip()
+                grab["name"] = "{} ({})".format(name, subtype)
             return grab
-        neg = [parse_subtype(n)[0] for n in NegativeQualities.names
-               if n.lower().startswith(search)]
+
+        q_names = [n.lower() for n in NegativeQualities.names]
+        neg = sorted([
+            parse_subtype(n[0])[0] for n in process.extract(search, q_names)
+            if n[1] > 80
+        ], reverse=True)
         if neg:
-            cats = {"General": NegativeQualities.general,
-                    "Metagenic": NegativeQualities.metagenic}
-            for cat, items in cats.items():
+            cats = [("General", NegativeQualities.general),
+                    ("Metagenic", NegativeQualities.metagenic)]
+            for cat, items in cats:
                 for entry in neg:
                     # Reverse sort will place the primary entries before the
                     # subtype entries.
-                    for k in sorted(items.keys(), reverse=True):
-                        if entry.lower() in k.lower():
-                            if k.endswith("([])"):
-                                grab.update(items[k])
-                                grab.update(
-                                    {"name": k, "type": "negative",
-                                     "category": cat}
-                                 )
-                            elif k.lower().endswith("({})".format(subtype)):
-                                # If there's a previously matched open entry,
-                                # we want to replace certain entries and append
-                                # to others.
-                                if grab:
-                                    desc = "{}\n\n{}".format(
-                                        grab["description"],
-                                        items[k]["description"])
-                                else:
-                                    desc = items[k]["description"]
-                                grab.update(items[k])
-                                grab.update(
-                                    {"name": k, "type": "negative",
-                                     "category": cat, "description": desc}
-                                 )
+                    fuzz = sorted([
+                        n[0] for n in process.extract(entry, items.keys(),
+                                                      limit=2) if n[1] > 80
+                    ], reverse=True)
+                    for k in fuzz:
+                        if k.endswith("([])"):
+                            grab.update(items[k])
+                            grab.update(
+                                {"name": k, "type": "Pegative",
+                                 "category": cat}
+                             )
+                        elif k.lower().endswith("({})".format(subtype.lower())):
+                            # If there's a previously matched open entry,
+                            # we want to replace certain entries and append
+                            # to others.
+                            if grab:
+                                desc = "{}\n\n{}".format(
+                                    grab["description"],
+                                    items[k]["description"])
+                            else:
+                                desc = items[k]["description"]
+                            grab.update(items[k])
+                            grab.update(
+                                {"name": k, "type": "Pegative",
+                                 "category": cat, "description": desc}
+                             )
+                        else:
+                            grab.update(items[k])
+                            grab.update(
+                                {"name": k, "type": "Pegative",
+                                 "category": cat}
+                            )
+                            return grab
         if grab:
+            if grab["name"].endswith("([])"):
+                name = grab["name"][0:-4].strip()
+                grab["name"] = "{} ({})".format(name, subtype)
             return grab
 
     def set_quality(self, quality, rating):
