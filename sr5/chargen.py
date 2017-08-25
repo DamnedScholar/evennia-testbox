@@ -5,16 +5,18 @@ The script and functions that make chargen work.
 
 """
 
+from decimal import Decimal
 import math
 import string
 import re
-import pyparsing
+import pyparsing as pp
 from evennia import CmdSet
 from evennia import default_cmds
 from evennia import DefaultRoom
 from evennia import DefaultScript
 from evennia.utils import evtable, spawner
 from evennia.utils.utils import lazy_property
+from sr5.command import SemanticCommand
 from sr5.msg_format import mf
 from sr5.data.metatypes import Metatypes
 from sr5.data.base_stats import Attr, SpecAttr
@@ -30,9 +32,9 @@ class ChargenScript(DefaultScript, Stats):
     This script is placed on a character object when it is created. It holds variables relevant to the chargen process that need to be cleaned up after and it inherits the data that is important for the chargen process.
     """
     # TODO: These variables are here for testing purposes and should be broken out into a separate module for storage once the chargen is completed.
-    cg_steps = ["priority", "vitals", "metatype", "attributes", "attr",
-                "magic", "resonance", "qualities", "skills", "resources",
-                "background", "karma"]
+    cg_steps = ["priority", "priorities", "vitals", "metatype", "attributes",
+                "attr", "magic", "resonance", "qualities", "skills",
+                "resources", "background", "karma"]
     categories = ["metatype", "attributes", "magic", "resonance", "skills",
                   "resources"]
     magic = {
@@ -103,6 +105,8 @@ class ChargenScript(DefaultScript, Stats):
 
         # TODO: Can't I automate this by polling __dict__ for functions that
         # start with `reset_`?
+        # >>> import inspect;out = [m[0] for m in inspect.getmembers(self.cg) if m[0].startswith("reset_")];self.msg(repr(out))
+        # ['reset_all', 'reset_attr', 'reset_background', 'reset_callcount', 'reset_magres', 'reset_metatype', 'reset_qualities', 'reset_resources', 'reset_skills', 'reset_vitals']
         self.reset_metatype()
         self.reset_attr()
         self.reset_magres()
@@ -111,7 +115,11 @@ class ChargenScript(DefaultScript, Stats):
         self.reset_qualities()
         self.reset_vitals()
         self.reset_background()
-    # TODO: Is it intuitive to have defaults labeled as `reset_`?
+
+    def reset_vitals(self):
+        "Resets name, birthdate, etc."
+        self.db.fullname, self.db.birthdate = "", ""
+        self.db.ethnicity, self.db.height, self.db.weight = "", "", ""
 
     def reset_metatype(self):
         "Resets metatype and related stats."
@@ -130,6 +138,15 @@ class ChargenScript(DefaultScript, Stats):
                         'willpower': 0, 'logic': 0, 'intuition': 0,
                         'charisma': 0}
 
+    def reset_skills(self):
+        "Resets skills and specializations."
+        self.db.active_skills = {}
+        self.db.active_specializations = {}
+        self.db.knowledge_skills = {}
+        self.db.knowledge_specializations = {}
+        self.db.languages = {}
+        self.db.language_specializations = {}
+
     def reset_magres(self):
         "Resets magic type, tradition, freebie skills, and powers."
         self.db.magic_type, self.db.tradition = "", ""
@@ -143,15 +160,6 @@ class ChargenScript(DefaultScript, Stats):
         self.db.qualities_positive = {}
         self.db.qualities_negative = {}
 
-    def reset_skills(self):
-        "Resets skills and specializations."
-        self.db.active_skills = {}
-        self.db.active_specializations = {}
-        self.db.knowledge_skills = {}
-        self.db.knowledge_specializations = {}
-        self.db.languages = {}
-        self.db.language_specializations = {}
-
     def reset_resources(self):
         "Resets lifestyle and purchases."
         self.db.lifestyle = ""
@@ -159,11 +167,6 @@ class ChargenScript(DefaultScript, Stats):
         self.obj.db.essence.configure(self.obj, "essence", 6)
         self.db.augments, self.db.gear = {}, {}
         # TODO: The above line is highly suspect.
-
-    def reset_vitals(self):
-        "Resets name, birthdate, etc."
-        self.db.fullname, self.db.birthdate = "", ""
-        self.db.ethnicity, self.db.height, self.db.weight = "", "", ""
 
     def reset_background(self):
         "Resets background."
@@ -452,37 +455,101 @@ class ChargenScript(DefaultScript, Stats):
             self.obj.msg(valid[1])
 
     def write_stats(self):
-        # TODO: This function will administer the process of writing data on
-        # the chargen script onto the character. This function will convert
-        # any chargen-only values to the permanent ones to go on the character.
-        pass
+        """
+        This function handles writing the stats in chargen to the character
+        object. It should not be able to be called unless the character sheet
+        is completely valid, since it's only concerned with the math required
+        to convert from one to another.
+        """
+        char = self.obj
+        # Write vitals
+        char.db.fullname = self.db.fullname
+        char.db.birthdate = self.db.birthdate
+        char.db.ethnicity = self.db.ethnicity
+        char.db.height = self.db.height
+        char.db.weight = self.db.weight
+
+        # Write metatype
+        char.db.metatype = self.db.metatype
+        char.db.spec_attr = self.db.spec_attr
+        self.db.karma.record(0 - self.db.metakarma, "Metatype cost.",
+                             origin="Chargen")
+
+        # Write attributes
+        char.db.attr = self.db.attr
+        for attr in self.db.attr:
+            # Base attributes merge with bought attributes, so we don't need
+            # to track meta_attr any more.
+            char.db.attr[attr] += self.db.meta_attr[attr][0]
+
+        # Write skills
+        char.db.active_skills = self.db.active_skills
+        char.db.active_specializations = self.db.active_specializations
+        char.db.knowledge_skills = self.db.knowledge_skills
+        char.db.knowledge_specializations = self.db.knowledge_specializations
+        char.db.languages = self.db.languages
+        char.db.language_specializations = self.db.language_specializations
+
+        # Write magic/resonance
+
+        # Write lifestyle
+
+        # Write qualities
+        positive = self.get_qualities("positive")
+        self.obj.db.qualities_positive = positive
+        negative = self.get_qualities("negative")
+        self.obj.db.qualities_negative = negative
+
+        pos, neg = 0, 0
+        for qual, rank in positive.items():
+            pos += self.query_qualities(qual)['rank'][rank - 1]
+        for qual, rank in negative.items():
+            neg += self.query_qualities(qual)['rank'][rank - 1]
+
+        self.db.karma.record(0 - pos, "Positive qualities.", origin="Chargen")
+        self.db.karma.record(neg, "Negative qualities.", origin="Chargen")
 
 
 class ChargenRoom(DefaultRoom):
     """
     This is a room designed to hold chargen instructions, with a responsive desc that can help guide the player through the process of setting up their character. In this implementation, a ChargenRoom is also available via a special command.
     """
-    # A complete chargen system can be contained in one class definition, with individual room objects in the game being set with variables that define which one they are.
-
-    # Steps
-    # 1. Assign priorities A through E to the categories Metatype, Attributes, Magic/Resonance, Skills, and Resources.
-    # 2. Pick a Metatype from the available list. The game should mention how many special attribute points are available at the chosen priority level. After the Metatype is chosen, these points will be available for setting.
-    # 3. Distribute normal attribute points among mental and physical attributes. Characters may have no more than one attribute at its natural maximum limit.
-    # 4. Magic or Resonance. Skip if this is Priority E.
-    #   * Each of the top four priority levels has different options, and they're complex options that give skill choices and stuff. The M/R step has to be several mini chargens in a way, and keep whatever is set there separate from the skills overall until chargen is over so that the player has the option of resetting it individually. Probably do display it on the +sheet, though, which means the +sheet will have to be sensitive to however those skills get stored.
-    # 5. Purchase qualities. Hard limit of 25 points of positive and 25 points of negative qualities.
-    # 6. Purchase skills.
-    #   * Exotic Melee Weapon and Pilot Exotic Aircraft have no specializations and need specific categories. The categories can be coded in or staff can review them.
-    # 7. Select lifestyle and purchase gear. The gear can happen at any point if the system is automated.
-    # 8. Background?
-    # 9. Leftover Karma and contacts.
-
 
     def return_appearance(self, looker):
         """
         This overrides the default function for chargen rooms specifically, and will return dynamic details about the player's progress.
         """
-        pass
+        looker.msg("Chargen room!")
+        match, priority = False, ''
+        try:
+            cg = looker.cg
+        except AttributeError:
+            return "You don't appear to be in chargen. Please use the " \
+                   "`cgstart` command to get started."
+
+        # Check if the args match a CG step.
+        if self.db.step in cg.cg_steps:
+            match = True
+
+        if not match:
+            return "This room has not been associated with a step of " \
+                   "character creation. Please notify the builder. Valid " \
+                   "steps include {}".format(itemize(cg.cg_steps))
+
+        # Check if a priority has been set for that CG self.db.step.
+        for pri, cat in cg.db.priorities.items():
+            if self.db.step in cat:
+                priority = pri
+        if not priority and self.db.step in "priority priorities":
+            priority = "a"
+            self.db.step = "priorities"
+        elif not priority and self.db.step in "quality qualities":
+            priority = "a"
+            self.db.step = "qualities"
+        elif not priority:
+            return "You have to set a priority before you can set anything."
+
+        return cg.cgview(self.db.step, priority)
 
     pass
 
@@ -712,12 +779,39 @@ class CmdSetMetatype(default_cmds.MuxCommand):
 
         for metatype in Metatypes.priorities[priority]:
             if self.args in metatype[0]:
-                cg.set_metatype(metatype[0])
+                # Calculate karma totals.
+                positive = self.get_qualities("positive")
+                negative = self.get_qualities("negative")
+                if query["type"] == "positive":
+                    cur = positive.pop(query["name"])
+                else:
+                    cur = negative.pop(query["name"])
+                pos, neg = 0, 0
+                for qual, rank in positive.items():
+                    pos += self.query_qualities(qual)['rank'][rank - 1]
+                for qual, rank in negative.items():
+                    neg += self.query_qualities(qual)['rank'][rank - 1]
+                karma = cg.db.karma.value - cg.db.metakarma - pos + neg
 
-                caller.msg(mf.tag + "Your metatype has been set to {mt}, at " \
-                           "a cost of {ka} karma. You now have {sa} points " \
+                if karma - metatype[2] < 0:
+                    caller.msg(mf.tag + "You don't have enough karma to buy "
+                               "that. Consider taking negative qualities for"
+                               "more karma ({} out of {} remaining)."
+                               "".format(
+                                    karma,
+                                    cg.db.karma.value
+                               ))
+                    return False
+
+                cg.set_metatype(metatype[0])
+                cg.db.metakarma = metatype[2]
+
+                caller.msg(mf.tag + "Your metatype has been set to {mt}, at "
+                           "a cost of {ka} karma. You now have {sa} points "
                            "to distribute among special attributes.".format(
-                           mt=metatype[0], sa=metatype[1], ka=metatype[2]))
+                            mt=metatype[0], sa=metatype[1], ka=metatype[2]))
+
+                return True
 
 
 class CmdSetSpecAttr(default_cmds.MuxCommand):
@@ -1334,7 +1428,7 @@ class CmdBuyAugment(default_cmds.MuxCommand):
             pass
 
 
-class CmdSetQualities(default_cmds.MuxCommand):
+class CmdSetQuality(SemanticCommand):
     """
     Sets your qualities. The quality field will match partials. If you enter
     a number above the maximum level for the quality, the highest level of the
@@ -1342,7 +1436,7 @@ class CmdSetQualities(default_cmds.MuxCommand):
     split into individual entries, so make sure to check them first.
 
     Usage:
-    > quality addiction (common) 4
+    > quality addiction - common (Bees)=4
     > qual bad luck
     """
 
@@ -1356,7 +1450,57 @@ class CmdSetQualities(default_cmds.MuxCommand):
         caller = self.caller
         cg = caller.cg
 
-        caller.msg("This command isn't in place yet.")
+        # Look for the quality requested.
+        query = cg.query_qualities(self.target)
+        if not query:
+            caller.msg(mf.tag + 'The system can\'t find a quality by the '
+                       'name "{}".'.format(self.target))
+            return False
+        try:
+            new_total = query["rank"][self.rating]
+        except Exception:
+            caller.msg(mf.tag + 'You need to enter a number.')
+
+        # Calculate karma totals.
+        positive = self.get_qualities("positive")
+        negative = self.get_qualities("negative")
+        if query["type"] == "positive":
+            cur = positive.pop(query["name"])
+        else:
+            cur = negative.pop(query["name"])
+        pos, neg = 0, 0
+        for qual, rank in positive.items():
+            pos += self.query_qualities(qual)['rank'][rank - 1]
+        for qual, rank in negative.items():
+            neg += self.query_qualities(qual)['rank'][rank - 1]
+        karma = cg.db.karma.value - cg.db.metakarma - pos + neg
+
+        pos_bound, neg_bound = 25, 25
+        if query["type"] == "positive":
+            if pos_bound - pos - new_total < 0:
+                caller.msg(mf.tag + "You have too many karma points invested "
+                           "in positive qualities to buy that ({} out of {} "
+                           "spent).".format(pos, pos_bound))
+                return False
+            # Current thinking is that the user won't ever run into this error,
+            # since karma can only be spent on qualities and metatype in
+            # chargen, but in case that changes,
+            elif karma - new_total < 0:
+                caller.msg(mf.tag + "You don't have enough karma to buy that. "
+                           "Consider taking negative qualities for more karma "
+                           "({} out of {} remaining).".format(
+                                karma,
+                                cg.db.karma.value
+                           ))
+                return False
+        elif query["type"] == "negative":
+            if neg_bound - neg - new_total < 0:
+                caller.msg(mf.tag + "You have too many karma points gained "
+                           "from negative qualities to get that ({} out of {} "
+                           "gained).".format(neg, neg_bound))
+                return False
+
+
 
 
 class ChargenCmdSet(CmdSet):
@@ -1384,17 +1528,17 @@ class ChargenCmdSet(CmdSet):
         self.add(CmdSetSpecAttr())           # key: specattr, sa
         # Attribute Room
         self.add(CmdSetAttr())               # key: attribute, attr
+        # Skill Room
+        self.add(CmdSetSkill())              # key: skill, sk
+        self.add(CmdSetSpecialization())     # key: specialize, spec
         # Magic/Resonance Room
         self.add(CmdSetMagicType())          # key: magic, mag
         self.add(CmdBuySpell())              # key: spell, sp
         self.add(CmdBuyPower())              # key: power, pow
         self.add(CmdBuyForm())               # key: form
-        # Skill Room
-        self.add(CmdSetSkill())              # key: skill, sk
-        self.add(CmdSetSpecialization())     # key: specialize, spec
         # Resources Room
         self.add(CmdSetLifestyle())          # key: lifestyle, life
         self.add(CmdCGInventory())           # key: inventory, inv, i
         self.add(CmdBuyAugment())            # key: augment, aug
         # Qualities Room
-        self.add(CmdSetQualities())          # key: quality, qual
+        self.add(CmdSetQuality())            # key: quality, qual

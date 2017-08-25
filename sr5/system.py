@@ -571,7 +571,7 @@ class Stats:
                         if k.endswith("([])"):
                             grab.update(items[k])
                             grab.update(
-                                {"name": k, "type": "Pegative",
+                                {"name": k, "type": "Negative",
                                  "category": cat}
                              )
                         elif k.lower().endswith("({})".format(subtype.lower())):
@@ -586,13 +586,13 @@ class Stats:
                                 desc = items[k]["description"]
                             grab.update(items[k])
                             grab.update(
-                                {"name": k, "type": "Pegative",
+                                {"name": k, "type": "Negative",
                                  "category": cat, "description": desc}
                              )
                         else:
                             grab.update(items[k])
                             grab.update(
-                                {"name": k, "type": "Pegative",
+                                {"name": k, "type": "Negative",
                                  "category": cat}
                             )
                             return grab
