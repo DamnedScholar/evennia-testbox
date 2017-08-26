@@ -93,7 +93,7 @@ class ChargenScript(DefaultScript, Stats):
         self.db.nuyen.configure(self.obj, "nuyen", 0)
 
         # Establish body slots
-        self.slots.add("body", ["head", "torso", "right_upper_arm", "right_lower_arm", "right_hand", "left_upper_arm", "left_lower_arm", "left_hand", "right_upper_leg", "right_lower_leg", "right_foot", "left_upper_leg", "left_lower_leg", "left_foot"])
+        self.slots.add("body", 0, ["head", "torso", "right_upper_arm", "right_lower_arm", "right_hand", "left_upper_arm", "left_lower_arm", "left_hand", "right_upper_leg", "right_lower_leg", "right_foot", "left_upper_leg", "left_lower_leg", "left_foot"])
 
         self.reset_all()
 
