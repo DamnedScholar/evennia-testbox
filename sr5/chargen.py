@@ -164,8 +164,8 @@ class ChargenScript(DefaultScript, Stats):
     def reset_resources(self):
         "Resets lifestyle and purchases."
         self.db.lifestyle = ""
-        self.obj.db.nuyen.configure(self.obj, "nuyen", 0)
-        self.obj.db.essence.configure(self.obj, "essence", 6)
+        self.db.nuyen.configure(self.obj, "nuyen", 0)
+        self.db.essence.configure(self.obj, "essence", 6)
         self.db.augments, self.db.gear = {}, {}
         # TODO: The above line is highly suspect.
 
