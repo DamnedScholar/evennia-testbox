@@ -520,7 +520,6 @@ class ChargenRoom(DefaultRoom):
         """
         This overrides the default function for chargen rooms specifically, and will return dynamic details about the player's progress.
         """
-        looker.msg("Chargen room!")
         match, priority = False, ''
         try:
             cg = looker.cg
