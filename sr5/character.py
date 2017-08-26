@@ -49,35 +49,3 @@ class DefaultShadowrunner(DefaultCharacter, Stats):
         """
         self.permissions = ["unapproved"]
         self.scripts.add("sr5.chargen.ChargenScript")
-
-        self.db.approved = False
-        self.db.fullname = "Empty"
-        self.db.birthdate = "1/1/1970"
-        self.db.metatype = "Human"
-        self.db.ethnicity = ""
-        self.db.height = ""
-        self.db.weight = ""
-        self.db.street_cred = ""
-        self.db.notoriety = ""
-        self.db.public_awareness = ""
-        self.db.karma = {'current': 0, 'total': 0}
-        self.db.attributes = {
-            'body': 1, 'agility': 1, 'reaction': 1, 'strength': 1,
-            'willpower': 1, 'logic': 1, 'intuition': 1, 'charisma': 1,
-            'essence': 6, 'edge': 1, 'magic': 0, 'resonance': 0
-        }
-        self.cg.db.active_skills = {
-            "archery": 4, "automatics": 2, "blades": 1, "clubs": 8,
-            "escape artist": 3, "exotic melee weapon (specific)": 4,
-            "academic knowledge": 2, "aeronautics mechanic": 2, "arcana": 2,
-            "armorer": 2, "automotive mechanic": 2, "biotechnology": 2,
-            "chemistry": 2}
-        self.db.active_specializations = {"archery": "horseback"}
-        self.db.active_skill_groups = {}
-        self.db.knowledge_skills = {"biotech": 2, "megacorps": 2, "seattle": 2, "slums": 2, "ballistics": 2, "metahumans": 2}
-        self.db.knowledge_specializations = {"metahumans": "trolls"}
-        self.db.language_skills = {"english": "N", "french": 2}
-        self.db.language_specializations = {}
-        # Don't store the Karma value of qualities. Store the level and calculate the Karma points based on the lookup table.
-        self.db.qualities_positive = {}
-        self.db.qualities_negative = {}
