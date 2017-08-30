@@ -69,6 +69,8 @@ IDLE_TIMEOUT = -1
 
 BASE_CHARACTER_TYPECLASS = "sr5.character.DefaultShadowrunner"
 
+INLINEFUNC_ENABLED = True
+
 ######################################################################
 # Django web features
 ######################################################################

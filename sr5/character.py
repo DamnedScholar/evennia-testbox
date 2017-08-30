@@ -18,11 +18,12 @@ from evennia import DefaultCharacter
 from evennia.utils.utils import lazy_property
 from sr5.chargen import ChargenScript
 from sr5.system import Stats
-from sr5.utils import ureg
+from sr5.utils import (a_n, itemize, flatten, LedgerHandler, SlotsHandler,
+                       validate, ureg)
 from sr5.data.skills import Skills
 
 
-class DefaultShadowrunner(DefaultCharacter, Stats):
+class DefaultShadowrunner(DefaultCharacter, Stats, LedgerHandler):
     """
     The Character defaults to reimplementing some of base Object's hook methods with the
     following functionality:
@@ -42,6 +43,10 @@ class DefaultShadowrunner(DefaultCharacter, Stats):
     at_post_puppet - Echoes "PlayerName has entered the game" to the room.
 
     """
+
+    @lazy_property
+    def slots(self):
+        return SlotsHandler(self)
 
     def at_object_creation(self):
         """

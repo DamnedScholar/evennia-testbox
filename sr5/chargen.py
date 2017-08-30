@@ -6,6 +6,7 @@ The script and functions that make chargen work.
 """
 
 from decimal import Decimal
+from fuzzywuzzy import process
 import math
 import string
 import re
@@ -23,12 +24,13 @@ from sr5.data.base_stats import Attr, SpecAttr
 from sr5.data.skills import Skills
 from sr5.data.ware import BuyableWare, Grades, Obvious, Synthetic
 from sr5.models import Ledger
-from sr5.objects import Augment
+from sr5.objects import Augment, Cyberlimb
 from sr5.system import Stats
-from sr5.utils import a_n, itemize, flatten, SlotsHandler, validate, ureg
+from sr5.utils import (a_n, itemize, flatten, LedgerHandler, SlotsHandler,
+                       validate, ureg)
 
 
-class ChargenScript(DefaultScript, Stats):
+class ChargenScript(DefaultScript, Stats, LedgerHandler):
     """
     This script is placed on a character object when it is created. It holds variables relevant to the chargen process that need to be cleaned up after and it inherits the data that is important for the chargen process.
     """
@@ -74,22 +76,25 @@ class ChargenScript(DefaultScript, Stats):
         return self.db.priorities.keys()[
             self.db.priorities.values().index(category)]
 
+    def msg(text):
+        self.obj.msg(text)
+
     def at_script_creation(self):
         # Evennia stuff
         self.key = "chargen"
         self.desc = "Handles Character Creation"
         self.persistent = True
 
-        self.db.essence = Ledger()
+        self.attributes.add("essence", Ledger(), category="ledgers")
         self.db.essence.configure(self.obj, "essence", 6)
         # Don't touch the karma Ledger until the very end. Chargen will have
         # its own karma count that it uses for qualities and metatype. When the
         # player submits their sheet and locks it, then any metatype and
         # qualities will be written to the Ledger and they will be able to
         # spend karma on other stats.
-        self.db.karma = Ledger()
+        self.attributes.add("karma", Ledger(), category="ledgers")
         self.db.karma.configure(self.obj, "karma", 25)
-        self.db.nuyen = Ledger()
+        self.attributes.add("nuyen", Ledger(), category="ledgers")
         self.db.nuyen.configure(self.obj, "nuyen", 0)
 
         # Establish body slots
@@ -551,7 +556,8 @@ class ChargenRoom(DefaultRoom):
 
         return cg.cgview(self.db.step, priority)
 
-    pass
+    def at_object_creation(self):
+        self.cmdset.add("sr5.chargen.ChargenRoomCmdSet", permanent=True)
 
 
 class CmdCGStart(default_cmds.MuxCommand):
@@ -1270,8 +1276,6 @@ class CmdBuyAugment(default_cmds.MuxCommand):
         for i in range(0, len(self.args)):
             self.args[i] = self.args[i].strip()
 
-        # TODO: Figure out a unified parse().
-
     def func(self):
         "Active function."
         caller = self.caller
@@ -1319,85 +1323,91 @@ class CmdBuyAugment(default_cmds.MuxCommand):
         if umbrella in ["cyberlimbs", "cyberlimb", "cyberarm", "cyberleg",
                         "cyberhead", "cyberskull", "cybertorso", "cyberhand",
                         "cyberfoot"]:
+            purchase = Cyberlimb.buy(cg, target[1], options, dest=caller)
             # Define options.
-            strength = 0
-            agility = 0
-            synthetic = False
-            grade = "standard"
-
-            for i in range(0, len(options)):
-                if options[i] == "synthetic":
-                    synthetic = True
-                elif options[i] == "obvious":
-                    synthetic = False
-                elif options[i] in grades:
-                    grade = options[i]
-                else:
-                    if "strength" in options[i]:
-                        strength = int(float(options[i].split(' ')[1]))
-                    if "agility" in options[i]:
-                        agility = int(float(options[i].split(' ')[1]))
-
-            s = cg.db.qualities_positive.get("exceptional attribute (strength)", 0)
-            if strength + 3 > cg.db.meta_attr["strength"][1] + s:
-                caller.msg(mf.tag + "You can't have a cyberlimb built with higher"
-                           " strength than your natural maximum.")
+            # strength = 0
+            # agility = 0
+            # synthetic = False
+            # grade = "standard"
+            #
+            # for i in range(0, len(options)):
+            #     if options[i] == "synthetic":
+            #         synthetic = True
+            #     elif options[i] == "obvious":
+            #         synthetic = False
+            #     elif options[i] in grades:
+            #         grade = options[i]
+            #     else:
+            #         if "strength" in options[i]:
+            #             strength = int(float(options[i].split(' ')[1]))
+            #         if "agility" in options[i]:
+            #             agility = int(float(options[i].split(' ')[1]))
+            #
+            # s = cg.db.qualities_positive.get("exceptional attribute (strength)", 0)
+            # if strength + 3 > cg.db.meta_attr["strength"][1] + s:
+            #     caller.msg(mf.tag + "You can't have a cyberlimb built with higher"
+            #                " strength than your natural maximum.")
+            #     return False
+            # a = cg.db.qualities_positive.get("exceptional attribute (agility)", 0)
+            # if agility + 3 > cg.db.meta_attr["agility"][1] + a:
+            #     caller.msg(mf.tag + "You can't have a cyberlimb built with higher"
+            #                " agility than your natural maximum.")
+            #     return False
+            #
+            # # TODO: Check to see if the cyberlimb being purchased takes up a slot
+            # # already occupied. If the slot is occupied by another cyberlimb,
+            # # replace it with this one.
+            #
+            # # Calculate costs.
+            # cost = Augment.apply_costs_and_capacity(
+            #     [target[1].lower()], synthetic)[0]
+            # cost = cost + (strength + agility) * 5000
+            #
+            # if cost > cg.db.nuyen.value:
+            #     result = "You cannot afford that."
+            #
+            #     if synthetic:
+            #         target[0] = "synthetic {}".format(target[0])
+            # else:
+            #     result = "Enjoy your shiny new " + target[0] + "."
+            #     purchased = spawner.spawn({
+            #         "prototype": target[1],
+            #         "location": caller,
+            #         "custom_str": strength,
+            #         "custom_agi": agility,
+            #         "synthetic": synthetic,
+            #         "grade": grade
+            #     })[0]
+            #
+            #     # Try to attach the new cyberlimb in its slots.
+            #     attach = cg.slots.attach(purchased)
+            #
+            #     if attach[0] is False:
+            #         purchased.delete()
+            #         caller.msg(mf.tag + attach[1])
+            #         return False
+            #
+            #     if synthetic:
+            #         target[0] = "synthetic {}".format(target[0])
+            #     target[0] += " ({})".format(grade)
+            #
+            #     # Record expenditures and store the AccountingIcetray entries
+            #     # on the purchased object for easy reference later on.
+            #     purchased.db.nuyen_logs = cg.db.nuyen.record(0 - cost, "Purchased " + target[0])
+            #     purchased.db.essence_logs = cg.db.essence.record(
+            #         0 - purchased.db.essence, target[0].capitalize()
+            #     )
+            if not purchase:
                 return False
-            a = cg.db.qualities_positive.get("exceptional attribute (agility)", 0)
-            if agility + 3 > cg.db.meta_attr["agility"][1] + a:
-                caller.msg(mf.tag + "You can't have a cyberlimb built with higher"
-                           " agility than your natural maximum.")
-                return False
-
-            # TODO: Check to see if the cyberlimb being purchased takes up a slot
-            # already occupied. If the slot is occupied by another cyberlimb,
-            # replace it with this one.
-
-            # Calculate costs.
-            cost = Augment.apply_costs_and_capacity(
-                [target[1].lower()], synthetic)[0]
-            cost = cost + (strength + agility) * 5000
-
-            if cost > cg.db.nuyen.value:
-                result = "You cannot afford that."
-
-                if synthetic:
-                    target[0] = "synthetic {}".format(target[0])
             else:
-                result = "Enjoy your shiny new " + target[0] + "."
-                purchased = spawner.spawn({
-                    "prototype": target[1],
-                    "location": caller,
-                    "custom_str": strength,
-                    "custom_agi": agility,
-                    "synthetic": synthetic,
-                    "grade": grade
-                })[0]
-
-                # Try to attach the new cyberlimb in its slots.
-                attach = cg.slots.attach(purchased)
-
-                if attach[0] is False:
-                    purchased.delete()
-                    caller.msg(mf.tag + attach[1])
-                    return False
-
-                if synthetic:
-                    target[0] = "synthetic {}".format(target[0])
-                target[0] += " ({})".format(grade)
-
-                # Record expenditures and store the AccountingIcetray entries
-                # on the purchased object for easy reference later on.
-                purchased.db.nuyen_logs = cg.db.nuyen.record(0 - cost, "Purchased " + target[0])
-                purchased.db.essence_logs = cg.db.essence.record(
-                    0 - purchased.db.essence, target[0].capitalize()
-                )
-
-            caller.msg(mf.tag + "You have placed an order for a {} with strength "
-                       "+{} and agility +{} at a cost of {} nuyen and "
-                       "{} essence. {}".format(target[0], strength, agility,
-                                               cost, purchased.db.essence,
-                                               result))
+                caller.msg(mf.tag + "You have placed an order for a {} with "
+                           "strength +{} and agility +{} at a cost of {} nuyen "
+                           "and {} essence.".format(
+                            target[0],
+                            purchase.db.strength, purchase.db.agility,
+                            purchase.db.costs['nuyen'],
+                            purchase.db.costs['essence'])
+                           )
         elif umbrella == "headware":
             pass
         elif umbrella == "sell":
@@ -1501,8 +1511,6 @@ class CmdSetQuality(SemanticCommand):
                 return False
 
 
-
-
 class ChargenCmdSet(CmdSet):
     """
     This is the cmdset available to the Player at all times. It is
@@ -1542,3 +1550,52 @@ class ChargenCmdSet(CmdSet):
         self.add(CmdBuyAugment())            # key: augment, aug
         # Qualities Room
         self.add(CmdSetQuality())            # key: quality, qual
+
+
+class CmdStep(SemanticCommand):
+    """
+    Sets your qualities. The quality field will match partials. If you enter
+    a number above the maximum level for the quality, the highest level of the
+    quality will be entered. Qualities with multiple forms are most likely
+    split into individual entries, so make sure to check them first.
+
+    Usage:
+    > quality addiction - common (Bees)=4
+    > qual bad luck
+    """
+
+    key = "step"
+    help_category = "Chargen Building"
+
+    def func(self):
+        caller = self.caller
+
+        cg_steps = ["priority", "priorities", "vitals", "metatype", "attributes", "attr", "magic", "resonance", "qualities", "skills", "resources", "background", "karma"]
+        # step = [s for s in cg_steps if self.target in s][0]
+
+        step = [s[0] for s in
+                process.extract(self.target, cg_steps, limit=1)][0]
+
+        caller.location.db.step = step
+
+        caller.msg(mf.tag + 'This room has been set to "{}".'.format(step))
+
+
+class ChargenRoomCmdSet(CmdSet):
+    """
+    This is the cmdset available to the Player at all times. It is
+    combined with the `CharacterCmdSet` when the Player puppets a
+    Character. It holds game-account-specific commands, channel
+    commands, etc.
+    """
+    key = "Chargen Room"
+    priority = 10
+
+    def at_cmdset_creation(self):
+        """
+        Populates the cmdset
+        """
+        #
+        # any commands you add below will overload the default ones.
+        #
+        self.add(CmdStep())

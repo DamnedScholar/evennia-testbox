@@ -639,17 +639,34 @@ class Stats:
         query = self.query_qualities(quality)
         if not query:
             return None
-        name, subtype = parse_subtype(quality)
+        name, subtype = parse_subtype(query["name"])
+        subtype = subtype[0]
         if not name:
             return False
         stats = self.attributes.get("qualities_" + query["type"])
 
-        for s, v in stats.items():
-            s = s.lower()
-            if quality in s or name[0:len(name) - 3] in s:
-                output.update({s: v})
+        match = query["name"]
+        keys = [k.lower() for k in stats.keys()]
+        if match.lower() not in keys:
+            if not subtype:
+                match = [s for s in stats.keys()
+                         if s.lower().startswith(name.lower())]
+                if not match:
+                    return False
+                else:
+                    match = match[0]
+            else:
+                match = [s for s in stats.keys()
+                         if s.lower().startswith(name.lower()) and
+                         s.lower().endswith("({})".format(subtype.lower()))]
+                if not match:
+                    return False
+                else:
+                    match = match[0]
 
-        return output
+        loc = keys.index(match.lower())
+
+        return {match: stats[keys[loc]]}
 
     def get_qualities(self, cat):
         """

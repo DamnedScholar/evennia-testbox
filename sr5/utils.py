@@ -20,6 +20,9 @@ from sr5.models import AccountingLog, AccountingIcetray, Ledger
 
 ureg = UnitRegistry()
 
+_GA = object.__getattribute__
+_SA = object.__setattr__
+
 # TODO: Implement modifiers system here.
 
 
@@ -149,6 +152,79 @@ class StatMsg:
             r = self.msg
         else:
             raise KeyError("StatMsg only has two members.")
+
+
+class CatDbHolder(object):
+    "Holder for allowing property access of attributes based on categories."
+    def __init__(self, obj, name, category="", manager_name='attributes'):
+        _SA(self, name, _GA(obj, manager_name))
+        _SA(self, 'name', name)
+        _SA(self, 'category', category)
+
+    def __getattribute__(self, attrname):
+        if attrname == 'all':
+            # we allow to overload our default .all
+            attr = _GA(self, _GA(
+                self, 'name')).get("all", category=_GA(self, 'category'))
+            return attr if attr else _GA(self, "all")
+        return _GA(self, _GA(
+            self, 'name')).get(attrname, category=_GA(self, 'category'))
+
+    def __setattr__(self, attrname, value):
+        _GA(self, _GA(
+            self, 'name')).add(attrname, value, category=_GA(self, 'category'))
+
+    def __delattr__(self, attrname):
+        _GA(self, _GA(
+            self, 'name')).remove(attrname, category=_GA(self, 'category'))
+
+    def get_all(self):
+        return _GA(self, _GA(self, 'name')).all()
+    all = property(get_all)
+
+
+class LedgerHandler:
+    """
+    Handler for ledgers to compensate for Evennia having really weird behavior
+    regarding attributes that have categories.
+    """
+
+    def __init__(self, obj):
+        self.obj = obj
+        self._objid = obj.id
+
+    # @property ldb
+    def __ldb_get(self):
+        """
+        Attribute handler wrapper. Allows for the syntax
+           obj.ldb.attrname = value
+             and
+           value = obj.ldb.attrname
+             and
+           del obj.ldb.attrname
+             and
+           all_attr = obj.ldb.all() (unless there is an attribute
+                named 'all', in which case that will be returned instead).
+        """
+        try:
+            return self._ldb_holder
+        except AttributeError:
+            self._ldb_holder = CatDbHolder(self, 'attributes',
+                                           category="Ledgers")
+            return self._ldb_holder
+
+    # @db.setter
+    def __ldb_set(self, value):
+        "Stop accidentally replacing the db object"
+        string = "Cannot assign directly to db object! "
+        string += "Use db.attr=value instead."
+        raise Exception(string)
+
+    # @db.deleter
+    def __ldb_del(self):
+        "Stop accidental deletion."
+        raise Exception("Cannot delete the db object!")
+    ldb = property(__ldb_get, __ldb_set, __ldb_del)
 
 
 class SlotsHandler:

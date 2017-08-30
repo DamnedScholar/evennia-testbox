@@ -5,3 +5,4 @@ autopep8
 google-api-python-client
 sekizai
 python-dateutil
+python-Levenshtein

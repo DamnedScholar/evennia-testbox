@@ -178,7 +178,7 @@ class SemanticCommand(default_cmds.MuxCommand):
         # target = text_string("target")
         rating = pp.Word(pp.nums + ".,")
         balance = rating("rating") + switches("arg switches") ^ text_string("text")
-        setting = switches("cmd switches") + s + target("lhs") + s + eq + s + balance("rhs")
+        setting = switches("cmd switches") + s + target("lhs") + pp.Optional(s + eq + s + balance("rhs"))
 
         self.new_args = setting.parseString(self.args)
         # Sort command switches into a list.

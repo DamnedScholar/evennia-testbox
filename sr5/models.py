@@ -49,6 +49,7 @@ class AccountingIcetray(models.Model):
         "Take any number of field names and output the contents as a list."
 
         output = []
+        # TODO: [k for a in args for k in keys if a in k]
         for arg in args:
             if arg in ["key", "db_key"]:
                 output.append(self.db_key)
@@ -71,8 +72,14 @@ class AccountingIcetray(models.Model):
     def display(self, show_owner=False):
         "Display all information about each entry."
         if show_owner:
-            owner = evennia.search_object(searchdata=self.db_owner)[0]
-        origin = evennia.search_object(searchdata=self.db_origin)[0]
+            owner = evennia.search_object(searchdata=self.db_owner)
+        else:
+            owner = []
+        origin = evennia.search_object(searchdata=self.db_origin)
+        if owner:
+            owner = owner[0]
+        if origin:
+            origin = origin[0]
 
         return "{} | {} {} for {} | {} has {} {}" \
                "".format(self.db_date_created, self.db_value, self.db_currency,
@@ -137,8 +144,14 @@ class AccountingLog(SharedMemoryModel):
 
     def display(self, show_owner=False):
         if show_owner:
-            owner = evennia.search_object(searchdata=self.db_owner)[0]
-        origin = evennia.search_object(searchdata=self.db_origin)[0]
+            owner = evennia.search_object(searchdata=self.db_owner)
+        else:
+            owner = []
+        origin = evennia.search_object(searchdata=self.db_origin)
+        if owner:
+            owner = owner[0]
+        if origin:
+            origin = origin[0]
 
         return "{} | {} {} for {} | {}" \
                "".format(self.db_date_created, self.db_value, self.db_currency,
@@ -189,11 +202,11 @@ class Ledger(SharedMemoryModel):
 
     log_max = 5
 
-    def __str__(self):
-        return self.display()
+    # def __str__(self):
+    #     return self.display()
 
-    def __unicode__(self):
-        return unicode(self.display())
+    # def __unicode__(self):
+    #     return unicode(self.display())
 
     def configure(self, owner, currencyName, initialValue=0):
         try:
@@ -206,7 +219,9 @@ class Ledger(SharedMemoryModel):
         self.accrued = initialValue
 
     def display(self):
-        owner = evennia.search_object(searchdata=self.db_owner)[0]
+        owner = evennia.search_object(searchdata=self.db_owner)
+        if owner:
+            owner = owner[0]
 
         return "{}'s {} Ledger:\n" \
                "{} / {}".format(str(owner).title(), self.db_currency,
@@ -214,8 +229,6 @@ class Ledger(SharedMemoryModel):
 
     def record(self, value, reason, origin=""):
         "Record the transaction and alter totals."
-        owner = evennia.search_object(searchdata=self.owner)[0]
-
         if not origin:
             origin = self.owner
         if isinstance(value, float):
@@ -262,7 +275,6 @@ class Ledger(SharedMemoryModel):
 
     def ice(self):
         "Display all log entries for the owner."
-        owner = evennia.search_object(searchdata=self.owner)[0]
         query = AccountingIcetray.objects.filter(
             db_owner__iexact=self.db_owner,
             db_currency__iexact=self.db_currency
@@ -277,7 +289,6 @@ class Ledger(SharedMemoryModel):
 
     def ice_all(self):
         "Display all log entries for everyone."
-        owner = evennia.search_object(searchdata=self.owner)[0]
         query = AccountingIcetray.objects.all()
         output = []
 
@@ -289,7 +300,6 @@ class Ledger(SharedMemoryModel):
 
     def log(self):
         "Display quick log entries for the owner."
-        owner = evennia.search_object(searchdata=self.owner)[0]
         query = AccountingLog.objects.filter(
             db_owner__iexact=self.db_owner,
             db_currency__iexact=self.db_currency
@@ -304,7 +314,6 @@ class Ledger(SharedMemoryModel):
 
     def log_all(self):
         "Display quick log entries for everyone."
-        owner = evennia.search_object(searchdata=self.owner)[0]
         query = AccountingLog.objects.all()
         output = []
 

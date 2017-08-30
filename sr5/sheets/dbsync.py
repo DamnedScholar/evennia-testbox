@@ -216,7 +216,7 @@ def main():
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     values = result.get('values', [])
-    language += '"secret" : {'
+    language += '"secret": {'
 
     for row in values:
         language += '"%s": [%s],\n' % (row[0], row[1])
