@@ -9,9 +9,15 @@ import pyparsing as pp
 import evennia
 from evennia import DefaultObject
 from evennia.utils import spawner
+# TODO: In a production situation, it might have negative performance
+# implications if every call to a function in this module has to import the
+# entire game system. It won't matter with a small userbase, but a lot of
+# functions could potentially live in this file, and it should only import
+# what it needs when it needs it.
 from sr5.data.ware import *
 from sr5.msg_format import mf
-from sr5.utils import a_n
+from sr5.utils import (a_n, itemize, flatten, LedgerHandler, SlotsHandler,
+                       validate, ureg)
 wiz = evennia.search_player("#1")[0]
 
 
@@ -232,12 +238,13 @@ class Extra(DefaultObject):
             seller = " from {}".format(seller)
         reason = "Purchased {}{}.".format(item.key, seller)
 
-        results = [ledger.record(0 - cost, reason, buyer.dbref)
+        results = [(c_name, ledger.record(0 - cost, reason, buyer.dbref))
                    for c_name, cost in costs.items()
                    for l_name, ledger in ledgers
                    if c_name.lower() == l_name.lower()]
 
-        item.db.logs = results
+        for n, r in results:
+            item.attributes.set("logs_" + n, r, category="logs")
 
         return item
 

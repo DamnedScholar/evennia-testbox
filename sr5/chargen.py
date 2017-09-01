@@ -86,16 +86,16 @@ class ChargenScript(DefaultScript, Stats, LedgerHandler):
         self.persistent = True
 
         self.attributes.add("essence", Ledger(), category="ledgers")
-        self.db.essence.configure(self.obj, "essence", 6)
+        self.ldb.essence.configure(self.obj, "essence", 6)
         # Don't touch the karma Ledger until the very end. Chargen will have
         # its own karma count that it uses for qualities and metatype. When the
         # player submits their sheet and locks it, then any metatype and
         # qualities will be written to the Ledger and they will be able to
         # spend karma on other stats.
         self.attributes.add("karma", Ledger(), category="ledgers")
-        self.db.karma.configure(self.obj, "karma", 25)
+        self.ldb.karma.configure(self.obj, "karma", 25)
         self.attributes.add("nuyen", Ledger(), category="ledgers")
-        self.db.nuyen.configure(self.obj, "nuyen", 0)
+        self.ldb.nuyen.configure(self.obj, "nuyen", 0)
 
         # Establish body slots
         self.slots.add("body", 0, ["head", "torso", "right_upper_arm", "right_lower_arm", "right_hand", "left_upper_arm", "left_lower_arm", "left_hand", "right_upper_leg", "right_lower_leg", "right_foot", "left_upper_leg", "left_lower_leg", "left_foot"])
@@ -169,8 +169,9 @@ class ChargenScript(DefaultScript, Stats, LedgerHandler):
     def reset_resources(self):
         "Resets lifestyle and purchases."
         self.db.lifestyle = ""
-        self.db.nuyen.configure(self.obj, "nuyen", 0)
-        self.db.essence.configure(self.obj, "essence", 6)
+        self.ldb.nuyen.configure(self.obj, "nuyen", 0)
+        self.ldb.essence.configure(self.obj, "essence", 6)
+        # TODO: Also delete log entries.
         self.db.augments, self.db.gear = {}, {}
         # TODO: The above line is highly suspect.
 
@@ -478,15 +479,12 @@ class ChargenScript(DefaultScript, Stats, LedgerHandler):
         # Write metatype
         char.db.metatype = self.db.metatype
         char.db.spec_attr = self.db.spec_attr
-        self.db.karma.record(0 - self.db.metakarma, "Metatype cost.",
-                             origin="Chargen")
+        self.ldb.karma.record(0 - self.db.metakarma, "Metatype cost.",
+                              origin="Chargen")
 
         # Write attributes
         char.db.attr = self.db.attr
-        for attr in self.db.attr:
-            # Base attributes merge with bought attributes, so we don't need
-            # to track meta_attr any more.
-            char.db.attr[attr] += self.db.meta_attr[attr][0]
+        char.db.meta_attr = self.db.meta_attr
 
         # Write skills
         char.db.active_skills = self.db.active_skills
@@ -512,8 +510,8 @@ class ChargenScript(DefaultScript, Stats, LedgerHandler):
         for qual, rank in negative.items():
             neg += self.query_qualities(qual)['rank'][rank - 1]
 
-        self.db.karma.record(0 - pos, "Positive qualities.", origin="Chargen")
-        self.db.karma.record(neg, "Negative qualities.", origin="Chargen")
+        self.ldb.karma.record(0 - pos, "Positive qualities.", origin="Chargen")
+        self.ldb.karma.record(neg, "Negative qualities.", origin="Chargen")
 
 
 class ChargenRoom(DefaultRoom):
@@ -1483,7 +1481,7 @@ class CmdSetQuality(SemanticCommand):
             pos += self.query_qualities(qual)['rank'][rank - 1]
         for qual, rank in negative.items():
             neg += self.query_qualities(qual)['rank'][rank - 1]
-        karma = cg.db.karma.value - cg.db.metakarma - pos + neg
+        karma = cg.ldb.karma.value - cg.db.metakarma - pos + neg
 
         pos_bound, neg_bound = 25, 25
         if query["type"] == "positive":

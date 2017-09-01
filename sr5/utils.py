@@ -183,6 +183,50 @@ class CatDbHolder(object):
     all = property(get_all)
 
 
+class LogsHandler:
+    """
+    Handler for ledgers to compensate for Evennia having really weird behavior
+    regarding attributes that have categories.
+    """
+
+    def __init__(self, obj):
+        self.obj = obj
+        self._objid = obj.id
+
+    # @property logs
+    def __logs_get(self):
+        """
+        Attribute handler wrapper. Allows for the syntax
+           obj.logs.attrname = value
+             and
+           value = obj.logs.attrname
+             and
+           del obj.logs.attrname
+             and
+           all_attr = obj.logs.all() (unless there is an attribute
+                named 'all', in which case that will be returned instead).
+        """
+        try:
+            return self._logs_holder
+        except AttributeError:
+            self._logs_holder = CatDbHolder(self, 'attributes',
+                                           category="Logs")
+            return self._logs_holder
+
+    # @db.setter
+    def __logs_set(self, value):
+        "Stop accidentally replacing the db object"
+        string = "Cannot assign directly to db object! "
+        string += "Use logs.attr=value instead."
+        raise Exception(string)
+
+    # @db.deleter
+    def __logs_del(self):
+        "Stop accidental deletion."
+        raise Exception("Cannot delete the db object!")
+    logs = property(__logs_get, __logs_set, __logs_del)
+
+
 class LedgerHandler:
     """
     Handler for ledgers to compensate for Evennia having really weird behavior
@@ -217,7 +261,7 @@ class LedgerHandler:
     def __ldb_set(self, value):
         "Stop accidentally replacing the db object"
         string = "Cannot assign directly to db object! "
-        string += "Use db.attr=value instead."
+        string += "Use ldb.attr=value instead."
         raise Exception(string)
 
     # @db.deleter

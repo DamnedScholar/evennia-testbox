@@ -35,6 +35,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # any commands you add below will overload the default ones.
         #
         self.add(CmdSheet())           # key: sheet
+        self.add(CmdStatView())        # key: stat
         self.add(CmdBody())            # key: body, anatomy
         self.add(CmdCGStart())         # key: chargen, cg
         self.add(CmdShowMe())          # key: showme

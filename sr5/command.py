@@ -9,55 +9,27 @@ import pyparsing as pp
 from decimal import Decimal
 import math
 import string
+import inspect
 import evennia
 from evennia import Command as BaseCommand
 from evennia import default_cmds
 from evennia.utils import evtable
-
-# Each Command implements the following methods, called
-# in this order (only func() is actually required):
-#     - at_pre_cmd(): If this returns True, execution is aborted.
-#     - parse(): Should perform any extra parsing needed on self.args
-#         and store the result on self.
-#     - func(): Performs the actual work.
-#     - at_post_cmd(): Extra actions, often things done after
-#         every command, like prompts.
+from fuzzywuzzy import process
+from sr5.data.base_stats import *
+from sr5.data.metatypes import *
+from sr5.data.skills import *
+from sr5.data.qualities import *
+from sr5.msg_format import mf
+from sr5.utils import (a_n, itemize, flatten, LedgerHandler, SlotsHandler,
+                       validate, ureg)
+from sr5.system import Stats
 
 
 class SemanticCommand(default_cmds.MuxCommand):
     """
-    This sets up the basis for a MUX command. The idea
-    is that most other Mux-related commands should just
-    inherit from this and don't have to implement much
-    parsing of their own unless they do something particularly
-    advanced.
-
-    Note that the class's __doc__ string (this text) is
-    used by Evennia to create the automatic help entry for
-    the command, so make sure to document consistently here.
+    This is a replacement command parent that spits out a more semantically
+    meaningful cluster of command parts. It should only override parse().
     """
-    def has_perm(self, srcobj):
-        """
-        This is called by the cmdhandler to determine
-        if srcobj is allowed to execute this command.
-        We just show it here for completeness - we
-        are satisfied using the default check in Command.
-        """
-        return super(MuxCommand, self).has_perm(srcobj)
-
-    def at_pre_cmd(self):
-        """
-        This hook is called before self.parse() on all commands
-        """
-        pass
-
-    def at_post_cmd(self):
-        """
-        This hook is called after the command has finished executing
-        (after self.func()).
-        """
-        pass
-
     def parse(self):
         """
         This method is called by the cmdhandler once the command name
@@ -233,6 +205,96 @@ class SemanticCommand(default_cmds.MuxCommand):
         self.caller.msg(string)
 
 
+class CmdStatView(SemanticCommand, Stats):
+    """
+    Shows the details for a stat requested by the user.
+    """
+
+    key = "stat"
+    help_category = "Shadowrun 5e"
+
+    def func(self):
+        "Active function."
+        caller = self.caller
+        # IDEA: Maybe the view could include the current rating possessed by
+        # the caller.
+
+        # Route the user to where they need to go.
+        lists = {
+            "Metatypes": (Metatypes.meta_attr.keys(), self.view_metatype),
+            "Attributes": (
+                Attr.names.keys() + SpecAttr.names.keys(), self.view_attr),
+            "Skills": (
+                Skills.active.keys() + Skills.knowledge.keys() +
+                ["language"],
+                self.view_skill),
+            "Qualities": (
+                PositiveQualities.names + NegativeQualities.names,
+                self.view_quality),
+            # "Spells": (Spells.names.keys(), self.view_spell),
+            # "Forms": (Forms.names.keys(), self.view_form),
+        }
+
+        to_show = [(l, n[0])
+                   for l, d in lists.items()
+                   for n in process.extract(self.target, d[0])
+                   if n[1] > 80]
+
+        if len(to_show) > 1:
+            caller.msg(mf.tag + self.view_disambiguation(to_show))
+
+        view_method = []
+
+    color = {
+        "metatype": "h",
+        "attr": "h",
+        "skill": "h",
+        "quality": "h",
+        "spell": "h",
+        "form": "h"
+    }
+
+    def colorize(self, text, cat):
+        """
+        Maybe you want each stat category to have a different color. This
+        function makes that happen, as long as its companion dict (self.color)
+        has an entry for that category.
+        """
+        return "|{}{}|n".format(self.color.get(cat, ""), text)
+
+    def view_disambiguation(self, to_show):
+        to_show = [
+            self.colorize("{}: {}".format(l, n.title()), l)
+            for l, n in to_show]
+        return '"{}" looks like multiple entries in the system. Did you mean' \
+               ' to search for one of the following? {}'.format(
+                    self.target, itemize(to_show)
+               )
+
+    def view_metatype(self, caller):
+        "Display attribute blurbs."
+        pass
+
+    def view_attr(self, caller):
+        "Display attribute blurbs."
+        pass
+
+    def view_skill(self, caller):
+        "Display skill blurbs."
+        pass
+
+    def view_quality(self, caller):
+        "Display quality blurbs."
+        pass
+
+    def view_spell(self, caller):
+        "Display spell blurbs."
+        pass
+
+    def view_form(self, caller):
+        "Display form blurbs."
+        pass
+
 class CmdSheet(default_cmds.MuxCommand):
     """
     Displays your sheet, or initializes a blank sheet (for restarting chargen, hard-resetting in the case of bugs, or giving sheets to objects that don't have them).
@@ -247,8 +309,6 @@ class CmdSheet(default_cmds.MuxCommand):
         sheet/show
         sheet/show <target>
     """
-
-    # TODO: Make the sheet silently ask the chargen script for information instead of the player object if the player is unapproved.
 
     key = "sheet"
     help_category = "Shadowrun 5e"
