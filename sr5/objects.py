@@ -334,6 +334,7 @@ class Cyberlimb(Augment):
         self.db.custom_str = 0
         self.db.custom_agi = 0
         self.db.costs = {"nuyen": 0, "essence": 0}
+        self.db.slots = {"body": []}
 
     @classmethod
     def at_pre_purchase(self, caller, item, options,
@@ -410,6 +411,7 @@ class Cyberlimb(Augment):
         # they once were. Maybe I should reconsider this.
         slots = [s.lower() for s in slots["body"]]
         costs = {"nuyen": 0}
+        capacity = 0
         # This function doesn't actually care about left or right.
         if "right_arm" in slots or "left_arm" in slots:
             slots += ["right_upper_arm"]

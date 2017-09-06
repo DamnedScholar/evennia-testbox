@@ -74,6 +74,7 @@ def itemize(words, case="no change"):
 
 
 def flatten(d):
+    "Takes a dict and returns a list of strings in form `key: value`."
     if not d:
         return None
     output = []
@@ -152,8 +153,13 @@ class StatMsg:
             r = self.msg
         else:
             raise KeyError("StatMsg only has two members.")
+        return r
 
 
+# This is my addition to Evennia's attributes system to allow for the intuitive
+# `.db` syntax form to be used for attributes that have categories. This should
+# be implemented only for categories that will be used a lot and will remain
+# relatively static.
 class CatDbHolder(object):
     "Holder for allowing property access of attributes based on categories."
     def __init__(self, obj, name, category="", manager_name='attributes'):
@@ -306,6 +312,20 @@ class SlotsHandler:
         self.obj = obj
         self._objid = obj.id
 
+    def is_name_valid(self, test):
+        try:
+            exec(test + " = 1")
+        except SyntaxError:
+            raise ValueError("You have to limit slot category names to "
+                             "characters that are valid in variable names.")
+
+    def all(self):
+        d = self.obj.attributes.get(category="slots", return_obj=True)
+
+        r = [(s.key, s.value) for s in d]
+
+        return dict(r)
+
     def add(self, name, num=0, *slots):
         """
         Create an array of slots, or add additional slots to an existing array.
@@ -316,8 +336,9 @@ class SlotsHandler:
             num: Any unnamed slots.
         """
 
-        name = "slots_{}".format(name)
-        existing = self.obj.attributes.get(name)
+        self.is_name_valid(name)
+        existing = self.obj.attributes.get(name, category="slots")
+        self.obj.msg("Existing attribute {}: {}".format(name, repr(existing)))
         slot_list = []
         for arg in slots:
             if isinstance(arg, list):
@@ -332,15 +353,15 @@ class SlotsHandler:
         # keys and store the highest value.
         highest = 0
         if existing:
-            for key in existing.keys():
-                if isinstance(key, int) and key > highest:
-                    highest = key
+            for slot in existing.keys():
+                if isinstance(slot, int) and slot > highest:
+                    highest = slot
         for i in range(highest, highest + num):
             slot_list.append(i+1)
-        slots = dict(zip(slot_list, [""] * len(slot_list)))
+        slots = {slot: "" for slot in slot_list}
 
         if not existing:
-            new = self.obj.attributes.add(name, slots)
+            new = self.obj.attributes.add(name, slots, category="slots")
 
             return True
         else:
@@ -356,8 +377,8 @@ class SlotsHandler:
         but if you don't catch that data, it WILL be lost.
         """
 
-        name = "slots_{}".format(name)
-        existing = self.obj.attributes.get(name)
+        self.is_name_valid(name)
+        existing = self.obj.attributes.get(name, category="slots")
         if not existing: # If the named array isn't there, don't bother.
             return False
         slot_list = []
@@ -400,42 +421,39 @@ class SlotsHandler:
                     try:
                         slots = target.slots
                     except AttributeError:
-                        return (False, "No slots detected.")
+                        return StatMsg(False, "No slots detected.")
 
         modified = {}
 
+        if not isinstance(slots, dict):
+            return StatMsg(False, "You have to declare slots in the form "
+                           "`{key: [values]}`.")
+
         for name in slots:
-            array = self.obj.attributes.get("slots_{}".format(name))
+            array = self.obj.attributes.get(name, category="slots")
+            if not array:
+                return StatMsg(False, "You need to add slots before you can "
+                               "attach anything.")
 
             # For any integers in `slots`, remove them and add to list of
             # numbers to be appended.
-            highest = 0
-            numbered = []
-            place = 0
-            for slot in slots[name]:
-                if isinstance(slot, int):
-                    for i in range(highest, highest + slot):
-                        numbered.append(i)
-                    highest += slot
-                    slots[name].pop(place)
-                elif not isinstance(slot, str):
-                    slots[name].pop(place)
-                    slots[name].append(str(slot))
+            numbered = [n for n in array.keys()
+                        if isinstance(n, int) and not array[n]]
 
-                place += 1
+            self.obj.msg("Numbered slots: {}".format(numbered))
 
             new = {}
 
-            for slot in slots[name]:
+            for slot in numbered:
                 if slot not in array.keys():
-                    return (False, "Slot name not recognized.")
+                    return StatMsg(False, "Slot name not recognized.")
                 if array[slot]:
-                    return (False, "The slot is already filled by {}.".format(
+                    return StatMsg(False, "The slot is already filled by {}.".format(
                         str(array[slot])
                     ))
                 new.update({slot: target})
 
-            highest = 0
+            highest = 1
             success = 0
             for i in range(0, len(numbered)):
                 for j in range(highest, len(array), 1):
@@ -446,67 +464,55 @@ class SlotsHandler:
                         break
 
             if success is not len(numbered):
-                return (False, "Insufficient slots.")
+                return StatMsg(False, "Insufficient slots.")
 
             array.update(new)
-            modified.update(array)
+            modified.update({name: new})
 
         return modified
 
     def drop(self, target, slots=None):
-        "Attempt to drop the target from all slots it occupies, or the list of slots provided. This function is messy in that it doesn't care if the slots exist or not, it just tries to drop everything it is given."
-
-        if not slots:
-            slots = target.db.slots
-
-            if not slots:
-                slots = target.ndb.slots
-                if not slots:
-                    try:
-                        slots = target.slots
-                    except AttributeError:
-                        return (False, "No slots detected.")
+        """
+        Attempt to drop the target from all slots it occupies, or the list of
+        slots provided. This function is messy in that it doesn't care if the
+        slots exist or not, it just tries to drop everything it is given. This
+        function will return a dict of any emptied slots, so it can act as a
+        pop(), but if you don't catch that data, it WILL be lost.
+        """
+        if slots and not isinstance(slots, dict):
+            return StatMsg(False, "You have to declare slots in the form "
+                           "`{key: [values]}`.")
 
         modified = {}
+        arrays = self.obj.attributes.get(category="slots", return_obj=True)
+
+        if not arrays:
+            return StatMsg(False, "You don't seem to have any slots to use.")
+        if not slots:
+            slots = [array.key for array in arrays]
 
         for name in slots:
-            array = self.obj.attributes.get("slots_{}".format(name))
+            for array in arrays:
+                new = {}
+                mod = []
 
-            # For any integers in `slots`, remove them and add to list of
-            # numbers to be appended.
-            highest = 0
-            numbered = []
-            place = 0
-            for slot in slots[name]:
-                if isinstance(slot, int):
-                    for i in range(highest, highest + slot):
-                        numbered.append(i)
-                    highest += slot
-                    slots[name].pop(place)
-                elif not isinstance(slot, str):
-                    slots[name].pop(place)
-                    slots[name].append(str(slot))
+                if isinstance(slots, list):
+                    for slot in array:
+                        if slot is target:
+                            new.update({slot: ''})
+                            mod.append(slot)
+                else:
+                    for slot in slots:
+                        if array[slot] is target:
+                            new.update({slot: ''})
+                            mod.append(slot)
 
-                place += 1
+                comp = len(mod)
+                mod = [s for s in mod if not isinstance(s, int)]
+                mod[0:0] = [comp - len(mod)]
 
-            new = {}
-
-            for slot in slots[name]:
-                if array[slot] is target:
-                    new.update({slot: ''})
-
-            highest = 0
-            for i in range(0, len(numbered)):
-                for entry in array.keys():
-                    if isinstance(entry, int) and entry > highest:
-                        highest = entry
-                for j in range(highest, 0, -1):
-                    if array[j] is target:
-                        new.update({j: ''})
-                        break
-
-            array.update(new)
-            modified.update(array)
+                array.update(new)
+                modified.update({name: mod})
 
         return modified
 

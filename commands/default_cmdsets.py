@@ -18,6 +18,7 @@ from evennia import default_cmds
 from sr5.command import *
 from sr5.chargen import CmdCGStart
 
+
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
     The `CharacterCmdSet` contains general in-game commands like `look`,
