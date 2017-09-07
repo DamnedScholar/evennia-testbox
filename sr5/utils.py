@@ -425,7 +425,9 @@ class SlotsHandler:
 
         modified = {}
 
-        if not isinstance(slots, dict):
+        self.obj.msg("slots: {} ({})".format(repr(slots), type(slots)))
+
+        if not isinstance(slots, (dict, _SaverDict)):
             return StatMsg(False, "You have to declare slots in the form "
                            "`{key: [values]}`.")
 
@@ -435,36 +437,40 @@ class SlotsHandler:
                 return StatMsg(False, "You need to add slots before you can "
                                "attach anything.")
 
-            # For any integers in `slots`, remove them and add to list of
-            # numbers to be appended.
-            numbered = [n for n in array.keys()
-                        if isinstance(n, int) and not array[n]]
-
-            self.obj.msg("Numbered slots: {}".format(numbered))
-
             new = {}
 
-            for slot in numbered:
-                if slot not in array.keys():
-                    return StatMsg(False, "Slot name not recognized.")
-                if array[slot]:
-                    return StatMsg(False, "The slot is already filled by {}.".format(
-                        str(array[slot])
-                    ))
-                new.update({slot: target})
+            # Get the number of open slots, then count to see if there are
+            # enough for the attachment.
+            numbered = [n for n in array.keys()
+                        if isinstance(n, int) and not array[n]]
+            requirement = [n for n in slots[name] if isinstance(n, int)] + [0]
+            requirement = sum(requirement)
+            if len(numbered) < requirement:
+                return StatMsg(False, "You're running out of numbered slots. "
+                               "You need to add or free up slots before you "
+                               "can attach this.")
 
-            highest = 1
-            success = 0
-            for i in range(0, len(numbered)):
-                for j in range(highest, len(array), 1):
-                    if not array[j]:
-                        new.update({j: target})
-                        success += 1
-                        highest = j
-                        break
+            self.obj.msg("Numbered: {}".format(numbered))
 
-            if success is not len(numbered):
-                return StatMsg(False, "Insufficient slots.")
+            if numbered:
+                new.update({numbered[i]: target
+                            for i in range(0, requirement)})
+
+            self.obj.msg("New slots: {}".format(new))
+
+            # Get the list of open named slots and check to see if all of the
+            # requested slots are members of them.
+            named = [n for n in array.keys()
+                     if isinstance(n, str) and not array[n]]
+            requirement = [n for n in slots[name] if isinstance(n, str)]
+            if requirement and not set(requirement).issubset(named):
+                return StatMsg(False, "You're running out of named slots. "
+                               "You need to add or free up slots before you "
+                               "can attach this.")
+
+            if named:
+                new.update({req: target
+                            for req in requirement})
 
             array.update(new)
             modified.update({name: new})
@@ -473,8 +479,8 @@ class SlotsHandler:
 
     def drop(self, target, slots=None):
         """
-        Attempt to drop the target from all slots it occupies, or the list of
-        slots provided. This function is messy in that it doesn't care if the
+        Attempt to drop the target from all slots it occupies, or the slots
+        provided. This function is messy in that it doesn't care if the
         slots exist or not, it just tries to drop everything it is given. This
         function will return a dict of any emptied slots, so it can act as a
         pop(), but if you don't catch that data, it WILL be lost.
@@ -485,36 +491,70 @@ class SlotsHandler:
 
         modified = {}
         arrays = self.obj.attributes.get(category="slots", return_obj=True)
+        if not isinstance(arrays, list):
+            arrays = [arrays]
 
+        # If no slots are declared, the object should be dropped from all slots
+        # without regard for which slots the object thinks that it should be
+        # occupying.
         if not arrays:
             return StatMsg(False, "You don't seem to have any slots to use.")
         if not slots:
             slots = [array.key for array in arrays]
 
+        # At this point, the attribute objects only get in the way, so we
+        # extract the values.
+        arrays = {array.key: array.value for array in arrays}
+
+        self.obj.msg("Dropping {} from {} in {}".format(target, slots, arrays))
+
         for name in slots:
-            for array in arrays:
-                new = {}
-                mod = []
+            new = {}
+            mod = []
 
-                if isinstance(slots, list):
-                    for slot in array:
-                        if slot is target:
-                            new.update({slot: ''})
-                            mod.append(slot)
-                else:
-                    for slot in slots:
-                        if array[slot] is target:
-                            new.update({slot: ''})
-                            mod.append(slot)
+            self.obj.msg("Investigating {}.".format(name))
 
-                comp = len(mod)
-                mod = [s for s in mod if not isinstance(s, int)]
-                mod[0:0] = [comp - len(mod)]
+            if isinstance(slots, (list, tuple, set)):
+                # If the input is not a dict, it is interpreted as a list of
+                # category names and all slots are emptied of the target.
+                for slot, contents in arrays[name].items():
+                    if contents is target:
+                        new.update({slot: ''})
+                        mod.append(slot)
+            elif isinstance(slots, dict):
+                # If the input is a dict, only named slots will be emptied.
+                # Numbered slots should be specified as a single number.
+                i = 0
+                numbered = [i + 1 for k in slots[name] for i in range(i, k)
+                            if isinstance(k, int)]
+                named = [k for k in slots[name]
+                         if isinstance(k, str)]
+                self.obj.msg("Numbered slots from {}: {}".format(repr(slots[name]), repr(numbered)))
+                for slot in named:
+                    self.obj.msg("\tChecking {}".format(slot))
+                    if arrays[name][slot] is target:
+                        new.update({slot: ''})
+                        mod.append(slot)
+                for i in range(0, len(numbered)):
+                    for check in arrays[name]:
+                        if isinstance(check, int) and arrays[name][check] is target:
+                            new.update({check: ''})
+                            mod.append(check)
 
-                array.update(new)
-                modified.update({name: mod})
+            else:
+                return StatMsg(False, "The slots requested are not in an "
+                               "appropriate type (a list, tuple, or set "
+                               "of attribute names, or a dict of category "
+                               "and slot names).")
 
-        return modified
+            comp = len(mod)
+            # mod = [s for s in mod if not isinstance(s, int)]
+            # mod[0:0] = [comp - len(mod) if comp - len(mod) > 0]
+
+            arrays[name].update(new)
+            modified.update({name: mod})
+
+        return {k: v for k, v in modified.items() if v}
 
 
 def validate(target, validate, result_categories):

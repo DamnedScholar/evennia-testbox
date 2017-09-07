@@ -172,7 +172,7 @@ class TestSlotsHandler(EvenniaTest):
             add = self.obj.slots.add("add-ons", 0, ["left", "right"])
 
         self.obj.slots.add("addons", 2)
-        self.assertEqual(self.obj.db.slots_addons,
+        self.assertEqual(self.obj.attributes.get("addons", category="slots"),
                          {1: "", 2: "", "left": "", "right": ""})
 
     def test_delete(self):
@@ -180,7 +180,7 @@ class TestSlotsHandler(EvenniaTest):
 
         delete = self.obj.slots.delete("addons", 1, ["right"])
         self.assertIsInstance(delete, dict)
-        self.assertEqual(self.obj.db.slots_addons,
+        self.assertEqual(self.obj.attributes.get("addons", category="slots"),
                          {1: "", "left": ""})
 
     def test_attach(self):
@@ -208,13 +208,13 @@ class TestSlotsHandler(EvenniaTest):
         # Successful attachment while overriding slots.
         attach = self.obj.slots.attach(self.slo3, {"addons": [1]})
         expected = {"addons": {2: self.slo3}}
-        self.assertEqual(str(attach), expected)
+        self.assertEqual(attach, expected)
 
     def test_drop(self):
         self.test_attach()
 
         drop = self.obj.slots.drop(self.slo3)
-        expected = {"addons": [1]}
+        expected = {"addons": [2]}
         self.assertEqual(drop, expected)
 
     def tearDown(self):
