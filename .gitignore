@@ -1,4 +1,5 @@
 *.py[cod]
+process-palette.json
 
 # C extensions
 *.so
