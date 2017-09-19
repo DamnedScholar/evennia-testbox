@@ -17,6 +17,7 @@ from django.db.models import Q
 import evennia
 from evennia.utils.dbserialize import _SaverDict, _SaverList, _SaverSet
 from sr5.models import AccountingLog, AccountingIcetray, Ledger
+wiz = evennia.search_player("#1")[0]
 
 
 ureg = UnitRegistry()
@@ -45,7 +46,7 @@ def a_n(words):
 #     "Takes an iterable and returns the largest number, defaulting to 0."
 #     if not isinstance(l, (dict, _SaverDict, OrderedDict, list, _SaverList,
 #                           set, _SaverSet, frozenset, tuple)):
-#         return StatMsg(False, "This function requires an iterable.")
+#         raise Exception("This function requires an iterable.")
 #     if isinstance(l, (dict, _SaverDict, OrderedDict)):
 #         l = l.keys()
 #     else:
@@ -61,7 +62,7 @@ def a_n(words):
 #     "Takes an iterable and returns the largest number, defaulting to 0."
 #     if not isinstance(l, (dict, _SaverDict, OrderedDict, list, _SaverList,
 #                           set, _SaverSet, frozenset, tuple)):
-#         return StatMsg(False, "This function requires an iterable.")
+#         raise Exception("This function requires an iterable.")
 #     if isinstance(l, (dict, _SaverDict, OrderedDict)):
 #         l = l.keys()
 #     else:
@@ -354,16 +355,7 @@ class SlotsHandler:
         self.obj = obj
         self._objid = obj.id
 
-    # Internal utility methods
-    def is_name_valid(self, test):
-        "Internal function to check if the name is right."
-        try:
-            exec(test + " = 1")
-        except SyntaxError:
-            raise ValueError("You have to limit slot category names to "
-                             "characters that are valid in variable names.")
-
-    def defrag_nums(self, cats):
+    def __defrag_nums(self, cats):
         "Worker function to consolidate filled numbered slots."
         if not isinstance(cats, list):
             cats = [cats]
@@ -377,17 +369,22 @@ class SlotsHandler:
             numbered = [(k, v) for k, v in slots.items() if isinstance(k, int)]
             keys = [n[0] for n in numbered]
             values = [n[1] for n in numbered]
-            self.obj.msg("Values: {}".format(values))
             d = len(values) - 1
             empty = [values.pop(0) for i in range(0, d) if values[0] == ""]
-            values = values + empty
-            numbered = zip(keys, values)
+            numbered = zip(keys, values + empty)
             out.update(numbered)
             self.obj.attributes.add(a.key, out, category="slots")
 
     # Public methods
     def all(self, obj=False):
-        "Return a dict of all slots."
+        """
+        Args:
+            obj (bool): Whether or not to return the attribute objects.
+                (Default: False)
+
+        Returns:
+            slots (dict): A dict of all slots.
+        """
         d = self.obj.attributes.get(category="slots", return_obj=True)
 
         if not d:
@@ -408,19 +405,25 @@ class SlotsHandler:
         Create arrays of slots, or add additional slots to existing arrays.
 
         Args:
-            slots: A dict of slots to add. Since you can't add empty
+            slots (dict): A dict of slots to add. Since you can't add empty
                 categories, it would be pointless to pass a list to this
                 function, and so it doesn't accept lists for input.
+
+        Returns:
+            slots (dict): A dict of slots that have been successfully added.
         """
 
         if not isinstance(slots, (dict, _SaverDict)):
-            return StatMsg(False, "You have to declare slots in the form "
-                           "`{key: [values]}`.")
+            raise Exception("You have to declare slots in the form "
+                            "`{key: [values]}`.")
+
+        wiz.msg("Gonna add some slots! Yeah!")
 
         arrays = {a.key: a for a in self.obj.slots.all(obj=True)}
+        modified = {}
         for name in slots:
-            self.is_name_valid(name)
             existing = arrays.get(name, False)
+            self.obj.location.msg("-> Inspecting {}: {}".format(name, existing))
             # Add all string values to the slot list.
             to_add = [k for k in slots[name] if isinstance(k, str)]
             # Iterate through numerical values in the input and store the sum.
@@ -438,10 +441,12 @@ class SlotsHandler:
             if not existing:
                 self.obj.attributes.add(name, to_add, category="slots")
                 new = self.obj.attributes.get(name, category="slots")
-                return new
+                modified.update({name: new})
             else:
                 array.update(to_add)
-                return array
+                modified.update({name: array})
+
+        return modified
 
     def delete(self, slots):
         """
@@ -454,17 +459,20 @@ class SlotsHandler:
         Args:
             slots (list or dict): Slot categories or individual slots to
                 delete.
+
+        Returns:
+            slots (dict): A dict of slots that have been successfully deleted
+                and their contents.
         """
 
         if not isinstance(slots, (dict, _SaverDict, list, _SaverList)):
-            return StatMsg(False, "You have to declare slots in the form "
-                           "`{key: [values]}`, or categories in the form "
-                           "`[values]`.")
+            raise Exception("You have to declare slots in the form "
+                            "`{key: [values]}`, or categories in the form "
+                            "`[values]`.")
 
         arrays = {a.key: a for a in self.obj.slots.all(obj=True)}
         deleted = {}
         for name in slots:
-            self.is_name_valid(name)
             existing = arrays.get(name, False)
             del_temp = {}
             if not existing:
@@ -476,11 +484,11 @@ class SlotsHandler:
                 # If the input is a list, it is interpreted as a list of
                 # category names and all slots are deleted.
                 deleted.update({name: array})
-                self.obj.attributes.delete(name, category="slots")
+                self.obj.attributes.remove(name, category="slots")
             elif isinstance(slots, (dict, _SaverDict)):
                 # If the input is a dict, only the specific slots indicated
                 # will be deleted.
-                self.defrag_nums(existing.key)  # Just in case.
+                self.__defrag_nums(existing.key)  # Just in case.
                 named = {k: v for k, v in array.items()
                          if isinstance(k, str)}
                 numbered = {k: v for k, v in array.items()
@@ -498,12 +506,16 @@ class SlotsHandler:
 
     def attach(self, target, slots=None):
         """
-        Attempt to attach the target in all slots it consumes. Optionally, the target's slots may be overridden.
+        Attempt to attach the target in all slots it consumes. Optionally, the
+        target's slots may be overridden.
 
         Args:
             target (object): The object to be attached.
             slots (list or dict, optional): If slot instructions are given,
                 this will completely override any slots on the object.
+
+        Returns:
+            slots (dict): A dict of slots that `target` has attached to.
         """
 
         if not slots:
@@ -514,21 +526,21 @@ class SlotsHandler:
                     try:
                         slots = target.slots
                     except AttributeError:
-                        return StatMsg(False, "No slots detected.")
+                        raise Exception("No slots detected.")
 
         modified = {}
 
         if not isinstance(slots, (dict, _SaverDict, list, _SaverList)):
-            return StatMsg(False, "You have to declare slots in the form "
-                           "`{key: [values]}`, or categories in the form "
-                           "`[values]`.")
+            raise Exception("You have to declare slots in the form "
+                            "`{key: [values]}`, or categories in the form "
+                            "`[values]`.")
 
         arrays = {a.key: a for a in self.obj.slots.all(obj=True)}
         for name in slots:
             array = arrays.get(name, False)
             if not array:
-                return StatMsg(False, "You need to add slots before you can "
-                               "attach things to them.")
+                raise Exception("You need to add slots before you can "
+                                "attach things to them.")
             else:
                 array = array.value
 
@@ -542,9 +554,9 @@ class SlotsHandler:
                 requirement = [n for n in slots[name] if isinstance(n, int)]
                 requirement = sum(requirement + [0])
                 if len(numbered) < requirement:
-                    return StatMsg(False, "You're running out of numbered "
-                                   "slots. You need to add or free up slots "
-                                   "before you can attach this.")
+                    raise Exception("You're running out of numbered "
+                                    "slots. You need to add or free up slots "
+                                    "before you can attach this.")
 
                 if numbered:
                     new.update({numbered[i]: target
@@ -556,9 +568,9 @@ class SlotsHandler:
                          if isinstance(n, str) and not array[n]]
                 requirement = [n for n in slots[name] if isinstance(n, str)]
                 if requirement and not set(requirement).issubset(named):
-                    return StatMsg(False, "You're running out of named slots. "
-                                   "You need to add or free up slots before "
-                                   "you can attach this.")
+                    raise Exception("You're running out of named slots. "
+                                    "You need to add or free up slots before "
+                                    "you can attach this.")
 
                 if named:
                     new.update({req: target
@@ -586,6 +598,9 @@ class SlotsHandler:
             target (object or `None`): The object being dropped.
             slots (dict or list, optional): Slot categories or individual slots
                 to drop from.
+
+        Returns:
+            slots (dict): A dict of slots that have been emptied.
         """
 
         arrays = self.obj.slots.all()
@@ -593,9 +608,9 @@ class SlotsHandler:
             slots = arrays.keys()
 
         if not isinstance(slots, (dict, _SaverDict, list, _SaverList)):
-            return StatMsg(False, "You have to declare slots in the form "
-                           "`{key: [values]}`, or categories in the form "
-                           "`[values]`.")
+            raise Exception("You have to declare slots in the form "
+                            "`{key: [values]}`, or categories in the form "
+                            "`[values]`.")
 
         modified = {}
 
@@ -603,7 +618,7 @@ class SlotsHandler:
         # without regard for which slots the object thinks that it should be
         # occupying.
         if not arrays:
-            return StatMsg(False, "You don't seem to have any slots to use.")
+            raise Exception("You don't seem to have any slots to use.")
         if not slots:
             slots = [cat for cat in arrays.keys()]
 
@@ -637,26 +652,29 @@ class SlotsHandler:
                             mod.update({check: array[check]})
 
             else:
-                return StatMsg(False, "The slots requested are not in an "
-                               "appropriate type (a list of attribute names, "
-                               "or a dict of category and slot names).")
+                raise Exception("The slots requested are not in an "
+                                "appropriate type (a list of attribute names, "
+                                "or a dict of category and slot names).")
 
             arrays[name].update(new)
             modified.update({name: mod})
 
-        self.defrag_nums(modified.keys())
+        self.__defrag_nums(modified.keys())
         return {k: v for k, v in modified.items() if v}
 
     def replace(self, target, slots=None):
         """
         Works exactly like `.slots.attach`, but first invokes `.slots.drop` on
-        all requested slots. The results of both commands are returned as a
-        tuple in the form `(drop, attach)`.
+        all requested slots.
 
         Args:
             target (object): The object to be attached.
             slots (list or dict, optional): If slot instructions are given,
                 this will completely override any slots on the object.
+
+        Returns:
+            results (tuple): The results of both commands are returned as a
+                tuple in the form `(drop, attach)`.
         """
 
         if not slots:
@@ -667,7 +685,9 @@ class SlotsHandler:
                     try:
                         slots = target.slots
                     except AttributeError:
-                        return StatMsg(False, "No slots detected.")
+                        raise Exception("You have to either have slots on "
+                                        "the target or declare them in the "
+                                        "method call.")
 
         drop = self.obj.slots.drop(None, slots)
         attach = self.obj.slots.attach(target, slots)
@@ -675,7 +695,10 @@ class SlotsHandler:
         return (drop, attach)
 
     def where(self, target):
-        "Return a dict of slots representing where target is attached."
+        """
+        Returns:
+            slots (dict): Slots where `target` is attached.
+        """
 
         arrays = self.obj.slots.all()
         # Filter out all empty entries.

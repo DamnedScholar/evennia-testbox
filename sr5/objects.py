@@ -14,7 +14,7 @@ from evennia.utils import spawner
 # entire game system. It won't matter with a small userbase, but a lot of
 # functions could potentially live in this file, and it should only import
 # what it needs when it needs it.
-from sr5.data.ware import *
+from sr5.data import ware
 from sr5.msg_format import mf
 from sr5.utils import (a_n, itemize, flatten, LedgerHandler, SlotsHandler,
                        validate, ureg)
@@ -166,6 +166,14 @@ class Extra(DefaultObject):
 
         return "Attribute " + stat + " set to " + str(result) + "."
 
+    def clean_delete(self, obj):
+        """
+        Try to gracefully delete the target. This is in a separate function
+        so that it can easily be overridden if a game is designed with
+        things that need their own deletion methods.
+        """
+        pass
+
     @classmethod
     def buy(self, caller, item, options,
             dest=None, costs={}, seller="", buyer=""):
@@ -192,6 +200,9 @@ class Extra(DefaultObject):
             buyer = caller
         can_afford = True
 
+        # Find the prototype and make it available.
+        item = (ware.__dict__[item], item)
+
         # The at_pre_purchase() hook on an Extra child is run before purchase
         # and has the ability to cancel the whole exchange. It should parse
         # the list of options into something usable and return a dict.
@@ -200,7 +211,7 @@ class Extra(DefaultObject):
         if not c:
             return False
         c.update({
-            "prototype": item,
+            "prototype": item[0],
             "location": dest
         })
         # Allow cost totals to be overridden in some cases.
@@ -227,16 +238,113 @@ class Extra(DefaultObject):
                 caller.msg(mf.tag + "You have {} {} left and {} will cost "
                            "{}".format(
                             ledgers[a[0]].value, ledgers[a[0]].currency,
-                            a_n(item), c['costs'][a[0]]))
+                            a_n(item[1]['key']), c['costs'][a[0]]))
             return False
 
         wiz.msg(repr(c))
 
-        item = spawner.spawn(c)[0]
+        # SlotsHandler Integration
+        # If you aren't using SlotsHandler in your game, this section of code
+        # should quietly do nothing.
+        try:
+            # This segment has two distinct behavior pathways. If `dest` is in
+            # chargen, all additions are treated as temporary and can be freely
+            # replaced. This is necessary as many players come up with
+            # characters piecemeal and need to be able to change their minds.
+            # If an individual game or game system wants to be strict about the
+            # order of purchases in chargen, that will have to be added.
+
+            # If `dest` isn't in chargen, all purchases are treated as
+            # permanent. This method will not remove anything that already
+            # exists in a slot and will fail with an error message that the
+            # player-facing command can handle. No currencies will be deducted
+            # and no record of the failed purchase will be made.
+            if dest.cg:
+                dest_slots = dest.cg.slots
+                mode = "chargen"
+            else:
+                dest_slots = dest.slots
+                mode = "normal"
+
+            # Look for slots first in the config object, then the prototype.
+            item_slots = c.get('slots', False)
+            if not item_slots:
+                item_slots = item[1].get('slots', False)
+
+            if dest_slots and item_slots:
+                all_slots = dest_slots.all()
+                # Filter `all_slots` for slots named in `item_slots` that
+                # contain something.
+                try:
+                    conflicts = {
+                        cat: {s: i for s in is_list
+                              for i in all_slots[cat].values()
+                              if all_slots[cat][s]}
+                        for cat, is_list in item_slots.items()
+                    }
+                except KeyError:
+                    caller.msg(mf.tag + "You don't have sufficient slots for "
+                               "that.")
+                conflicts = {c: s for c, s in conflicts.items() if s}
+                if conflicts:
+                    conflict_objs = [obj for c in conflicts.values()
+                                     for obj in c.values()]
+
+                if mode == "chargen":
+                    # Cleanly replace anything already in the slot. Since stats
+                    # in chargen are considered temporary, this will be a
+                    # destructive function and destroy any object associated
+                    # with the slot. The deletion behavior will be handled
+                    # by the `clean_delete()` method, so that it can be
+                    # easily overridden.
+                    if conflicts:
+                        conflict_errs, err_queue, err_msg = [], [], ""
+                        drop_queue = [(obj, dest_slots.where(obj))
+                                      for obj in conflict_objs]
+                        drop_msg = [
+                            ("{} has been dropped from {}".format(
+                                str(obj[0]), itemize(flatten(obj[1]))),
+                             obj[0])
+                            for obj in drop_queue
+                        ]
+                        for i in range(0, len(drop_msg)):
+                            # Attempt to cleanly delete the object.
+                            if not self.clean_delete(
+                                        drop_msg[i][1], dest_slots):
+                                conflict_errs.append(obj)
+
+                        if conflict_errs:
+                            drop_msg = [msg for msg, obj in drop_msg
+                                        if obj and obj not in conflict_errs]
+                            drop_queue = [d for d in drop_queue
+                                          if d[0] not in conflict_errs]
+                            err_queue.append(
+                                ("{}".format(
+                                    str(obj[0]), itemize(flatten(obj[1]))),
+                                 obj[0])
+                                for obj in conflict_errs
+                            )
+                            err_msg = " The game was unable to remove {}. " \
+                                      "All other slots have been cleared, " \
+                                      "but the attachment did not go " \
+                                      "through. You may need to delete the " \
+                                      "remainder individually, or contact " \
+                                      "code staff if you believe this to be " \
+                                      "an error.".format(itemize(err_queue))
+                        # TODO: Iterate through drop_queue and drop all
+                        # objects that still exist in some form.
+                        caller.msg(mf.tag + "{}.{}".format(
+                                                   itemize(drop_msg), err_msg))
+        except AttributeError:
+            # If the destination has no slots, fail silently.
+            # Maybe there should be a debug message here.
+            pass
+
+        purchase = spawner.spawn(c)[0]
 
         if seller:
             seller = " from {}".format(seller)
-        reason = "Purchased {}{}.".format(item.key, seller)
+        reason = "Purchased {}{}.".format(purchase.key, seller)
 
         results = [(c_name, ledger.record(0 - cost, reason, buyer.dbref))
                    for c_name, cost in costs.items()
@@ -244,9 +352,9 @@ class Extra(DefaultObject):
                    if c_name.lower() == l_name.lower()]
 
         for n, r in results:
-            item.attributes.set("logs_" + n, r, category="logs")
+            purchase.attributes.set("logs_" + n, r, category="logs")
 
-        return item
+        return purchase
 
         #     if attach[0] is False:
         #         purchased.delete()
@@ -352,8 +460,7 @@ class Cyberlimb(Augment):
         grade = "standard"
 
         # Find the prototype.
-        exec("proto = " + item)
-        slots = proto['slots']
+        slots = item[1]['slots']
 
         synthetic = bool([o for o in options if o in "synthetic"])
         grade = [g for o in options for g in grades if o in g]
@@ -391,7 +498,6 @@ class Cyberlimb(Augment):
 
         return {
             "costs": costs,
-            "prototype": item,
             "custom_str": strength,
             "custom_agi": agility,
             "synthetic": synthetic,

@@ -132,7 +132,7 @@ class SlottableObjectOne(DefaultObject):
     """
 
     def at_object_creation(self):
-        self.slots = {"addons": ["left"]}
+        self.db.slots = {"addons": ["left"]}
 
 
 class SlottableObjectTwo(DefaultObject):
@@ -142,7 +142,7 @@ class SlottableObjectTwo(DefaultObject):
     """
 
     def at_object_creation(self):
-        self.slots = {"addons": [1, "right"]}
+        self.db.slots = {"addons": [1, "right"]}
 
 
 class SlottableObjectThree(DefaultObject):
@@ -152,7 +152,7 @@ class SlottableObjectThree(DefaultObject):
     """
 
     def at_object_creation(self):
-        self.slots = {"addons": ["left"]}
+        self.db.slots = {"addons": ["left"]}
 
 
 class TestSlotsHandler(EvenniaTest):
@@ -173,9 +173,6 @@ class TestSlotsHandler(EvenniaTest):
         add = self.obj.slots.add({"addons": ["left", "right"]})
         self.assertTrue(add)
 
-        with self.assertRaises(ValueError):
-            add = self.obj.slots.add({"add-ons": ["left", "right"]})
-
         self.obj.slots.add({"addons": [3, "y"]})
         self.assertEqual(self.obj.attributes.get("addons", category="slots"),
                          {1: "", 2: "", 3: "",
@@ -191,8 +188,8 @@ class TestSlotsHandler(EvenniaTest):
 
     def test_attach(self):
         # When no slots have been added first.
-        attach = self.obj.slots.attach(self.slo1)
-        self.assertIsInstance(attach, StatMsg)
+        with self.assertRaises(Exception):
+            attach = self.obj.slots.attach(self.slo1)
 
         # Add the slots.
         self.test_add()
@@ -213,8 +210,8 @@ class TestSlotsHandler(EvenniaTest):
         self.assertEqual(attach, expected)
 
         # Failed attachment because the slot is occupied.
-        attach = self.obj.slots.attach(self.slo3)
-        self.assertIsInstance(attach, StatMsg)
+        with self.assertRaises(Exception):
+            attach = self.obj.slots.attach(self.slo3)
 
         # Successful attachment while overriding slots.
         attach = self.obj.slots.attach(self.slo3, {"addons": [2, "y"]})
@@ -251,8 +248,8 @@ class TestSlotsHandler(EvenniaTest):
                          {"addons": [1]})
 
         # Try to drop an object with improper input.
-        drop = self.obj.slots.drop(self.slo3, "not here")
-        self.assertIsInstance(drop, StatMsg)
+        with self.assertRaises(Exception):
+            drop = self.obj.slots.drop(self.slo3, "not here")
 
         # Drop any objects from specific slots.
         drop = self.obj.slots.drop(None, {"addons": ["left"]})
@@ -280,7 +277,6 @@ class TestSlotsHandler(EvenniaTest):
         attach_2 = self.obj.slots.attach(self.slo2, {"addons": [1]})
         drop = self.obj.slots.drop(self.slo1)
 
-        self.obj.slots.defrag_nums("addons")
         self.assertEqual(self.obj.slots.where(self.slo2),
                          {"addons": [1]})
 
